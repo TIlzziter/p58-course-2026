@@ -1,0 +1,181 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 10 · Данные и метрики</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 10 · Данные и метрики</h1>
+<p>Неделя 20 · темы недель 19–20: события и метрики игры, когорты и удержание, оконные функции SQL,
+A/B-тесты и честные выводы. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Агрегаты</h2>
+<p><strong>A1.</strong> <code>percentile(xs, p)</code> — перцентиль с линейной интерполяцией, как в pandas: сортируем, позиция
+<code>pos = (n − 1) · p / 100</code>, между соседними элементами — по прямой. Округлить до 2. Пустой список или <code>p</code>
+вне <code>0..100</code> — <code>ValueError</code>. Почему время ответа сервера смотрят по p90, а не по среднему?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  percentile([50, 55, 60, 62, 2400], 90), percentile([10, 20, 30, 40], 50)
+Вывод: 1464.8, 25.0
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>moving_average(xs, k)</code> — скользящее среднее последних <code>k</code> значений, округлить до 2; первые <code>k − 1</code>
+позиций — <code>None</code>. Один проход: сумму окна не пересчитываем заново.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  moving_average([3, 5, 4, 8, 10], 3)
+Вывод: [None, None, 4.0, 5.67, 7.33]
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>histogram(xs, lo, hi, bins)</code> — <code>bins</code> корзин равной ширины <code>w</code> на <code>[lo, hi]</code>: корзина <code>i</code> —
+<code>[lo + i·w, lo + (i+1)·w)</code>, последняя включает <code>hi</code>. Значения вне <code>[lo, hi]</code> не считаем.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  histogram([0, 1, 2, 2.5, 5, 9.99, 10, 11, -1], 0, 10, 4)
+Вывод: [3, 1, 1, 2]
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>welford(xs)</code> — <code>xs</code> может быть генератором: один проход, память O(1). Ответ — <code>(n, среднее,
+выборочное стандартное отклонение)</code>, округлить до 4; при <code>n &lt; 2</code> отклонение <code>0.0</code>. Метод Уэлфорда: <code>d = x − mean</code>,
+<code>mean += d / n</code>, <code>m2 += d · (x − mean)</code>. Почему формула «среднее квадратов минус квадрат среднего» врёт на
+<code>1e9 + 4, 1e9 + 7, …</code>?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  welford([2, 4, 4, 4, 5, 5, 7, 9]), welford([])
+Вывод: (8, 5.0, 2.1381), (0, 0.0, 0.0)
+</code></pre></div>
+
+<h2>B. Время и когорты</h2>
+<p><strong>B1.</strong> <code>to_local_day(ts, offset_hours)</code> — время события в UTC (<code>"…Z"</code>) и пояс игрока → его локальная дата.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  to_local_day("2027-03-01T22:30:00Z", 3), to_local_day("2027-03-01T02:00:00Z", -5)
+Вывод: "2027-03-02", "2027-02-28"
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>dau_series(events, start, end)</code> — события <code>(user, "YYYY-MM-DD")</code> → число разных игроков в каждый
+день от <code>start</code> до <code>end</code> включительно. Дни без событий — <code>0</code>, а не пропуск.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ev = [(1, "2027-03-01"), (2, "2027-03-01"), (1, "2027-03-01"),
+             (1, "2027-03-02"), (3, "2027-03-04")]
+       dau_series(ev, "2027-03-01", "2027-03-05")
+Вывод: [2, 1, 0, 1, 0]
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>retention_matrix(events, max_day)</code> — когорта игрока — день его первого события. Для <code>N = 0..max_day</code> —
+доля когорты, у которой есть событие в день <code>когорта + N</code>, округлить до 2. День позже последнего дня
+в данных — <code>None</code> (ещё не наступил — это не ноль). Ключи — даты когорт по возрастанию.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ev = [(1, "2027-03-01"), (2, "2027-03-01"), (1, "2027-03-02"), (2, "2027-03-03"),
+             (3, "2027-03-02"), (3, "2027-03-03"), (1, "2027-03-03")]
+       retention_matrix(ev, 2)
+Вывод: {"2027-03-01": [1.0, 0.5, 1.0], "2027-03-02": [1.0, 1.0, None]}
+</code></pre></div>
+
+<h2>C. Как в SQL</h2>
+<p><strong>C1.</strong> <code>ranks(scores)</code> — места по убыванию очков для каждого элемента в исходном порядке: пара списков
+<code>(RANK, DENSE_RANK)</code>. У <code>RANK</code> после двух вторых мест идёт четвёртое, у <code>DENSE_RANK</code> — третье.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ranks([300, 250, 250, 100, 300, 90])
+Вывод: ([1, 3, 3, 5, 1, 6], [1, 2, 2, 3, 1, 4])
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>running_by_user(rows)</code> — аналог <code>SUM(value) OVER (PARTITION BY user ORDER BY day)</code>. Строки
+<code>(user, day, value)</code>, дни у одного игрока разные. Ответ — накопленная сумма для каждой строки в исходном
+порядке строк.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  running_by_user([("ann", "03-02", 5), ("bob", "03-01", 2), ("ann", "03-01", 3),
+                        ("bob", "03-03", 4), ("ann", "03-03", 1)])
+Вывод: [8, 2, 3, 6, 9]
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>pivot(rows)</code> — сводная таблица: <code>(строка, столбец, число)</code> → сумма в каждой клетке. Строки
+и столбцы по алфавиту, пустая клетка — <code>0</code>. Ответ — <code>(столбцы, [(строка, [значения]), …])</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  pivot([("ann", "win", 2), ("bob", "loss", 1), ("ann", "loss", 3),
+              ("ann", "win", 1), ("cat", "draw", 1)])
+Вывод: (["draw", "loss", "win"],
+        [("ann", [0, 3, 3]), ("bob", [0, 1, 0]), ("cat", [1, 0, 0])])
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>sessionize(events, gap)</code> — события <code>(user, ts)</code> (секунды, в любом порядке) → сессии каждого
+игрока: новая сессия начинается, если пауза <strong>больше</strong> <code>gap</code>. Сессия — <code>(начало, конец, событий)</code>. Ключи —
+по возрастанию <code>user</code>. Как сделать то же самое одним SQL-запросом через <code>LAG</code>?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ev = [(1, 100), (1, 0), (1, 250), (2, 10), (1, 1000), (1, 1100), (2, 5000)]
+       sessionize(ev, 300)
+Вывод: {1: [(0, 250, 3), (1000, 1100, 2)], 2: [(10, 10, 1), (5000, 5000, 1)]}
+</code></pre></div>
+
+<h2>D. Честные выводы</h2>
+<p><strong>D1.</strong> <code>binom_p(k, n)</code> — точный двусторонний тест «первый ход не даёт преимущества»: <code>k</code> побед первого
+игрока из <code>n</code> партий. <code>p = min(1, 2 · P(X ≤ min(k, n − k)))</code>, <code>X</code> — биномиальное с <code>p = 1/2</code> (<code>math.comb</code>),
+округлить до 4. Нужно <code>0 ≤ k ≤ n</code>, иначе <code>ValueError</code>; <code>n = 0</code> — <code>1.0</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  binom_p(9, 10), binom_p(2, 3), binom_p(540, 1000)
+Вывод: 0.0215, 1.0, 0.0124
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>ab_test(ca, na, cb, nb)</code> — z-тест двух долей: <code>p = (ca + cb) / (na + nb)</code>,
+<code>se = √(p(1 − p)(1/na + 1/nb))</code>, <code>z = (cb/nb − ca/na) / se</code>, <code>p_value = erfc(|z| / √2)</code>. Ответ — <code>(z, p_value)</code>,
+округлить до 4; <code>se = 0</code> — <code>(0.0, 1.0)</code>. Что значит <code>p_value = 0.0496</code> — и чего он <strong>не</strong> значит?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ab_test(120, 1000, 150, 1000), ab_test(5, 50, 9, 50)
+Вывод: (1.963, 0.0496), (1.1528, 0.249)
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>simpson(groups)</code> — группы игроков: имя → <code>(побед A, партий A, побед B, партий B)</code>. Кто лучше
+по доле побед в каждой группе и в сумме: <code>"A"</code>, <code>"B"</code> или <code>"tie"</code> (доли сравнивать перекрёстным умножением,
+без округления). <code>paradox</code> — в сумме выигрывает одна сторона, а во <strong>всех</strong> группах — другая.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  simpson({"новички": (81, 87, 234, 270), "опытные": (192, 263, 55, 80)})
+Вывод: {"overall": "B", "by_group": {"новички": "A", "опытные": "A"}, "paradox": True}
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Дашборд вашей игры (семинар 20): три метрики с определениями «что считаем событием» и график DAU
+с осью от нуля. Объясните одно число, которое вас удивило.</p>
+<p><strong>E2.</strong> SQL-запрос, который написал агент: запустите его на маленькой базе, где ответ известен заранее,
+и покажите, что он верен (или найдите ошибку).</p>
+<p><strong>E3.</strong> Баланс вашей игры: доля побед первого игрока, <code>binom_p</code> по ней и вывод — менять ли правила.</p>
+<p><strong>E4 · босс.</strong> A/B-эксперимент от распределения до решения. За каждую часть свой плюс.</p>
+<p>а) <code>assign(user_id, experiment, variants, weights)</code> — детерминированное распределение:
+<code>h = sha256(f"{experiment}:{user_id}")</code>, <code>bucket = int(первые 8 hex-символов, 16) % 100</code>. Веса в процентах
+(сумма 100, иначе <code>ValueError</code>) делят <code>0..99</code> на отрезки по порядку. Зачем в хэше имя эксперимента?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  [assign(u, "hint_v2", ["control", "test"], [50, 50]) for u in range(1, 5)]
+       assign(42, "hint_v2", ["a", "b", "c"], [20, 30, 50])
+Вывод: ["test", "control", "test", "test"]
+       "c"
+</code></pre></div>
+
+<p>б) <code>srm_check(counts, weights)</code> — sample ratio mismatch: группы не того размера — эксперимент сломан.
+<code>χ² = Σ (наблюдали − ждали)² / ждали</code>, <code>ждали = всего · вес / 100</code>; <code>df = вариантов − 1</code>. Хвост: при
+<code>df = 1</code> — <code>erfc(√(χ²/2))</code>, при <code>df = 2</code> — <code>exp(−χ²/2)</code>. Ответ — p-value, округлить до 4.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  srm_check([5000, 5000], [50, 50]), srm_check([5150, 4850], [50, 50])
+       srm_check([2100, 2900, 5000], [20, 30, 50])
+Вывод: 1.0, 0.0027
+       0.0155
+</code></pre></div>
+
+<p>в) <code>report(users, converted, experiment, weights=(50, 50))</code> — варианты <code>"control"</code> и <code>"test"</code>. Распределить
+через а), посчитать <code>n</code> и <code>conv</code> по вариантам, <code>srm_p</code> через б), <code>z</code> и <code>p</code> через D2 (control — A),
+<code>lift = доля test − доля control</code> (округлить до 4). <code>decision</code>: <code>srm_p &lt; 0.01</code> → <code>"broken"</code>; иначе при
+<code>p &lt; 0.05</code> — <code>"ship"</code>, если <code>lift &gt; 0</code>, и <code>"rollback"</code>, если <code>lift &lt; 0</code>; иначе <code>"wait"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  t = lambda u: assign(u, "hint_v2", ["control", "test"], [50, 50]) == "test"
+       users = range(1, 2001)
+       conv = {u for u in users if u % 5 == 0 or (t(u) and u % 10 == 3)}
+       report(users, conv, "hint_v2")
+Вывод: {"n": {"control": 982, "test": 1018}, "conv": {"control": 204, "test": 291},
+        "srm_p": 0.4208, "z": 4.0468, "p": 0.0001, "lift": 0.0781, "decision": "ship"}
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>misra_gries(stream, k)</code> — частые элементы потока, который не помещается в память: не больше
+<code>k − 1</code> счётчиков. Элемент уже есть — <code>+1</code>; есть свободное место — новый счётчик <code>1</code>; иначе все счётчики <code>−1</code>,
+нулевые удалить (новый элемент не добавляем). Ответ — счётчики по убыванию значения, при равенстве — по ключу.
+<code>heavy_hitters(stream, k)</code> — вторым проходом оставить кандидатов, встречающихся больше <code>n / k</code> раз
+(по возрастанию). Почему настоящий частый элемент не может потеряться?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  misra_gries("abracadabraalakazam", 3), heavy_hitters("abracadabraalakazam", 3)
+       misra_gries("aabbc", 3)
+Вывод: {"a": 4}, ["a"]
+       {"a": 1, "b": 1}
+</code></pre></div></body></html>

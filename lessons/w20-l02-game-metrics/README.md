@@ -11,6 +11,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 10 «Данные и метрики» (сезон 2): [лист PDF](../../contests/c10-data-metrics/sheet.pdf), [исходник](../../contests/c10-data-metrics/sheet.md); решения — `solutions/contests/c10-data-metrics/`
 
 ## Агентная разработка
 

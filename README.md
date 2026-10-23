@@ -79,7 +79,7 @@ tools/                         сборка презентаций, листов
 | 19 | 15.03–21.03 | [37 · Лекция](lessons/w19-l01-mini-hackathon-1/README.md) | Мини-хакатон, сессия 1: идея, спека, каркас |  |  |
 | 19 | 15.03–21.03 | [38 · Семинар](lessons/w19-l02-mini-hackathon-2/README.md) | Мини-хакатон, сессия 2: доделка, питч, жюри |  |  |
 | 20 | 22.03–28.03 | [39 · Лекция](lessons/w20-l01-data-analysis/README.md) | Анализ данных: pandas, SQL-аналитика, графики | [lab17](lessons/w20-l01-data-analysis/labs/lab17-game-analytics/README.md) |  |
-| 20 | 22.03–28.03 | [40 · Семинар](lessons/w20-l02-game-metrics/README.md) | Семинар: аналитика игровых событий — удержание, длина партий, баланс |  | c10 |
+| 20 | 22.03–28.03 | [40 · Семинар](lessons/w20-l02-game-metrics/README.md) | Семинар: аналитика игровых событий — удержание, длина партий, баланс |  | [c10](contests/c10-data-metrics/sheet.pdf) |
 | 21 | 29.03–04.04 | [41 · Лекция](lessons/w21-l01-game-ai/README.md) | Алгоритмы ИИ-соперника: минимакс, эвристики, Монте-Карло | [lab18](lessons/w21-l01-game-ai/labs/lab18-minimax/README.md) |  |
 | 21 | 29.03–04.04 | [42 · Семинар](lessons/w21-l02-ai-opponent/README.md) | Семинар: бот-соперник в одной из игр, турнир решений |  |  |
 | 22 | 05.04–11.04 | [43 · Лекция](lessons/w22-l01-load-scaling/README.md) | Нагрузка и масштабирование: locust, реплики за Nginx, Redis pub/sub, индексы | [lab19](lessons/w22-l01-load-scaling/labs/lab19-load-report/README.md) |  |
