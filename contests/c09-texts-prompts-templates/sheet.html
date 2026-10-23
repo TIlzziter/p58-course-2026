@@ -1,0 +1,215 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 9 · Тексты, промпты и шаблоны</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 9 · Тексты, промпты и шаблоны</h1>
+<p>Неделя 18 · темы недель 17–18: текст для модели и от модели, шаблоны сообщений и проектов, сравнение промптов,
+проверка ответов. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Строки и токены</h2>
+<p><strong>A1.</strong> <code>approx_tokens(text)</code> — грубая оценка числа токенов. Режем текст на куски: слова (<code>\w+</code>) и отдельные
+знаки — всё, что не буква, не цифра и не пробел. Кусок длины <code>L</code> стоит <code>ceil(L / 4)</code> токенов.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  approx_tokens("Привет, мир!"), approx_tokens("Подсказка: ходи в центр :)")
+Вывод: 5, 10
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>truncate(text, limit)</code> — обрезать для превью так, чтобы с «…» вышло не больше <code>limit</code> символов. Берём
+первые <code>limit − 1</code> символов; если обрезали посреди слова и пробел в куске есть — отрезаем до последнего пробела.
+С конца убрать пробелы и знаки <code>, ; : — -</code>, добавить «…». Влезает целиком — вернуть как есть; <code>limit &lt; 2</code> —
+<code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  truncate("Сегодня мы играем в крестики-нолики", 25)
+       truncate("Ход сделан, жди соперника", 14), truncate("Суперкалифрагилистик", 8)
+Вывод: "Сегодня мы играем в…"
+       "Ход сделан…", "Суперка…"
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>wrap(text, width)</code> — жадный перенос по словам: в строку добавляем слово через пробел, пока длина
+строки не больше <code>width</code>. Слово длиннее <code>width</code> сначала режем на куски по <code>width</code> символов.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  wrap("Ведущий говорит: сверхдлиннословище не влезет", 10)
+Вывод: ["Ведущий", "говорит:", "сверхдлинн", "ословище", "не влезет"]
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>split_chunks(text, size, overlap)</code> — куски текста для модели. Предложения — части после разреза
+по пробелам, перед которыми стоит <code>.</code>, <code>!</code>, <code>?</code> или <code>…</code>. Набираем предложения в кусок (через пробел), пока его
+длина не больше <code>size</code>. Следующий кусок начинается с последних <code>overlap</code> предложений предыдущего (нахлёст);
+если с ними новое предложение не влезает — выбрасываем их по одному с начала. Предложение длиннее <code>size</code> —
+отдельный кусок. Зачем нахлёст, если модель видит куски по отдельности?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  t = "Игра началась. Ход белых! Белые ходят e4. Чёрные думают… Ответ: e5."
+       split_chunks(t, 30, 1)
+Вывод: ["Игра началась. Ход белых!", "Ход белых! Белые ходят e4.",
+        "Белые ходят e4. Чёрные думают…", "Чёрные думают… Ответ: e5."]
+</code></pre></div>
+
+<h2>B. Шаблоны</h2>
+<p><strong>B1.</strong> <code>render(template, ctx)</code> — подставить <code>{{ имя }}</code> (пробелы внутри скобок необязательны). Имя может быть
+путём <code>a.b.c</code>: у словаря берём ключ, у объекта — атрибут. Нет значения — <code>KeyError(имя)</code> с полным путём.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  render("Привет, {{ user.name }}! Очки: {{score}}",
+              {"user": {"name": "Аня"}, "score": 120})
+       render("{{ user.age }}", {"user": {"name": "Аня"}})
+Вывод: "Привет, Аня! Очки: 120"
+       KeyError("user.age")
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>render_filters(template, ctx)</code> — как B1, плюс фильтры через <code>|</code> слева направо, аргумент после <code>:</code>
+(пробелы по краям аргумента убрать): <code>upper</code>; <code>pad:N</code> — выровнять вправо по ширине <code>N</code>; <code>escape</code> — HTML;
+<code>default:текст</code> — если значения нет, оно <code>None</code> или <code>""</code>; <code>plural:одна,две,пять</code> — число и слово в нужной форме
+(1, 21 — «одна»; 2–4, 22–24 — «две»; 0, 5–20, 11–14 — «пять»). Неизвестный фильтр — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  render_filters("{{ name|upper }} |{{ score|pad:5 }}| {{ tag|default:нет }} "
+                      "{{ wins|plural:победа,победы,побед }}",
+                      {"name": "bob", "score": 42, "tag": "", "wins": 22})
+Вывод: "BOB |   42| нет 22 победы"
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>render_for(template, ctx)</code> — ещё и циклы <code>{% for x in items %}…{% endfor %}</code> (не вложенные). Тело
+рендерится через B2 для каждого элемента; внутри доступны <code>x</code> и <code>loop.index</code> (с 1), <code>loop.last</code>. Текст вне
+циклов — тоже через B2. Подставленные значения повторно не рендерятся.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  tpl = ("Топ:\n{% for p in top %}{{ loop.index }}. {{ p.name }} — {{ p.score }}\n"
+              "{% endfor %}Всего: {{ n }}")
+       top = [{"name": "Аня", "score": 300}, {"name": "Боб", "score": 250}]
+       render_for(tpl, {"top": top, "n": 2})
+Вывод: "Топ:\n1. Аня — 300\n2. Боб — 250\nВсего: 2"
+</code></pre></div>
+
+<h2>C. Промпты</h2>
+<p><strong>C1.</strong> <code>fill_prompt(template, values)</code> — плейсхолдеры <code>{имя}</code> как в <code>str.format</code>, <code>{{</code> и <code>}}</code> — буквальные
+скобки (без них не написать JSON в промпте). Ответ — <code>(текст, нет значения, лишние значения)</code>, списки
+по алфавиту; плейсхолдер без значения остаётся как есть.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fill_prompt('Ты — {role}. Ответь в JSON {{"hint": ...}}. Вопрос: {question}',
+                   {"role": "ведущий", "lang": "ru"})
+Вывод: ('Ты — ведущий. Ответь в JSON {"hint": ...}. Вопрос: {question}',
+        ["question"], ["lang"])
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>few_shot(examples, query, k)</code> — промпт с примерами <code>(вопрос, ответ)</code>: выбрать <code>k</code> самых похожих
+на <code>query</code> по мере Жаккара множеств слов (<code>\w+</code> в нижнем регистре), при равенстве — кто раньше в списке.
+Блоки <code>"Вопрос: …\nОтвет: …"</code> по убыванию похожести, последний — <code>"Вопрос: query\nОтвет:"</code>, между
+блоками — пустая строка.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ex = [("как ходит конь", "буквой Г"), ("сколько клеток на доске", "64"),
+             ("как ходит ладья", "по прямой"), ("кто ходит первым", "белые")]
+       print(few_shot(ex, "как ходит ферзь", 2))
+Вывод: Вопрос: как ходит конь
+       Ответ: буквой Г
+
+       Вопрос: как ходит ладья
+       Ответ: по прямой
+
+       Вопрос: как ходит ферзь
+       Ответ:
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>extract_json(text)</code> — все JSON-объекты верхнего уровня из ответа модели, по порядку. Ищем <code>{</code>,
+считаем скобки до парной (скобки внутри строк, с учётом <code>\"</code>, не считаются) и пробуем <code>json.loads</code>.
+Не разобралось — ищем следующую <code>{</code> со следующего символа.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  extract_json('Вот: {"a": 1} и {"b": "}{"}, {сломано}, и {"c": {"d": [1, 2]}}')
+Вывод: [{"a": 1}, {"b": "}{"}, {"c": {"d": [1, 2]}}]
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>diff_lines(a, b)</code> — построчный diff двух версий промпта через наибольшую общую подпоследовательность
+строк (<code>dp[i][j]</code> — НОП суффиксов). Идём с начала: строки равны — <code>"  строка"</code>; иначе, если
+<code>dp[i+1][j] ≥ dp[i][j+1]</code>, — <code>"- строка из a"</code>, иначе <code>"+ строка из b"</code>; хвосты — <code>-</code>, затем <code>+</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  diff_lines("Ты — ведущий.\nОтвечай кратко.\nНе раскрывай ответ.",
+                  "Ты — ведущий викторины.\nОтвечай кратко.\n"
+                  "Не раскрывай ответ.\nФормат: JSON.")
+Вывод: ["- Ты — ведущий.", "+ Ты — ведущий викторины.", "  Отвечай кратко.",
+        "  Не раскрывай ответ.", "+ Формат: JSON."]
+</code></pre></div>
+
+<h2>D. Проверка ответов</h2>
+<p><strong>D1.</strong> <code>levenshtein(a, b)</code> — расстояние редактирования: вставка, удаление, замена символа — по 1. Память —
+две строки таблицы.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  levenshtein("котик", "скотина"), levenshtein("", "abc")
+       levenshtein("ферзь", "ферз")
+Вывод: 3, 3
+       1
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>fuzzy_match(answer, expected, tolerance=0.2)</code> — ответ викторины засчитан? Нормализуем обе строки:
+нижний регистр, <code>ё → е</code>, знаки препинания → пробелы, лишние пробелы убрать. Засчитан, если расстояние D1
+не больше <code>int(tolerance · длина нормализованного expected)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fuzzy_match("Ёлка!", "елка"), fuzzy_match("Пётр Первыи", "пётр первый")
+       fuzzy_match("пётр первый", "Пётр I"), fuzzy_match("Москва", "Минск")
+Вывод: True, True
+       False, False
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>pass_at_k(n, c, k)</code> — модель ответила <code>n</code> раз, верных <code>c</code>. Оценка шанса, что из <code>k</code> случайных ответов
+хотя бы один верный: <code>1 − C(n−c, k) / C(n, k)</code> (<code>math.comb</code>), округлить до 4 знаков. Нужно
+<code>0 ≤ c ≤ n</code>, <code>1 ≤ k ≤ n</code>, иначе <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  pass_at_k(10, 3, 1), pass_at_k(10, 3, 5), pass_at_k(5, 0, 2), pass_at_k(5, 4, 2)
+Вывод: 0.3, 0.9167, 0.0, 1.0
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Спека расширения (<code>docs/ext-spec.md</code>, семинар 17): покажите сценарии, раздел «Не делаем» и что видит
+игрок, если модель или внешний сервис недоступны.</p>
+<p><strong>E2.</strong> Набор evals команды: 20+ случаев с тегами и прогон <code>run_evals</code> (лаба 16) на заглушке; объясните один
+случай про формат и одну атаку.</p>
+<p><strong>E3.</strong> Шаблон проекта (семинар 18): клон → <code>.env</code> из <code>.env.example</code> → <code>docker compose up</code> → бот отвечает
+и <code>/health</code> зелёный. Покажите, где в шаблоне нет секретов.</p>
+<p><strong>E4 · босс.</strong> Ответ модели → сообщение в Telegram с <code>parse_mode=HTML</code>. За каждую часть свой плюс.</p>
+<p>а) <code>md_to_tg(text)</code> — Markdown модели в HTML Telegram. Сначала куски <code>`код`</code> → <code>&lt;code&gt;</code>, внутри ничего
+не форматируем. В остальном тексте — <code>html.escape(…, quote=False)</code>, затем: <code>[текст](url)</code> → <code>&lt;a href="url"&gt;</code>
+(только <code>http://</code> и <code>https://</code>), <code>**жирный**</code> → <code>&lt;b&gt;</code>, <code>*курсив*</code> и <code>_курсив_</code> → <code>&lt;i&gt;</code>. Подчёркивания внутри
+слов (<code>my_var_name</code>) и <code>2 * 3</code> — не курсив.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  md_to_tg("**Ход e4** — сильный. *Почему?* Смотри `a &lt; b &amp;&amp; c` и "
+                "[правила](https://ex.org/r?a=1&amp;b=2). my_var_name")
+Вывод: "&lt;b&gt;Ход e4&lt;/b&gt; — сильный. &lt;i&gt;Почему?&lt;/i&gt; Смотри "
+       "&lt;code&gt;a &amp;lt; b &amp;amp;&amp;amp; c&lt;/code&gt; и "
+       '&lt;a href="https://ex.org/r?a=1&amp;amp;b=2"&gt;правила&lt;/a&gt;. my_var_name'
+</code></pre></div>
+
+<p>б) <code>split_message(text, limit=4096)</code> — у Telegram предел длины сообщения. Пока текст длиннее <code>limit</code>: режем
+по последнему <code>"\n\n"</code>, при котором кусок не длиннее <code>limit</code>; нет — по <code>"\n"</code>; нет — по пробелу; нет — ровно
+по <code>limit</code>. Разделитель выбрасываем.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  split_message("Первый абзац.\n\nВторой абзац длинный\nстрока два", 20)
+       split_message("ааааааааааааа", 5)
+Вывод: ["Первый абзац.", "Второй абзац длинный", "строка два"]
+       ["ааааа", "ааааа", "ааа"]
+</code></pre></div>
+
+<p>в) <code>sanitize(markup)</code> — модель прислала HTML. Оставляем теги <code>b i u s code pre</code> без атрибутов и <code>a</code> ровно
+с одним <code>href="http(s)://…"</code>, имя тега — в нижнем регистре. Закрывающий тег — только если он закрывает
+последний открытый. Всё остальное — текст: <code>&lt;</code> и <code>&gt;</code> → <code>&amp;lt;</code> <code>&amp;gt;</code>, <code>&amp;</code> → <code>&amp;amp;</code>, если это не готовая
+сущность (<code>&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;#число;</code>). В конце закрыть открытые теги.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sanitize('&lt;b&gt;ok&lt;/b&gt; &lt;script&gt;x&lt;/script&gt; &lt;i&gt;да &amp; &lt;a href="https://ok.ru"&gt;тут&lt;/a&gt;')
+       sanitize("&lt;b&gt;&lt;i&gt;x&lt;/b&gt;&lt;/i&gt;")
+Вывод: '&lt;b&gt;ok&lt;/b&gt; &amp;lt;script&amp;gt;x&amp;lt;/script&amp;gt; '
+       '&lt;i&gt;да &amp;amp; &lt;a href="https://ok.ru"&gt;тут&lt;/a&gt;&lt;/i&gt;'
+       "&lt;b&gt;&lt;i&gt;x&amp;lt;/b&amp;gt;&lt;/i&gt;&lt;/b&gt;"
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>render_tree(files, ctx)</code> — генератор проекта из шаблона. <code>files</code>: путь → содержимое. Каждую часть пути
+рендерим через B1; часть <code>[if:флаг]</code> из пути убираем, а если <code>ctx.get(флаг)</code> ложно — файл пропускаем.
+Файлы <code>*.tmpl</code> рендерим через B1 и убираем <code>.tmpl</code> из имени, остальные копируем как есть. Два файла с одним
+путём — <code>ValueError</code>. Ответ — словарь, отсортированный по пути.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  files = {"{{name}}/README.md.tmpl": "# {{ name }}",
+                "{{name}}/app/main.py": "x = '{{ y }}'",
+                "{{name}}/[if:bot]/bot.py.tmpl": "T = '{{ env }}'",
+                "{{name}}/[if:redis]/c.py": ""}
+       ctx = {"name": "snake", "bot": True, "redis": False, "env": "BOT_TOKEN"}
+       render_tree(files, ctx)
+Вывод: {"snake/README.md": "# snake", "snake/app/main.py": "x = '{{ y }}'",
+        "snake/bot.py": "T = 'BOT_TOKEN'"}
+</code></pre></div></body></html>

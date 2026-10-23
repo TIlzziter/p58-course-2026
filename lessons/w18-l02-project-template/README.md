@@ -10,6 +10,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 9 «Тексты, промпты и шаблоны» (сезон 2): [лист PDF](../../contests/c09-texts-prompts-templates/sheet.pdf), [исходник](../../contests/c09-texts-prompts-templates/sheet.md); решения — `solutions/contests/c09-texts-prompts-templates/`
 
 ## Агентная разработка
 

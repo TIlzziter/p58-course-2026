@@ -75,7 +75,7 @@ tools/                         сборка презентаций, листов
 | 17 | 01.03–07.03 | [33 · Лекция](lessons/w17-l01-llm-in-product/README.md) | LLM в продукте: API модели, промпты, ограничения, модерация | [lab16](lessons/w17-l01-llm-in-product/labs/lab16-llm-evals/README.md) |  |
 | 17 | 01.03–07.03 | [34 · Семинар](lessons/w17-l02-extension-spec/README.md) | Семинар: выбор расширения и его спека, набор evals |  |  |
 | 18 | 08.03–14.03 | [35 · Лекция](lessons/w18-l01-hackathon-format/README.md) | Формат хакатона: шаблон проекта, роли под таймер, питч |  |  |
-| 18 | 08.03–14.03 | [36 · Семинар](lessons/w18-l02-project-template/README.md) | Семинар: шаблон «FastAPI + бот + Docker» за одну сессию |  | c09 |
+| 18 | 08.03–14.03 | [36 · Семинар](lessons/w18-l02-project-template/README.md) | Семинар: шаблон «FastAPI + бот + Docker» за одну сессию |  | [c09](contests/c09-texts-prompts-templates/sheet.pdf) |
 | 19 | 15.03–21.03 | [37 · Лекция](lessons/w19-l01-mini-hackathon-1/README.md) | Мини-хакатон, сессия 1: идея, спека, каркас |  |  |
 | 19 | 15.03–21.03 | [38 · Семинар](lessons/w19-l02-mini-hackathon-2/README.md) | Мини-хакатон, сессия 2: доделка, питч, жюри |  |  |
 | 20 | 22.03–28.03 | [39 · Лекция](lessons/w20-l01-data-analysis/README.md) | Анализ данных: pandas, SQL-аналитика, графики | [lab17](lessons/w20-l01-data-analysis/labs/lab17-game-analytics/README.md) |  |
