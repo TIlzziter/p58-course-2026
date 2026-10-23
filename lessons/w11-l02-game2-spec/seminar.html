@@ -1,0 +1,327 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Семинар: спека и серверная логика игры 2, тесты по таблице правил</title><style>
+  :root{
+    --bg:#070d19; --panel:#101a30; --panel2:#0d1526;
+    --ink:#e6edf7; --muted:#8fa1bb; --dim:#64748b;
+    --line:rgba(148,163,184,.17);
+    --cyan:#22d3ee; --green:#34d399; --amber:#fbbf24;
+    --violet:#a78bfa; --pink:#f472b6; --red:#f87171;
+    --mono:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 20% 0%, #101c33 0%, var(--bg) 55%) fixed;
+    color:var(--ink);
+    font-family:-apple-system,"Segoe UI","Inter",Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow:hidden;
+  }
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  #stage{width:1280px;height:720px;position:relative;transform-origin:center center;flex:0 0 auto}
+  .slide{
+    --acc:#34d399; --ghost:rgba(52,211,153,.06);
+    position:absolute;inset:0;padding:54px 76px;display:none;
+    flex-direction:column;justify-content:center;gap:26px;overflow:hidden;
+  }
+  .slide.s1{--acc:#22d3ee; --ghost:rgba(34,211,238,.07)}
+  .slide.s2{--acc:#fbbf24; --ghost:rgba(251,191,36,.07)}
+  .slide.active{display:flex;animation:fadein .3s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .center{align-items:center;text-align:center}
+
+  .kicker{font-size:19px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);margin-bottom:12px}
+  h1{font-size:76px;line-height:1.06;font-weight:800;letter-spacing:-.01em}
+  h2{font-size:46px;line-height:1.12;font-weight:800;letter-spacing:-.01em}
+  .sub{font-size:26px;color:var(--muted);line-height:1.45}
+  .titleblock{margin-bottom:6px}
+
+  .bul{list-style:none}
+  .bul li{position:relative;padding-left:34px;font-size:25px;line-height:1.45;margin:13px 0;color:#dbe4f2}
+  .bul li::before{content:"▸";position:absolute;left:2px;color:var(--acc);font-weight:700}
+  .bul li b{color:#fff}
+  .bul.compact li{font-size:22px;margin:8px 0}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 26px}
+  .card .ct{font-size:21px;font-weight:700;margin-bottom:12px;color:#fff}
+  .card .cs{font-size:22px;color:#c3d0e4;line-height:1.5}
+  .aha{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:16px;padding:20px 24px;font-size:24px;line-height:1.5;color:#d9f7e9}
+  .aha b{color:var(--green)}
+  .warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.4);border-radius:16px;padding:18px 24px;font-size:23px;line-height:1.5;color:#fdeecb}
+  .warn b{color:var(--amber)}
+  .mono{font-family:var(--mono)}
+  .pill{display:inline-block;background:rgba(17,26,46,.85);border:1px solid var(--line);border-radius:999px;padding:9px 18px;font-size:21px;color:#cbd5e1;font-family:var(--mono)}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:20px;color:#c4d2e6;background:rgba(13,21,38,.75)}
+  .chip b{color:var(--acc);font-weight:700}
+
+  .term{background:var(--panel2);border:1px solid #1f2b45;border-radius:14px;overflow:hidden;font-family:var(--mono);font-size:21px}
+  .thead{display:flex;align-items:center;gap:8px;padding:11px 16px;background:#131f38;border-bottom:1px solid #1f2b45}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .thead span.ttl{margin-left:10px;color:#63779b;font-size:16px}
+  .term pre{padding:18px 24px;line-height:1.55;color:#c7d5ec;overflow:hidden}
+  .tp{color:#4ade80;font-weight:700}
+  .tc{color:var(--cyan)}
+  .ty{color:var(--amber)}
+  .td{color:#64748b}
+  .tr{color:var(--red)}
+  .tok{color:#e2e8f0;font-weight:700}
+
+  .flow{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+  .node{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 20px;font-size:22px;font-weight:700;color:#e8eefb;text-align:center;line-height:1.35}
+  .node small{display:block;font-size:17px;font-weight:500;color:var(--muted);margin-top:4px}
+  .arr{color:#5b6b85;font-size:26px;flex:0 0 auto}
+  .n-c{border-color:rgba(34,211,238,.55);color:#a5ecf8}
+  .n-g{border-color:rgba(52,211,153,.55);color:#a7f3d0}
+  .n-v{border-color:rgba(167,139,250,.55);color:#ddd0fe}
+  .n-a{border-color:rgba(251,191,36,.55);color:#fde68a}
+  .n-p{border-color:rgba(244,114,182,.55);color:#fbcfe8}
+  .n-r{border-color:rgba(248,113,113,.55);color:#fecaca}
+  .n-n{color:#cbd5e1}
+
+  .stack{display:flex;flex-direction:column;gap:10px;width:100%}
+  .layer{display:flex;justify-content:space-between;align-items:center;gap:18px;border-radius:12px;padding:13px 24px;border:1px solid var(--line);background:rgba(16,26,48,.75)}
+  .layer .ln{font-size:24px;font-weight:800;width:290px;flex:0 0 auto}
+  .layer .ld{font-size:21px;color:var(--muted)}
+  .layer .lp{font-family:var(--mono);font-size:19px;color:var(--acc);flex:0 0 auto}
+  .l5{border-color:rgba(52,211,153,.45)} .l5 .ln{color:#a7f3d0}
+  .l4{border-color:rgba(34,211,238,.45)} .l4 .ln{color:#a5ecf8}
+  .l3{border-color:rgba(167,139,250,.45)} .l3 .ln{color:#ddd0fe}
+  .l2{border-color:rgba(251,191,36,.45)} .l2 .ln{color:#fde68a}
+  .l1{border-color:rgba(244,114,182,.45)} .l1 .ln{color:#fbcfe8}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:23px}
+  .tbl th{color:var(--acc);font-size:18px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:10px 16px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:12px 16px;border-bottom:1px solid var(--line);color:#d5deee}
+  .tbl .mono{font-size:22px}
+
+  .codes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .code{border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;background:rgba(16,26,48,.7)}
+  .code .num{font-family:var(--mono);font-size:56px;font-weight:800;line-height:1}
+  .code .cap{font-size:19px;color:var(--muted);margin-top:8px}
+  .c-ok .num{color:#4ade80}.c-ok .cap{color:#a7f3d0}
+  .c-mv .num{color:var(--cyan)}.c-mv .cap{color:#a5ecf8}
+  .c-nf .num{color:var(--red)}.c-nf .cap{color:#fecaca}
+  .c-err .num{color:var(--red)}
+  .c-bad{border-color:rgba(251,191,36,.6);background:rgba(251,191,36,.08)}
+  .c-bad .num{color:var(--amber)}
+  .c-bad .cap{color:#fde68a}
+
+  .msg{max-width:640px;padding:12px 22px;border-radius:16px;font-size:24px;line-height:1.4}
+  .msg .tag{font-family:var(--mono);font-weight:800;font-size:19px;letter-spacing:.06em;margin-right:10px}
+  .msg.r{align-self:flex-end;background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.4)}
+  .msg.r .tag{color:var(--cyan)}
+  .msg.l{align-self:flex-start;background:rgba(52,211,153,.13);border:1px solid rgba(52,211,153,.4)}
+  .msg.l .tag{color:var(--green)}
+  .chat{display:flex;flex-direction:column;gap:14px;align-items:stretch;max-width:820px}
+
+  .frame{border-radius:14px;padding:14px 20px}
+  .frame .fl{display:block;font-size:18px;color:#9fb4d4;margin-bottom:8px;font-weight:600}
+  .f-mac{border:2px solid rgba(34,211,238,.55);background:rgba(34,211,238,.05)}
+  .f-ip{border:2px solid rgba(167,139,250,.55);background:rgba(167,139,250,.05)}
+  .f-tcp{border:2px solid rgba(251,191,36,.55);background:rgba(251,191,36,.05)}
+  .f-data{border:2px solid rgba(52,211,153,.6);background:rgba(52,211,153,.08);text-align:center;font-size:26px;font-weight:700;color:#a7f3d0;padding:18px}
+
+  .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .slot{border:1px solid var(--line);border-radius:10px;padding:14px 10px;text-align:center;font-size:19px;color:#93a7c4;background:rgba(13,21,38,.8)}
+  .slot.mine{border-color:rgba(251,191,36,.65);color:#fde68a;background:rgba(251,191,36,.07);font-weight:700}
+
+  .ans{filter:blur(8px);opacity:.75;cursor:pointer;transition:filter .15s}
+  .ans:hover{filter:none}
+
+  .divider{justify-content:center}
+  .giant{position:absolute;right:34px;bottom:-70px;font-size:400px;font-weight:800;color:var(--ghost);user-select:none;line-height:1}
+
+  .urlgrid{display:flex;gap:8px;align-items:flex-end;flex-wrap:nowrap}
+  .upart{display:flex;flex-direction:column;gap:10px;align-items:center}
+  .upart .uv{font-family:var(--mono);font-size:29px;font-weight:700;white-space:nowrap}
+  .upart .ul{font-size:16px;color:var(--dim);text-align:center}
+  .u1{color:#4ade80}.u2{color:var(--cyan)}.u3{color:var(--violet)}
+  .u4{color:var(--amber)}.u5{color:var(--pink)}.u6{color:#94a3b8}
+
+  .roles{display:flex;gap:12px;flex-wrap:wrap}
+  .role{font-family:var(--mono);font-size:20px;font-weight:700;padding:10px 18px;border-radius:10px;border:1px solid}
+
+  #progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,#22d3ee,#34d399);width:0;z-index:60;transition:width .2s}
+  .hud{position:fixed;bottom:14px;right:20px;display:flex;align-items:center;gap:10px;z-index:60;font-size:16px;color:#7c8db0;font-family:var(--mono)}
+  .btn{background:rgba(17,26,46,.85);border:1px solid var(--line);color:#cbd5e1;border-radius:9px;padding:6px 15px;font-size:17px;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:#31456b;background:#16233d}
+  .hint{font-size:18px;color:var(--dim);font-family:var(--mono)}
+
+  @media print{
+    body{overflow:visible;background:var(--bg)}
+    #viewport{position:static;display:block}
+    #stage{transform:none!important}
+    .hud,#progress{display:none}
+    .slide{display:flex!important;position:relative;inset:auto;width:1280px;height:720px;page-break-after:always;opacity:1!important;animation:none;background:var(--bg)}
+    .ans{filter:none}
+  }
+
+:root {--muted:#b1bfd3;--dim:#96a7c1}
+body{font-family:-apple-system,"Segoe UI",Arial,sans-serif}
+.slide{padding:74px 68px 68px;justify-content:center;gap:20px}
+h1{font-size:70px} h2{font-size:43px;line-height:1.13}
+.kicker{font-size:15px;letter-spacing:.14em;margin-bottom:10px}
+.slide.active{animation:none}
+.content{display:flex;flex-direction:column;gap:20px;min-height:0}
+.technical{display:none}
+body[data-mode="technical"] .simple{display:none}
+body[data-mode="technical"] .technical{display:flex}
+body[data-mode="technical"] .kicker{color:var(--violet)}
+.card{padding:23px 25px}
+.card .ct{font-size:25px;line-height:1.2}
+.card .cs{font-size:24px;line-height:1.42;overflow-wrap:anywhere}
+.card .cs code{font-size:21px}
+.technical .card .ct{color:#dacbff}
+.technical .card .cs{font-size:23px;line-height:1.44}
+.technical .card{border-top:3px solid #a78bfa}
+.cols3 .card .cs{font-size:23px}
+.bul li{font-size:25px;margin:10px 0}
+.aha,.warn{font-size:24px;line-height:1.35;padding:16px 22px}
+.tbl{font-size:23px;line-height:1.26}
+.tbl td{padding:11px 15px}.tbl th{padding:9px 15px}
+.term pre{font-size:23px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;padding:17px 22px}
+.term .thead .ttl{color:#aebed4;font-size:17px}
+.network{width:100%;height:auto;display:block;flex-shrink:0;max-height:340px}
+.address{font-size:70px;font-family:var(--mono);text-align:center;letter-spacing:-3px}
+.address span{color:var(--cyan)}.address b{color:var(--green)}.address em{font-style:normal;color:var(--amber);margin-left:18px;font-size:42px}
+.url-line{font-family:var(--mono);font-size:29px;line-height:1.5;white-space:nowrap}
+.http-example{font-family:var(--mono);font-size:20px;line-height:1.55;white-space:pre-wrap;margin:14px 0 20px}
+.quiz{display:flex;flex-direction:column;gap:13px}
+.q{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;border-bottom:1px solid var(--line);padding:12px 0}
+.q p{font-size:25px;line-height:1.32}
+.answer{font:inherit;min-height:65px;text-align:left;border:1px dashed #478377;border-radius:10px;padding:13px 18px;background:#0d252a;color:#b4f0de;cursor:pointer;font-size:22px;line-height:1.35}
+.answer-text{display:none}.answer[aria-expanded="true"] .answer-text{display:inline}.answer[aria-expanded="true"] .answer-label{display:none}
+.answer-label{font-size:20px;color:#8fbdba}.answer:hover,.answer:focus-visible{outline:2px solid #34d399;outline-offset:2px}
+.cover h2{font-size:72px}.cover .sub{font-size:30px}.cover .titleblock{margin-bottom:8px}.cover .content{gap:32px}
+.break .big-time{font-size:110px;font-weight:800;color:var(--acc)}
+.topbar{position:fixed;inset:12px 16px auto;display:flex;justify-content:space-between;gap:10px;z-index:60;align-items:center}
+.topgroup{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.control{font:inherit;font-size:14px;color:#d5e3f6;background:#101b30;border:1px solid #33435e;border-radius:9px;padding:8px 12px;cursor:pointer;text-decoration:none;line-height:1.1}
+.control:hover,.control:focus-visible{background:#1a2e48;outline:2px solid #75a9bf;outline-offset:2px}
+.control[aria-pressed="true"]{color:#09111e;background:#a5ecf8;border-color:#a5ecf8;font-weight:700}
+#modeTechnical[aria-pressed="true"]{background:#d4bfff;border-color:#d4bfff}
+.mode-group{border:1px solid #35435e;border-radius:11px;padding:3px;display:flex;gap:3px;background:#0b1223}
+.mode-group .control{border:none;background:transparent}
+.mode-group .control[aria-pressed="true"]{background:#a5ecf8}
+.bottom{position:fixed;bottom:10px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:60}
+.bottom small{font-size:13px;color:#a7b7ce}.bottom nav{display:flex;gap:7px;align-items:center}
+#counter{font-size:15px;min-width:70px;text-align:center;font-variant-numeric:tabular-nums}
+#progress{height:3px}
+.meta{color:#a7b7ce;font-size:15px;letter-spacing:0;font-weight:400;text-transform:none;margin-left:16px}
+.optional-label{color:#fcd47a}
+button:disabled{opacity:.4;cursor:default}
+.modal{position:fixed;inset:0;background:rgba(3,8,17,.91);z-index:100;display:none;align-items:center;justify-content:center;padding:30px}
+.modal.open{display:flex}.dialog{background:#111d32;border:1px solid #4c6082;border-radius:16px;max-width:1000px;width:100%;max-height:88vh;overflow:auto;padding:30px;box-shadow:0 30px 100px #0008}
+.dialog h2{font-size:30px;margin:0 0 20px}.dialog p{font-size:20px;line-height:1.55;margin:12px 0}.dialog a{color:#8bdff6}.dialog header{display:flex;justify-content:space-between;gap:20px;align-items:start}
+.dialog .notice{color:#fbd588;font-size:16px}
+.tocgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tocitem{text-align:left;font-size:16px;line-height:1.3}.tocitem.selected{border-color:#34d399}.tocitem small{color:#a7b7ce}
+.sources{font-size:16px;line-height:1.7}
+@media(max-width:760px){.topbar{inset:7px 8px auto}.control{font-size:11px;padding:7px 8px}.bottom{left:8px;right:8px}.bottom small{display:none}.bottom nav{gap:4px}.topgroup{gap:3px}.mode-group{gap:0;padding:2px}.tocgrid{grid-template-columns:1fr}.dialog{padding:20px}.modal{padding:10px}}
+@media print{
+ @page{size:1280px 720px;margin:0}
+ html,body{height:auto;background:#070d19}
+ .topbar,.bottom,.modal,#progress{display:none!important}
+ #viewport{position:static;display:block}#stage{transform:none!important;width:1280px;height:auto}
+ .slide{display:flex!important;position:relative;width:1280px;height:720px;break-after:page;padding:54px 68px;overflow:hidden}
+ body[data-pace="90"] .slide.optional{display:none!important}
+ .slide:last-child{break-after:auto}.answer-text{display:inline!important}.answer-label{display:none!important}
+}
+
+/* Дополнения курса «Проект 58»: подсветка кода и пара новых блоков */
+.term pre{text-align:left}
+.term.code pre{font-size:17.5px;line-height:1.4;white-space:pre;overflow:hidden}
+.term.code.small pre{font-size:16px}
+.term .k{color:#c4b5fd}.term .kc,.term .kn,.term .kd,.term .ow{color:#c4b5fd}
+.term .s,.term .s1,.term .s2,.term .sa,.term .sd,.term .si,.term .se,.term .sb{color:#86efac}
+.term .c,.term .c1,.term .cm,.term .ch,.term .cs{color:#7d8ca5;font-style:italic}
+.term .m,.term .mi,.term .mf,.term .mh{color:#fbbf24}
+.term .nf,.term .fm{color:#67e8f9}.term .nb,.term .bp{color:#7dd3fc}.term .nc{color:#f9a8d4}
+.term .nd{color:#f472b6}.term .o{color:#cbd5e1}.term .nt{color:#f9a8d4}.term .na{color:#fde68a}
+.term .gp{color:#4ade80;font-weight:700}.term .go{color:#c7d5ec}
+.card .cs code,.bul code,.aha code,.warn code,.tbl code,.sub code,.q code{font-family:var(--mono);font-size:.9em;color:#a5ecf8;background:rgba(34,211,238,.08);padding:1px 6px;border-radius:6px}
+.cols4{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols4 .card{padding:16px 20px}.cols4 .card .cs{font-size:21px}
+.flow{flex-wrap:wrap;row-gap:10px}
+.note{font-size:19px;color:var(--muted);line-height:1.4}
+.term.code.tiny pre{font-size:14.5px;line-height:1.36;padding:12px 18px}
+.split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.split:has(.tiny){grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
+.split .term.code pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.4;padding:14px 16px}
+.split .term.code.tiny pre{font-size:13.5px;line-height:1.35}
+.splitside .cols,.splitside .cols3,.splitside .stack{display:grid;grid-template-columns:1fr;gap:14px}
+.technical .splitside .card{padding:16px 18px}.technical .splitside .card .cs{font-size:19px;line-height:1.38}.technical .splitside .card .cs code{font-size:16px}.technical .splitside .card .ct{font-size:20px}
+.tbl.small{font-size:20px}.tbl.small td{padding:8px 12px}
+</style></head><body data-mode="simple" data-pace="105"><div id="progress"></div><div class="topbar"><div class="topgroup"><button class="control" id="lesson1">Спека</button><button class="control" id="lesson2">Логика и тесты</button><select class="control" id="pace" aria-label="Длительность занятия"><option value="105">Весь семинар · 135 мин</option><option value="90">Основное · 110 мин</option></select></div><div class="mode-group" role="group" aria-label="Уровень объяснения"><button class="control" id="modeSimple" aria-pressed="true" title="Простая модель и схемы (T)">Простой</button><button class="control" id="modeTechnical" aria-pressed="false" title="Подробности текущего слайда (T)">Технический</button></div></div><div class="bottom"><small id="position"></small><nav aria-label="Управление презентацией"><button class="control" id="contents" title="Оглавление (G)">Слайды</button><button class="control" id="answers" title="Раскрыть ответы в простом режиме (A)">Ответы</button><button class="control" id="help" aria-label="Справка">?</button><button class="control" id="prev" aria-label="Предыдущий слайд">‹</button><span id="counter" aria-live="polite"></span><button class="control" id="next" aria-label="Следующий слайд">›</button><button class="control" id="fullscreen" aria-label="Полный экран" title="Полный экран (F)">⛶</button></nav></div><div class="modal" id="tocModal" role="dialog" aria-modal="true" aria-labelledby="tocTitle"><div class="dialog"><header><h2 id="tocTitle">Слайды</h2><button class="control close" aria-label="Закрыть оглавление">Закрыть</button></header><div class="tocgrid" id="tocItems"></div></div></div><div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="dialog"><header><h2 id="helpTitle">Управление</h2><button class="control close">Закрыть</button></header><p>← / → — листать. T — простой / технический режим. A — открыть ответы. G — оглавление. F — полный экран. Esc — закрыть окно.</p><p>Переключение режима сохраняет текущий слайд. «Основные» пропускают дополнительные слайды. Полный маршрут — около 42 минут, основной — около 42 минут, включая перерыв.</p><p>Файл работает без интернета. Для живых демонстраций нужна сеть. Печать использует выбранный режим, раскрывает ответы и сохраняет один слайд на страницу.</p></div></div><main id="viewport"><div id="stage"><section class="slide s1 cover active" id="slide-1" data-lesson="1" aria-label="Слайд 1. Игра 2: от правил к коду"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Спека<span class="meta">2 мин</span></div><h2>Игра 2: от правил к коду</h2></div><div class="content simple"><div class="sub">Таблица правил в спеке, тесты от агента<br>и охота за случаями, которые он пропустил</div><div class="chips"><span class="chip">SPEC.md</span><span class="chip">таблица правил</span><span class="chip">автомат</span><span class="chip">pytest</span><span class="chip">пропущенные кейсы</span></div></div><div class="content technical"><div class="sub">Таблица правил в спеке, тесты от агента<br>и охота за случаями, которые он пропустил</div><div class="chips"><span class="chip">SPEC.md</span><span class="chip">таблица правил</span><span class="chip">автомат</span><span class="chip">pytest</span><span class="chip">пропущенные кейсы</span></div></div></section><section class="slide s1" id="slide-2" data-lesson="1" aria-label="Слайд 2. План"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Спека<span class="meta">2 мин</span></div><h2>План</h2></div><div class="content simple"><table class="tbl small"><thead><tr><th>Блок</th><th>Время</th><th>Результат</th></tr></thead><tbody><tr><td>Выбор игры 2 и спека</td><td>30 мин</td><td><code>docs/game2/SPEC.md</code></td></tr><tr><td>Таблица правил и автомат матча</td><td>20 мин</td><td>таблицы в спеке</td></tr><tr><td>Перерыв</td><td>10 мин</td><td>—</td></tr><tr><td>Тесты от агента</td><td>20 мин</td><td><code>tests/game2/</code></td></tr><tr><td>Охота за пропущенными кейсами</td><td>25 мин</td><td>+5 тестов на команду</td></tr><tr><td>Логика до зелёных тестов</td><td>25 мин</td><td><code>step</code> проходит тесты</td></tr></tbody></table></div><div class="content technical"><table class="tbl small"><thead><tr><th>Блок</th><th>Время</th><th>Результат</th></tr></thead><tbody><tr><td>Выбор игры 2 и спека</td><td>30 мин</td><td><code>docs/game2/SPEC.md</code></td></tr><tr><td>Таблица правил и автомат матча</td><td>20 мин</td><td>таблицы в спеке</td></tr><tr><td>Перерыв</td><td>10 мин</td><td>—</td></tr><tr><td>Тесты от агента</td><td>20 мин</td><td><code>tests/game2/</code></td></tr><tr><td>Охота за пропущенными кейсами</td><td>25 мин</td><td>+5 тестов на команду</td></tr><tr><td>Логика до зелёных тестов</td><td>25 мин</td><td><code>step</code> проходит тесты</td></tr></tbody></table></div></section><section class="slide s1" id="slide-3" data-lesson="1" aria-label="Слайд 3. Какой будет игра 2"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Спека<span class="meta">5 мин</span></div><h2>Какой будет игра 2</h2></div><div class="content simple"><ul class="bul"><li>Обязательно: реальное время (тики), 2–4 игрока в комнате, сервер — единственный источник правды.</li><li>Варианты: змейка на нескольких (база — лаба 11), «танчики» на сетке, гонка по клеткам, «захват территории».</li><li>Решение принимает команда, в спеке — одна страница «почему эта игра и что в ней будет к неделе 16».</li></ul><div class="quiz"><div class="q"><p>Почему не платформер с физикой?</p><button class="answer" aria-expanded="false"><span class="answer-label">Показать ответ</span><span class="answer-text">Можно, но коллизии на плоскости, интерполяция и честная физика на сервере — это две игры по сложности. Для 6 недель лучше сетка; физику оставьте как R&amp;D-задачу.</span></button></div></div></div><div class="content technical"><ul class="bul"><li>Обязательно: реальное время (тики), 2–4 игрока в комнате, сервер — единственный источник правды.</li><li>Варианты: змейка на нескольких (база — лаба 11), «танчики» на сетке, гонка по клеткам, «захват территории».</li><li>Решение принимает команда, в спеке — одна страница «почему эта игра и что в ней будет к неделе 16».</li></ul><div class="quiz"><div class="q"><p>Почему не платформер с физикой?</p><button class="answer" aria-expanded="false"><span class="answer-label">Показать ответ</span><span class="answer-text">Можно, но коллизии на плоскости, интерполяция и честная физика на сервере — это две игры по сложности. Для 6 недель лучше сетка; физику оставьте как R&amp;D-задачу.</span></button></div></div></div></section><section class="slide s1" id="slide-4" data-lesson="1" aria-label="Слайд 4. Спека: разделы"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Спека<span class="meta">6 мин</span></div><h2>Спека: разделы</h2></div><div class="content simple"><table class="tbl small"><thead><tr><th>Раздел</th><th>Что внутри</th></tr></thead><tbody><tr><td>Поле и объекты</td><td>размер, координаты, что где стоит в начале</td></tr><tr><td>Тик</td><td>частота, порядок шагов внутри тика</td></tr><tr><td>Ввод</td><td>какие команды, буфер, что игнорируется</td></tr><tr><td>Таблица правил</td><td>ситуация → итог, по строке на случай</td></tr><tr><td>Автомат матча</td><td>состояния, переходы, что запрещено</td></tr><tr><td>Протокол</td><td>сообщения клиент ↔ сервер, пример JSON</td></tr></tbody></table><div class="aha">Спека — для людей и для агента. Если агент по ней пишет не то, значит, спека неточная.</div></div><div class="content technical"><table class="tbl small"><thead><tr><th>Раздел</th><th>Что внутри</th></tr></thead><tbody><tr><td>Поле и объекты</td><td>размер, координаты, что где стоит в начале</td></tr><tr><td>Тик</td><td>частота, порядок шагов внутри тика</td></tr><tr><td>Ввод</td><td>какие команды, буфер, что игнорируется</td></tr><tr><td>Таблица правил</td><td>ситуация → итог, по строке на случай</td></tr><tr><td>Автомат матча</td><td>состояния, переходы, что запрещено</td></tr><tr><td>Протокол</td><td>сообщения клиент ↔ сервер, пример JSON</td></tr></tbody></table><div class="aha">Спека — для людей и для агента. Если агент по ней пишет не то, значит, спека неточная.</div></div></section><section class="slide s1" id="slide-5" data-lesson="1" aria-label="Слайд 5. Таблица правил"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Спека<span class="meta">6 мин</span></div><h2>Таблица правил</h2></div><div class="content simple"><ul class="bul"><li>Пишем сначала <b>без кода</b>: «две головы в одной клетке → обе гибнут».</li><li>Каждая строка: начальная ситуация (маленькое поле), ввод, итог, причина.</li><li>Отдельно — порядок шагов тика: поворот → новые позиции → коллизии → еда → счёт.</li></ul><div class="term code"><div class="thead"><span class="ttl">поле 7×3, пример строки</span></div><pre>. . a A . B b      a, b — тела, A, B — головы
+→ обе вправо/влево: A и B встречаются в (3,1) → гибнут обе, причина head</pre></div></div><div class="content technical"><ul class="bul"><li>Пишем сначала <b>без кода</b>: «две головы в одной клетке → обе гибнут».</li><li>Каждая строка: начальная ситуация (маленькое поле), ввод, итог, причина.</li><li>Отдельно — порядок шагов тика: поворот → новые позиции → коллизии → еда → счёт.</li></ul><div class="term code"><div class="thead"><span class="ttl">поле 7×3, пример строки</span></div><pre>. . a A . B b      a, b — тела, A, B — головы
+→ обе вправо/влево: A и B встречаются в (3,1) → гибнут обе, причина head</pre></div></div></section><section class="slide s2" id="slide-6" data-lesson="2" aria-label="Слайд 6. Тесты от агента"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Логика и тесты<span class="meta">6 мин</span></div><h2>Тесты от агента</h2></div><div class="content simple"><ul class="bul"><li>Промпт: «Вот <code>SPEC.md</code>. Напиши pytest-тесты для <code>step</code>, по одному на каждую строку таблицы правил и автомата. Поле не больше 7×5. Реализацию не пиши».</li><li>Читаем тесты глазами: проверяет ли тест <b>итог из таблицы</b>, а не то, что сейчас возвращает код?</li><li>Тесты коммитим отдельным PR до реализации — так видно, что они падают.</li></ul><div class="warn">Тест, который проходит на пустой реализации, ничего не проверяет. Запустите тесты до кода.</div></div><div class="content technical"><ul class="bul"><li>Промпт: «Вот <code>SPEC.md</code>. Напиши pytest-тесты для <code>step</code>, по одному на каждую строку таблицы правил и автомата. Поле не больше 7×5. Реализацию не пиши».</li><li>Читаем тесты глазами: проверяет ли тест <b>итог из таблицы</b>, а не то, что сейчас возвращает код?</li><li>Тесты коммитим отдельным PR до реализации — так видно, что они падают.</li></ul><div class="warn">Тест, который проходит на пустой реализации, ничего не проверяет. Запустите тесты до кода.</div></div></section><section class="slide s2" id="slide-7" data-lesson="2" aria-label="Слайд 7. Охота за кейсами"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Логика и тесты<span class="meta">8 мин</span></div><h2>Охота за кейсами</h2></div><div class="content simple"><table class="tbl small"><thead><tr><th>Где искать</th><th>Пример</th></tr></thead><tbody><tr><td>два события в один тик</td><td>две змейки съели одну еду</td></tr><tr><td>края</td><td>голова в углу, поле 1×1, длина 1</td></tr><tr><td>порядок</td><td>итог зависит от порядка игроков в словаре</td></tr><tr><td>время</td><td>два нажатия за тик, ни одного за 10 тиков</td></tr><tr><td>выход</td><td>игрок вышел посреди тика, в отсчёте, после конца</td></tr><tr><td>полное поле</td><td>некуда положить еду</td></tr></tbody></table><ul class="bul"><li>Каждая команда находит минимум 5 случаев, которых нет в тестах агента, и дописывает строки в таблицу.</li></ul></div><div class="content technical"><table class="tbl small"><thead><tr><th>Где искать</th><th>Пример</th></tr></thead><tbody><tr><td>два события в один тик</td><td>две змейки съели одну еду</td></tr><tr><td>края</td><td>голова в углу, поле 1×1, длина 1</td></tr><tr><td>порядок</td><td>итог зависит от порядка игроков в словаре</td></tr><tr><td>время</td><td>два нажатия за тик, ни одного за 10 тиков</td></tr><tr><td>выход</td><td>игрок вышел посреди тика, в отсчёте, после конца</td></tr><tr><td>полное поле</td><td>некуда положить еду</td></tr></tbody></table><ul class="bul"><li>Каждая команда находит минимум 5 случаев, которых нет в тестах агента, и дописывает строки в таблицу.</li></ul></div></section><section class="slide s2" id="slide-8" data-lesson="2" aria-label="Слайд 8. Логика до зелёных тестов"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Логика и тесты<span class="meta">5 мин</span></div><h2>Логика до зелёных тестов</h2></div><div class="content simple"><ul class="bul"><li>Реализация — вместе с агентом, маленькими PR: «сделай, чтобы прошли тесты <code>test_collisions.py</code>, не меняя тесты».</li><li>Ревью: не подогнал ли агент тесты под код, нет ли <code>if name == "a"</code> для конкретного теста.</li><li>CI из недели 9 запускает всё на каждом PR.</li></ul></div><div class="content technical"><ul class="bul"><li>Реализация — вместе с агентом, маленькими PR: «сделай, чтобы прошли тесты <code>test_collisions.py</code>, не меняя тесты».</li><li>Ревью: не подогнал ли агент тесты под код, нет ли <code>if name == "a"</code> для конкретного теста.</li><li>CI из недели 9 запускает всё на каждом PR.</li></ul></div></section><section class="slide s2" id="slide-9" data-lesson="2" aria-label="Слайд 9. Итоги"><div class="titleblock"><div class="kicker">Неделя 11 · Семинар · Логика и тесты<span class="meta">2 мин</span></div><h2>Итоги</h2></div><div class="content simple"><ul class="bul"><li>В репозитории: <code>SPEC.md</code> с таблицами, тесты, логика игры 2 (хотя бы часть тестов зелёная).</li><li>Домашнее задание: довести логику игры 2 до зелёных тестов.</li></ul></div><div class="content technical"><ul class="bul"><li>В репозитории: <code>SPEC.md</code> с таблицами, тесты, логика игры 2 (хотя бы часть тестов зелёная).</li><li>Домашнее задание: довести логику игры 2 до зелёных тестов.</li></ul></div></section></div></main><script>
+(()=>{
+'use strict';
+const data=[{"lesson": 1, "title": "Игра 2: от правил к коду", "mins": 2, "optional": false}, {"lesson": 1, "title": "План", "mins": 2, "optional": false}, {"lesson": 1, "title": "Какой будет игра 2", "mins": 5, "optional": false}, {"lesson": 1, "title": "Спека: разделы", "mins": 6, "optional": false}, {"lesson": 1, "title": "Таблица правил", "mins": 6, "optional": false}, {"lesson": 2, "title": "Тесты от агента", "mins": 6, "optional": false}, {"lesson": 2, "title": "Охота за кейсами", "mins": 8, "optional": false}, {"lesson": 2, "title": "Логика до зелёных тестов", "mins": 5, "optional": false}, {"lesson": 2, "title": "Итоги", "mins": 2, "optional": false}],slides=[...document.querySelectorAll('.slide')];
+const PARTS=["Спека", "Логика и тесты"];
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.hash.slice(1));
+let current=Math.max(0,Math.min(slides.length-1,(Number(params.get('slide'))||1)-1));
+let mode=params.get('mode')==='technical'?'technical':'simple';
+let pace=params.get('pace')==='90'?'90':'105';
+let lastFocus=null;
+function route(){return slides.map((s,i)=>i).filter(i=>pace!=='90'||!data[i].optional)}
+function fit(){const w=innerWidth,h=Math.max(120,innerHeight-110);$('stage').style.transform=`scale(${Math.min(w/1280,h/720)})`}
+function syncHash(){history.replaceState(null,'',`#slide=${current+1}&mode=${mode}&pace=${pace}`)}
+function render(){
+ document.body.dataset.mode=mode;document.body.dataset.pace=pace;
+ slides.forEach((s,i)=>{s.classList.toggle('active',i===current);s.setAttribute('aria-hidden',i!==current);s.inert=i!==current});
+ $('modeSimple').setAttribute('aria-pressed',mode==='simple');$('modeTechnical').setAttribute('aria-pressed',mode==='technical');
+ $('pace').value=pace;
+ $('answers').disabled=mode==='technical'||!slides[current].querySelector('.simple .answer');
+ $('counter').textContent=`${current+1} / ${slides.length}`;
+ const visible=route(),idx=visible.indexOf(current);
+ $('position').textContent=`${PARTS[data[current].lesson-1]} · ${mode==='simple'?'Простой':'Технический'} режим · ${data[current].mins} мин${data[current].optional?' · дополнительный слайд':''}`;
+ $('prev').disabled=current===visible[0];$('next').disabled=current===visible.at(-1);
+ $('progress').style.width=`${((idx+1)/visible.length)*100}%`;
+ $('lesson1').setAttribute('aria-pressed',data[current].lesson===1);$('lesson2').setAttribute('aria-pressed',data[current].lesson===2);
+ document.title=`${current+1}. ${data[current].title} — Семинар: спека и серверная логика игры 2, тесты по таблице правил`;
+ syncHash();fit();
+}
+function show(i){current=Math.max(0,Math.min(slides.length-1,i));render()}
+function step(dir){const r=route();const at=r.indexOf(current);if(at<0){const candidates=r.filter(i=>dir>0?i>current:i<current);if(candidates.length)show(dir>0?candidates[0]:candidates.at(-1))}else show(r[Math.max(0,Math.min(r.length-1,at+dir))])}
+function setMode(m){mode=m;render()}
+function reveal(){if(mode!=='simple')return;const buttons=[...slides[current].querySelectorAll('.simple .answer')];const open=buttons.some(b=>b.getAttribute('aria-expanded')==='false');buttons.forEach(b=>b.setAttribute('aria-expanded',open))}
+function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));lastFocus?.focus();lastFocus=null}
+function openModal(id){lastFocus=document.activeElement;document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));$(id).classList.add('open');$(id).querySelector('button').focus()}
+function toc(){
+ const box=$('tocItems');box.replaceChildren();
+ data.forEach((s,i)=>{if(pace==='90'&&s.optional)return;const b=document.createElement('button');b.className='control tocitem'+(current===i?' selected':'');b.textContent=`${i+1}. ${s.title}${s.optional?' (+)':''}`;b.onclick=()=>{closeModals();show(i)};box.append(b)});
+ openModal('tocModal')
+}
+$('modeSimple').onclick=()=>setMode('simple');$('modeTechnical').onclick=()=>setMode('technical');
+$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);$('answers').onclick=reveal;
+$('lesson1').onclick=()=>show(0);$('lesson2').onclick=()=>show(data.findIndex(s=>s.lesson===2));
+$('pace').onchange=e=>{pace=e.target.value;if(pace==='90'&&data[current].optional){const r=route();current=r.find(i=>i>current)??r.at(-1)}render()};
+$('contents').onclick=toc;
+$('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{$('position').textContent='Полный экран недоступен в этом просмотрщике. Откройте HTML в браузере.'}};
+$('help').onclick=()=>openModal('helpModal');
+ document.querySelectorAll('.modal').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)closeModals()});m.querySelector('.close').onclick=closeModals});
+ document.addEventListener('click',e=>{const b=e.target.closest('.answer');if(b)b.setAttribute('aria-expanded',b.getAttribute('aria-expanded')!=='true')});
+ document.addEventListener('keydown',e=>{
+  const modal=document.querySelector('.modal.open');
+  if(e.key==='Escape'){closeModals();return}
+  if(modal){if(e.key==='Tab'){const els=[...modal.querySelectorAll('button,a[href],select')];const first=els[0],last=els.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}return}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.target.matches('select,input,textarea'))return;
+  if(e.key===' '&&e.target.matches('button,a'))return;
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();step(1)}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();step(-1)}
+  else if(e.key==='Home'){e.preventDefault();show(route()[0])}
+  else if(e.key==='End'){e.preventDefault();show(route().at(-1))}
+  else if(['t','T','е','Е'].includes(e.key))setMode(mode==='simple'?'technical':'simple');
+  else if(['a','A','ф','Ф'].includes(e.key))reveal();
+  else if(['g','G','п','П'].includes(e.key))toc();
+  else if(['f','F','а','А'].includes(e.key))$('fullscreen').click();
+ });
+ addEventListener('hashchange',()=>{const p=new URLSearchParams(location.hash.slice(1));const i=Number(p.get('slide'))-1;if(Number.isFinite(i)&&i>=0&&i<slides.length)current=i;mode=p.get('mode')==='technical'?'technical':'simple';pace=p.get('pace')==='90'?'90':'105';if(pace==='90'&&data[current].optional)current=route().find(i=>i>current)??route().at(-1);render()});
+ addEventListener('resize',fit);
+ if(pace==='90'&&data[current].optional)current=route().find(i=>i>current)??route().at(-1);
+ render();
+})();
+</script></body></html>
