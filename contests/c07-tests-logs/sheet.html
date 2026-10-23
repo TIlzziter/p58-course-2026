@@ -1,0 +1,180 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 7 · Тесты и логи</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 7 · Тесты и логи</h1>
+<p>Неделя 14 · темы недель 13–14: отчёты тестов, покрытие и мутанты, логи Nginx и JSON, метрики и SLO, алерты,
+инциденты. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Тесты</h2>
+<p><strong>A1.</strong> <code>junit_summary(xml)</code> — разберите отчёт <code>pytest --junitxml</code> (модуль <code>xml.etree.ElementTree</code>). У каждого
+<code>&lt;testcase&gt;</code> внутри может быть <code>&lt;failure&gt;</code>, <code>&lt;error&gt;</code> или <code>&lt;skipped&gt;</code>; иначе тест прошёл. Ответ — счётчики и
+суммарное <code>time</code>, округлённое до 3 знаков.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  &lt;testsuites&gt;&lt;testsuite name="pytest"&gt;
+         &lt;testcase name="a" time="0.010"/&gt;
+         &lt;testcase name="b" time="0.200"&gt;&lt;failure message="assert 1 == 2"/&gt;&lt;/testcase&gt;
+         &lt;testcase name="c" time="0.005"&gt;&lt;skipped/&gt;&lt;/testcase&gt;
+         &lt;testcase name="d" time="1.300"&gt;&lt;error message="fixture"/&gt;&lt;/testcase&gt;
+         &lt;testcase name="e" time="0.020"/&gt;
+       &lt;/testsuite&gt;&lt;/testsuites&gt;
+Вывод: {"passed": 2, "failed": 1, "errors": 1, "skipped": 1, "time": 1.535}
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>flaky(runs)</code> — результаты нескольких запусков CI: словари <code>тест → прошёл ли</code>. Flaky — тест, который хотя
+бы раз прошёл и хотя бы раз упал. По имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  flaky([{"a": True, "b": True, "c": False}, {"a": True, "b": False, "c": False}, {"a": True, "b": True}])
+Вывод: ["b"]
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>missing_ranges(covered, total, skip=set())</code> — колонка <em>Missing</em> отчёта покрытия: строки <code>1..total</code>, которых
+нет ни в <code>covered</code>, ни в <code>skip</code> (пустые и комментарии), подряд идущие — диапазоном.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  missing_ranges({1, 2, 6, 7, 10}, 12, skip={4})
+Вывод: "3, 5, 8-9, 11-12"
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>min_tests(kills)</code> — для каждого мутанта известно, какие тесты его убивают. Найдите наименьший набор
+тестов, который убивает всех убиваемых мутантов (у кого пустой набор — пропускаем). Из нескольких наборов одного
+размера — первый в лексикографическом порядке; ответ по имени. Тестов не больше 15.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  min_tests({"m1": {"t1", "t3"}, "m2": {"t2"}, "m3": {"t3"}, "m4": set(), "m5": {"t1", "t2"}})
+Вывод: ["t2", "t3"]
+</code></pre></div>
+
+<h2>B. Логи</h2>
+<p>Строка лога Nginx в формате <code>combined</code>:</p>
+<div class="codehilite"><pre><span></span><code>10.0.0.5 - - [09/Feb/2027:10:00:01 +0300] "GET /api/top HTTP/1.1" 200 512 "-" "curl/8.5"
+</code></pre></div>
+
+<p><strong>B1.</strong> <code>parse_access(line)</code> — словарь <code>ip, time, method, path, status, bytes, ua</code>; <code>status</code> и <code>bytes</code> — числа,
+<code>bytes</code> равное <code>-</code> — это <code>0</code>. Строка не в формате — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_access(строка выше)
+Вывод: {"ip": "10.0.0.5", "time": "09/Feb/2027:10:00:01 +0300", "method": "GET",
+        "path": "/api/top", "status": 200, "bytes": 512, "ua": "curl/8.5"}
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>top_ips(lines, n)</code> — <code>n</code> адресов с наибольшим числом запросов: <code>(ip, сколько)</code>, при равенстве — по ip как
+строке. Битые строки пропускаем.</p>
+<div class="codehilite"><pre><span></span><code># L — строка выше, L7 и L2 — она же с ip 10.0.0.7 и 10.0.0.2
+Ввод:  top_ips([L, L7, L, "мусор", L2, L7], 2)
+Вывод: [("10.0.0.5", 2), ("10.0.0.7", 2)]
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>trace(records, request_id)</code> — записи разных сервисов с полем <code>rid</code>. Соберите путь запроса: записи с этим
+<code>rid</code> по <code>ts</code>, при равенстве — в исходном порядке; строки вида <code>"сервис: msg"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  trace([{"ts": 3, "service": "bot", "rid": "r1", "msg": "reply sent"},
+              {"ts": 1, "service": "nginx", "rid": "r1", "msg": "GET /ws"},
+              {"ts": 2, "service": "api", "rid": "r2", "msg": "other"},
+              {"ts": 2, "service": "api", "rid": "r1", "msg": "join R1"}], "r1")
+Вывод: ["nginx: GET /ws", "api: join R1", "bot: reply sent"]
+</code></pre></div>
+
+<h2>C. Метрики</h2>
+<p><strong>C1.</strong> <code>counter_rate(samples)</code> — замеры счётчика запросов <code>(ts, value)</code>. Счётчик только растёт, но при перезапуске
+сервиса начинается с нуля: если значение уменьшилось, прирост за этот шаг равен новому значению. Ответ — прирост в
+секунду за всё время; меньше двух замеров — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  counter_rate([(0, 100), (10, 150), (20, 20), (30, 40)])
+Вывод: 3.0                    # 50 + 20 + 20 за 30 секунд
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>uptime(checks, interval)</code> — результаты проверки <code>/health</code> каждые <code>interval</code> секунд. Ответ —
+<code>(доступность в %, округлить до 2 знаков; самый долгий простой в секундах)</code>. Пусто — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  uptime([True, True, False, False, False, True, False, True], 30)
+Вывод: (50.0, 90)
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>error_budget(total, failed, slo)</code> — SLO <code>0.995</code> значит: можно ошибиться в 0,5 % запросов. Ответ —
+<code>(можно ошибок, осталось, какая доля бюджета потрачена — 3 знака)</code>; «можно» — целое число, вниз. Остаток может быть
+отрицательным.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  error_budget(10000, 20, 0.995), error_budget(200000, 1500, 0.999)
+Вывод: (50, 30, 0.4), (200, -1300, 7.5)
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>burn_alert(minutes, slo, factor=14.4, long=60, short=5)</code> — по минутам <code>(запросов, ошибок)</code>. Скорость
+сгорания бюджета за окно — <code>(ошибок / запросов) / (1 − slo)</code>; окно — последние <code>long</code> (или <code>short</code>) минут, включая
+текущую, а в начале — сколько есть. Найдите первую минуту, где скорость <strong>больше</strong> <code>factor</code> в обоих окнах, или
+<code>None</code>. Пустое окно — скорость 0.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  burn_alert([(100, 0)] * 30 + [(100, 30)] * 10, 0.999)
+Вывод: 31                     # в минуту 30 короткое окно уже горит, длинное ещё нет
+</code></pre></div>
+
+<h2>D. Инциденты</h2>
+<p><strong>D1.</strong> <code>downtime(intervals)</code> — простои <code>(начало, конец)</code> из разных алертов могут пересекаться и касаться. Ответ —
+<code>(слитые интервалы по возрастанию, общий простой)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  downtime([(10, 20), (15, 30), (40, 45), (30, 35)])
+Вывод: ([(10, 35), (40, 45)], 30)
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>dedupe_alerts(alerts, window)</code> — алерты <code>(ts, имя)</code>. Повтор того же имени раньше, чем через <code>window</code>
+секунд после <strong>последнего оставленного</strong>, выбрасываем. Ответ — оставленные по времени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  dedupe_alerts([(0, "5xx"), (30, "5xx"), (65, "5xx"), (10, "slow"), (70, "5xx"), (130, "5xx")], 60)
+Вывод: [(0, "5xx"), (10, "slow"), (65, "5xx"), (130, "5xx")]
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>timeline(events)</code> — хронология для постмортема: события <code>(ts, текст)</code> по времени (равные — в исходном
+порядке), время — от первого события: <code>T+мм:сс</code>, от часа — <code>T+ч:мм:сс</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  timeline([(1000, "починили"), (700, "алерт"), (640, "деплой v0.8"), (4300, "постмортем")])
+Вывод: ["T+00:00 деплой v0.8", "T+01:00 алерт", "T+06:00 починили", "T+1:01:00 постмортем"]
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> На staging логи сервера — JSON одной строкой (лаба 14), есть <code>/health</code> и <code>/metrics</code> с RED-метриками.
+Покажите, как найти все ошибки одной комнаты за последние 10 минут одной командой.</p>
+<p><strong>E2.</strong> Алерты в отдельный Telegram-чат команды: правило с <code>for</code>, без повторов чаще раза в час, сообщение
+«решено». Покажите алерт на учении «сайт упал» (остановите контейнер на staging).</p>
+<p><strong>E3.</strong> Постмортем учения в <code>docs/incidents/</code>: хронология, причина, что сработало, что нет, три действия с
+ответственными. Логи разбирал агент — отметьте, что он нашёл верно и что пропустил.</p>
+<p><strong>E4 · босс.</strong> Мини-язык запросов к логам. Записи — словари; уровни сравниваются по порядку
+<code>DEBUG &lt; INFO &lt; WARNING &lt; ERROR &lt; CRITICAL</code>. За каждую часть свой плюс.</p>
+<p>а) <code>parse_query(q)</code> — условия через пробел: <code>поле оператор значение</code>, операторы <code>= != &gt; &gt;= &lt; &lt;=</code>. Значение — целое,
+дробное или строка. Непонятное условие или неизвестный уровень в <code>level</code> — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_query("level&gt;=WARNING room=R1 ms&gt;100")
+Вывод: [("level", "&gt;=", "WARNING"), ("room", "=", "R1"), ("ms", "&gt;", 100)]
+</code></pre></div>
+
+<p>б) <code>run_query(records, q)</code> — записи, где верны все условия. Нет поля — условие ложно; <code>&gt; &gt;= &lt; &lt;=</code> — только для
+чисел (и для <code>level</code>), иначе ложно.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  R = [{"level": "INFO", "path": "/ws", "ms": 20, "room": "R1"},
+            {"level": "ERROR", "path": "/ws", "ms": 350, "room": "R1"},
+            {"level": "WARNING", "path": "/api", "ms": 120, "room": "R2"},
+            {"level": "ERROR", "path": "/api", "ms": 900},
+            {"level": "DEBUG", "path": "/ws", "ms": 5, "room": "R1"}]
+       run_query(R, "level&gt;=WARNING room=R1 ms&gt;100")
+Вывод: [{"level": "ERROR", "path": "/ws", "ms": 350, "room": "R1"}]
+</code></pre></div>
+
+<p>в) <code>stats(records, q)</code> — <code>"&lt;условия&gt; | count by F"</code>, <code>"| avg X by F"</code> (округлить до одного знака),
+<code>"| max X by F"</code>. Записи без <code>F</code> пропускаем. Ключи по возрастанию. Другое — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  stats(R, "level&gt;=INFO | count by path"), stats(R, "| avg ms by path")
+Вывод: {"/api": 2, "/ws": 2}, {"/api": 510.0, "/ws": 125.0}
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>merge_logs(files)</code> — логи нескольких сервисов, в каждом строки JSON с <code>ts</code>, но бывают строки без <code>ts</code>
+(трейсбек) — они относятся к предыдущей записи своего файла и идут вместе с ней; строки до первой записи
+выбрасываем. Слейте всё по <code>ts</code>; при равенстве — по номеру файла, затем по порядку в файле.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  a = ['{"ts": 1, "msg": "api start"}', '{"ts": 5, "msg": "api error"}',
+            'Traceback (most recent call last):', '  ValueError: boom']
+       b = ['{"ts": 2, "msg": "bot start"}', '{"ts": 5, "msg": "bot retry"}']
+       merge_logs([a, b])
+Вывод: [a[0], b[0], a[1], a[2], a[3], b[1]]
+</code></pre></div></body></html>

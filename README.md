@@ -67,7 +67,7 @@ tools/                         сборка презентаций, листов
 | 13 | 01.02–07.02 | [25 · Лекция](lessons/w13-l01-testing/README.md) | Тестирование: pytest-asyncio, тесты WebSocket, тестовая БД, смоук e2e | [lab13](lessons/w13-l01-testing/labs/lab13-mutation-tests/README.md) |  |
 | 13 | 01.02–07.02 | [26 · Семинар](lessons/w13-l02-qa-plan/README.md) | Семинар: QA-план, баг-трекинг, тесты в CI, метрики работы агента |  |  |
 | 14 | 08.02–14.02 | [27 · Лекция](lessons/w14-l01-monitoring/README.md) | Мониторинг и логи: структурированные логи, healthcheck, метрики, алерты в Telegram | [lab14](lessons/w14-l01-monitoring/labs/lab14-logs-alerts/README.md) |  |
-| 14 | 08.02–14.02 | [28 · Семинар](lessons/w14-l02-incident-drill/README.md) | Семинар: дашборд и алерты; учение «сайт упал» |  | c07 |
+| 14 | 08.02–14.02 | [28 · Семинар](lessons/w14-l02-incident-drill/README.md) | Семинар: дашборд и алерты; учение «сайт упал» |  | [c07](contests/c07-tests-logs/sheet.pdf) |
 | 15 | 15.02–21.02 | [29 · Лекция](lessons/w15-l01-security/README.md) | Безопасность и ответственность: античит, rate limit, данные пользователей, prompt injection | [lab15](lessons/w15-l01-security/labs/lab15-anticheat-ratelimit/README.md) |  |
 | 15 | 15.02–21.02 | [30 · Семинар](lessons/w15-l02-security-audit/README.md) | Семинар: аудит безопасности, feature freeze |  |  |
 | 16 | 22.02–28.02 | [31 · Лекция](lessons/w16-l01-review-t2/README.md) | Повторение к срезу Т2, ретро триместра |  |  |

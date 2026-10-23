@@ -11,6 +11,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 7 «Тесты и логи» (сезон 2): [лист PDF](../../contests/c07-tests-logs/sheet.pdf), [исходник](../../contests/c07-tests-logs/sheet.md); решения — `solutions/contests/c07-tests-logs/`
 
 ## Агентная разработка
 
