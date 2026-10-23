@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    environment:
+      BOT_TOKEN: "123456:AAE-real-token-here"
+      DATABASE_URL: postgresql://game:game@db:5432/game
+    depends_on: [db, cache]
+  bot:
+    build: .
+    command: python -m bot.main
+    depends_on: [app]
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: game
+  nginx:
+    image: nginx:1.27
+    ports: ["80:80", "443:443"]
+    depends_on: [app]

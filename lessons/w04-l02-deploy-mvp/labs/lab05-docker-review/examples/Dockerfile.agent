@@ -1,0 +1,7 @@
+# Dockerfile, который написал агент
+FROM python
+WORKDIR /app
+COPY . .
+ENV BOT_TOKEN=123456:AAE-real-token-here
+RUN pip install -r requirements.txt
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
