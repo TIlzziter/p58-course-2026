@@ -1,5 +1,4 @@
 import pytest
-
 from gitflow import branch_name
 
 

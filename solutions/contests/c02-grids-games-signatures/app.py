@@ -1,16 +1,14 @@
 """Контест 2 — E1 и E5*: FastAPI (эталон)."""
+import hashlib
+import hmac
 import json
 import os
 import time
-
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-
-import hashlib
-import hmac
 from urllib.parse import parse_qsl
 
+from fastapi import FastAPI, HTTPException
 from minesweeper import GameOver, Minesweeper
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 

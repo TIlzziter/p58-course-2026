@@ -1,7 +1,6 @@
 import hmac
 
 import pytest
-
 from conftest import TOKEN, fields, telegram_sign
 from initdata import verify
 

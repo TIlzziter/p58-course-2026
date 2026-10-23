@@ -1,6 +1,5 @@
-from helpers import board, rng
-
 from engine import step
+from helpers import board, rng
 
 
 def alive(s):

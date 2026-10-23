@@ -1,5 +1,4 @@
 import pytest
-
 from ci_tools import job_order
 
 

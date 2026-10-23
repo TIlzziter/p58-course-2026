@@ -1,6 +1,5 @@
 import pytest
 from fakes import AWS, GH, PEM, TG
-
 from scanner import scan_line
 
 

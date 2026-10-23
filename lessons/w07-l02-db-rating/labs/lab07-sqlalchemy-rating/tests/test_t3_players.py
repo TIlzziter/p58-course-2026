@@ -1,7 +1,6 @@
-from sqlalchemy import func, select
-
 import repo
 from models import Player
+from sqlalchemy import func, select
 
 
 async def test_create(session):

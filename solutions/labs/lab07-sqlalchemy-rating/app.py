@@ -2,12 +2,11 @@
 import os
 from typing import Literal
 
+import repo
+from db import make_engine
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
-import repo
-from db import make_engine
 
 engine = make_engine(os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///rating.db"))
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False)

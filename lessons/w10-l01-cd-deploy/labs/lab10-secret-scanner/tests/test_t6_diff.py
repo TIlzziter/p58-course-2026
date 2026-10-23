@@ -1,5 +1,4 @@
 from fakes import GH, TG
-
 from scanner import mask, scan_diff
 
 DIFF = f"""diff --git a/bot/main.py b/bot/main.py

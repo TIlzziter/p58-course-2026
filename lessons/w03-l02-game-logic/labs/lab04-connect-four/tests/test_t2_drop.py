@@ -1,5 +1,4 @@
 import pytest
-
 from connect4 import MoveError, drop, new_board
 
 

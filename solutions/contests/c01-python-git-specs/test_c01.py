@@ -1,9 +1,18 @@
+import app as app_module
 import pytest
 from fastapi.testclient import TestClient
-
-import app as app_module
-from tasks import (can_merge, conflict_files, done_percent, free_roles, game_commits, issue_number,
-                   parse_story, split_teams, top_authors, validate_move)
+from tasks import (
+    can_merge,
+    conflict_files,
+    done_percent,
+    free_roles,
+    game_commits,
+    issue_number,
+    parse_story,
+    split_teams,
+    top_authors,
+    validate_move,
+)
 
 
 def test_a1():

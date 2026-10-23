@@ -1,5 +1,4 @@
 import pytest
-
 from ci_tools import render
 
 CTX = {

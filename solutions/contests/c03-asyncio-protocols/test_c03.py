@@ -2,14 +2,25 @@ import asyncio
 import time
 
 import anyio
+import app as app_module
 import pytest
+from battleship import Battle, Fleet, ShotError, next_shot
 from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketTestSession
-
-import app as app_module
-from battleship import Battle, Fleet, ShotError, next_shot
-from tasks import (assign_rooms, count_types, decode_frames, double_all, encode_frame, first_answer,
-                   first_out_of_turn, limited, matchmake, max_online, split_stream, with_timeout)
+from tasks import (
+    assign_rooms,
+    count_types,
+    decode_frames,
+    double_all,
+    encode_frame,
+    first_answer,
+    first_out_of_turn,
+    limited,
+    matchmake,
+    max_online,
+    split_stream,
+    with_timeout,
+)
 
 
 def _receive(self, timeout=3.0):

@@ -1,8 +1,7 @@
 import pytest
-from sqlalchemy import select
-
 import repo
 from models import Match, Player
+from sqlalchemy import select
 
 
 async def rating(session, tg):

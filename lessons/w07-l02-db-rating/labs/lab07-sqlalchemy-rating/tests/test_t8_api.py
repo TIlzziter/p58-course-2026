@@ -1,10 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
+from models import Base
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.pool import NullPool
-
-from models import Base
 
 
 @pytest.fixture

@@ -1,5 +1,4 @@
 import pytest
-
 from ci_tools import load_workflow
 
 JOBS = "\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps: []\n"

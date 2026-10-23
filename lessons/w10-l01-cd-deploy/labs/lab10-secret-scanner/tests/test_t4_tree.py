@@ -1,5 +1,4 @@
 from fakes import AWS, GH, TG
-
 from scanner import scan_tree
 
 

@@ -1,5 +1,4 @@
 import pytest
-
 from conftest import board_from
 from connect4 import winner, winning_line
 

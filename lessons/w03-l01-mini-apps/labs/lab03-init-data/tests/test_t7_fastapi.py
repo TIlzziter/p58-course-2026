@@ -1,8 +1,7 @@
-import pytest
-from fastapi.testclient import TestClient
-
 import initdata
+import pytest
 from conftest import NOW, fields, telegram_sign
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture

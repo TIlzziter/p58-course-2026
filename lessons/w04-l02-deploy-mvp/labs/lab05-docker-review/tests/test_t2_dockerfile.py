@@ -1,5 +1,4 @@
 import pytest
-
 from conftest import ex
 from review import dockerfile_problems
 

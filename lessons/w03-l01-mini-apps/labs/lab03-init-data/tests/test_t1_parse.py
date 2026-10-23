@@ -1,5 +1,4 @@
 import pytest
-
 from conftest import USER
 from initdata import InitDataError, parse_init_data
 

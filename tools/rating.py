@@ -9,12 +9,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import syllabus as S
+from contest import PART_RE, TASK_RE
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
-
-import syllabus as S
-from contest import PART_RE, TASK_RE
 
 ROOT = Path(__file__).resolve().parent.parent
 STUDENTS = [f"Ученик {i}" for i in range(1, 9)]

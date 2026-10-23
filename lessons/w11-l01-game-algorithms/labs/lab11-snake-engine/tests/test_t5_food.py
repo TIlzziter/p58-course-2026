@@ -1,6 +1,5 @@
-from helpers import board, rng
-
 from engine import new_game, place_food, step
+from helpers import board, rng
 
 
 def test_eat_grows_and_scores():

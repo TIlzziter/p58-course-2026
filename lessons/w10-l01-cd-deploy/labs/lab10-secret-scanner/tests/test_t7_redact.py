@@ -2,7 +2,6 @@ import base64
 from urllib.parse import quote
 
 from fakes import TG
-
 from scanner import redact
 
 

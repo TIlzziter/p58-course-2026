@@ -1,6 +1,5 @@
 """Задача 5: sample/.github/workflows/ci.yml доведён до требований README."""
 import pytest
-
 from ci_tools import expand_matrix, job_order, lint_workflow, load_workflow
 
 

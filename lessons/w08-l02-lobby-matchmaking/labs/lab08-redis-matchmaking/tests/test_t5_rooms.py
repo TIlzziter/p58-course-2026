@@ -1,5 +1,4 @@
 import pytest
-
 from rooms import create_room, invite_link, load_room, room_from_start_param, save_state
 
 

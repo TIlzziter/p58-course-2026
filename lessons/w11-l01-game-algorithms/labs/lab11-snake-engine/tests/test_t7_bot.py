@@ -1,7 +1,6 @@
-from helpers import board, rng
-
 from bot import ai_move
 from engine import DIRS, step
+from helpers import board, rng
 
 
 def play_until_eat(s, name, limit=100):

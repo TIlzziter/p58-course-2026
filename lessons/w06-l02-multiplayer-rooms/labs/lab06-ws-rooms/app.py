@@ -1,6 +1,5 @@
 """WebSocket-сервер комнат: /ws/{room_id}?name=Аня[&watch=true]. Задача 6."""
 from fastapi import FastAPI, WebSocket
-
 from protocol import parse_message
 from rooms import Room
 

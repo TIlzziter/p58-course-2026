@@ -1,10 +1,9 @@
 """Запросы к базе рейтинга. Функции не делают commit: транзакцией управляет вызывающий код."""
+import elo
+from models import RESULTS, Match, Player
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
-
-import elo
-from models import RESULTS, Match, Player
 
 SCORE = {"win1": 1, "win2": 0, "draw": 0.5}
 

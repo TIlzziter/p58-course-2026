@@ -2,10 +2,9 @@
 import os
 
 from alembic import context
-from sqlalchemy import create_engine
-
 from db import sync_url
 from models import Base
+from sqlalchemy import create_engine
 
 config = context.config
 target_metadata = Base.metadata

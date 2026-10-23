@@ -1,5 +1,4 @@
 import pytest
-
 from app import game
 from conftest import play
 

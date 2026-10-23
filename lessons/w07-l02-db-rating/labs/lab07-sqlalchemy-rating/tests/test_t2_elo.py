@@ -1,8 +1,7 @@
 import random
 
-import pytest
-
 import elo
+import pytest
 
 
 def test_expected():

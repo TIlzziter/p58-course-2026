@@ -1,5 +1,4 @@
 import pytest
-
 from matchmaking import allowed_diff, enqueue, find_match, queue_size
 
 

@@ -1,7 +1,6 @@
 import json
 
 import pytest
-
 from protocol import ProtocolError, parse_message
 
 

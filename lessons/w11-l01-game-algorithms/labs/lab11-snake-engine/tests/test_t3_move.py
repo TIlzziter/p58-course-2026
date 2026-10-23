@@ -1,7 +1,6 @@
 import pytest
-from helpers import board, rng
-
 from engine import new_game, step, turn
+from helpers import board, rng
 
 
 @pytest.mark.parametrize("cur, want, out", [

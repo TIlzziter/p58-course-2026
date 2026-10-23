@@ -1,5 +1,4 @@
 from fakes import GH, TG
-
 from scanner import Finding, mask, scan_text
 
 

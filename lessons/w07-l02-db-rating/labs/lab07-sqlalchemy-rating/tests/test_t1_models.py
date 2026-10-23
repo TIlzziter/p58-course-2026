@@ -1,8 +1,7 @@
 import pytest
+from models import Match, Player
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
-
-from models import Match, Player
 
 
 async def _insp(session, fn):

@@ -4,13 +4,26 @@ import json
 import time
 from urllib.parse import urlencode
 
+import app as app_module
 import pytest
 from fastapi.testclient import TestClient
-
-import app as app_module
 from minesweeper import GameOver, Minesweeper
-from tasks import (best_drop, click_to_cell, column, forged, fresh, gravity, k_in_row, longest_run, next_turn,
-                   parse_env, parse_image, parse_port, parse_query, sign)
+from tasks import (
+    best_drop,
+    click_to_cell,
+    column,
+    forged,
+    fresh,
+    gravity,
+    k_in_row,
+    longest_run,
+    next_turn,
+    parse_env,
+    parse_image,
+    parse_port,
+    parse_query,
+    sign,
+)
 
 TOKEN = "123456:TEST-TOKEN-for-c02"
 

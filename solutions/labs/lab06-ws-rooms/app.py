@@ -1,6 +1,5 @@
 """WebSocket-сервер комнат (эталон)."""
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-
 from protocol import ProtocolError, error, parse_message
 from rooms import Room, RoomError
 

@@ -1,6 +1,5 @@
 import pytest
 from conftest import types
-
 from rooms import RoomError
 
 

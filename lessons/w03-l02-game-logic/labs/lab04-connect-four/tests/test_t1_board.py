@@ -1,5 +1,4 @@
 import pytest
-
 from connect4 import new_board
 
 

@@ -1,9 +1,22 @@
 import pytest
-
 from layers import rebuilt_from
 from rollout import ready_ticks, rollback_plan, rolling_plan
-from tasks import (affected, bump, canary, env_diff, interpolate, leaked_tokens, next_release, pipeline_time,
-                   redact_url, rollback_target, runners_time, satisfies, sort_versions, stages)
+from tasks import (
+    affected,
+    bump,
+    canary,
+    env_diff,
+    interpolate,
+    leaked_tokens,
+    next_release,
+    pipeline_time,
+    redact_url,
+    rollback_target,
+    runners_time,
+    satisfies,
+    sort_versions,
+    stages,
+)
 
 J = {"lint": [], "types": [], "test": ["lint"], "build": ["test", "types"], "e2e": ["build"], "docs": []}
 D = {"lint": 1, "types": 2, "test": 5, "build": 3, "e2e": 4, "docs": 2}

@@ -1,5 +1,4 @@
 import pytest
-
 from scanner import check_env, parse_env
 
 TEXT = """

@@ -1,5 +1,4 @@
 import pytest
-
 from gitflow import is_valid_branch
 
 

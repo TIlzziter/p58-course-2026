@@ -1,5 +1,4 @@
 import pytest
-
 from conftest import NOW, TOKEN, fields, telegram_sign
 from initdata import InitDataError, WebAppUser, validate
 

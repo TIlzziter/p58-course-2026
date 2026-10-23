@@ -4,9 +4,8 @@ from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from sqlalchemy import create_engine, inspect
-
 from models import Base
+from sqlalchemy import create_engine, inspect
 
 HERE = Path(__file__).resolve().parent.parent
 

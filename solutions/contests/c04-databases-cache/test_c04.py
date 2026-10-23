@@ -3,11 +3,25 @@ from itertools import combinations
 
 import fakeredis
 import pytest
-
 from lru import LRU
-from tasks import (SCHEMA, add_win, best_streak, elo_delta, games_count, migration_order, once, parse_ddl,
-                   rank_with_ties, remember_recent, replay, review_migration, sliding_allow, top_players,
-                   top_wins, win_rate)
+from tasks import (
+    SCHEMA,
+    add_win,
+    best_streak,
+    elo_delta,
+    games_count,
+    migration_order,
+    once,
+    parse_ddl,
+    rank_with_ties,
+    remember_recent,
+    replay,
+    review_migration,
+    sliding_allow,
+    top_players,
+    top_wins,
+    win_rate,
+)
 from tournament import round_robin, standings, swiss_pairs
 
 

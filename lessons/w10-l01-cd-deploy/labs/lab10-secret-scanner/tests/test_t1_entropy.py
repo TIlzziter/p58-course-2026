@@ -1,5 +1,4 @@
 import pytest
-
 from scanner import looks_random, shannon_entropy
 
 
