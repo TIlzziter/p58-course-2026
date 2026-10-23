@@ -12,6 +12,7 @@
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab05-docker-review`](labs/lab05-docker-review/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab05-docker-review/`
+- Контест 2 «Сетки, игры и подписи» (сезон 1): [лист PDF](../../contests/c02-grids-games-signatures/sheet.pdf), [исходник](../../contests/c02-grids-games-signatures/sheet.md); решения — `solutions/contests/c02-grids-games-signatures/`
 
 ## Агентная разработка
 

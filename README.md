@@ -46,7 +46,7 @@ tools/                         сборка презентаций, листов
 | 3 | 09.11–15.11 | [05 · Лекция](lessons/w03-l01-mini-apps/README.md) | Telegram Mini Apps: initData и HMAC; HTML/CSS/JS и canvas | [lab03](lessons/w03-l01-mini-apps/labs/lab03-init-data/README.md) |  |
 | 3 | 09.11–15.11 | [06 · Семинар](lessons/w03-l02-game-logic/README.md) | Семинар: логика «4 в ряд» на сервере, pytest, отрисовка на canvas | [lab04](lessons/w03-l02-game-logic/labs/lab04-connect-four/README.md) |  |
 | 4 | 16.11–22.11 | [07 · Лекция](lessons/w04-l01-docker-nginx/README.md) | Docker и docker compose; Nginx как reverse proxy, домен, HTTPS |  |  |
-| 4 | 16.11–22.11 | [08 · Семинар](lessons/w04-l02-deploy-mvp/README.md) | Семинар: деплой MVP на VPS, чек-лист DevOps, репетиция демо | [lab05](lessons/w04-l02-deploy-mvp/labs/lab05-docker-review/README.md) | c02 |
+| 4 | 16.11–22.11 | [08 · Семинар](lessons/w04-l02-deploy-mvp/README.md) | Семинар: деплой MVP на VPS, чек-лист DevOps, репетиция демо | [lab05](lessons/w04-l02-deploy-mvp/labs/lab05-docker-review/README.md) | [c02](contests/c02-grids-games-signatures/sheet.pdf) |
 | 5 | 23.11–29.11 | [09 · Лекция](lessons/w05-l01-review-t1/README.md) | Повторение к срезу Т1, ретро триместра |  |  |
 | 5 | 23.11–29.11 | [10 · Семинар](lessons/w05-l02-demo-t1/README.md) | Демо Т1 для родителей и администрации; срез Т1 |  |  |
 | 6 | 30.11–06.12 | [11 · Лекция](lessons/w06-l01-websocket-asyncio/README.md) | WebSocket в FastAPI, asyncio; комнаты и протокол сообщений |  |  |
