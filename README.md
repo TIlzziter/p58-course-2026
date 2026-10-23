@@ -83,7 +83,7 @@ tools/                         сборка презентаций, листов
 | 21 | 29.03–04.04 | [41 · Лекция](lessons/w21-l01-game-ai/README.md) | Алгоритмы ИИ-соперника: минимакс, эвристики, Монте-Карло | [lab18](lessons/w21-l01-game-ai/labs/lab18-minimax/README.md) |  |
 | 21 | 29.03–04.04 | [42 · Семинар](lessons/w21-l02-ai-opponent/README.md) | Семинар: бот-соперник в одной из игр, турнир решений |  |  |
 | 22 | 05.04–11.04 | [43 · Лекция](lessons/w22-l01-load-scaling/README.md) | Нагрузка и масштабирование: locust, реплики за Nginx, Redis pub/sub, индексы | [lab19](lessons/w22-l01-load-scaling/labs/lab19-load-report/README.md) |  |
-| 22 | 05.04–11.04 | [44 · Семинар](lessons/w22-l02-load-test/README.md) | Семинар: нагрузочный тест и оптимизация |  | c11 |
+| 22 | 05.04–11.04 | [44 · Семинар](lessons/w22-l02-load-test/README.md) | Семинар: нагрузочный тест и оптимизация |  | [c11](contests/c11-game-trees/sheet.pdf) |
 | 23 | 12.04–18.04 | [45 · Лекция](lessons/w23-l01-hackathon-window/README.md) | Окно внешнего хакатона: подготовка и участие |  |  |
 | 23 | 12.04–18.04 | [46 · Семинар](lessons/w23-l02-hackathon-retro/README.md) | Семинар: ретро хакатона, буфер, опционально QuestHub |  |  |
 | 24 | 19.04–25.04 | [47 · Лекция](lessons/w24-l01-extension-cycle/README.md) | Расширение продукта: полный цикл spec-first |  |  |

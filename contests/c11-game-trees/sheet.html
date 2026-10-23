@@ -1,0 +1,177 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 11 · Деревья игр и перебор</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 11 · Деревья игр и перебор</h1>
+<p>Неделя 22 · темы недель 21–22: перебор с возвратом и поиск в ширину, минимакс и альфа-бета, выигрышные
+позиции, ускорения перебора; в проектной части — ИИ-соперник и нагрузка. Сдача устная у экрана:
+показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Перебор</h2>
+<p><strong>A1.</strong> <code>subset_sums(nums, target)</code> — сколько подмножеств (выбираем позиции, одинаковые числа на разных местах
+различаются) дают сумму <code>target</code>. Пустое подмножество — сумма 0. Сколько всего подмножеств проверит перебор?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  subset_sums([3, 1, 4, 1, 5], 5), subset_sums([2, 2, 2], 4), subset_sums([], 0)
+Вывод: 4, 3, 1
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>n_queens(n)</code> — сколько способов поставить <code>n</code> ферзей на доску <code>n × n</code>, чтобы никто никого не бил.
+Перебор с возвратом: по ферзю в строке, занятые столбцы и диагонали — в множествах.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  [n_queens(n) for n in range(1, 9)]
+Вывод: [1, 0, 0, 2, 10, 4, 40, 92]
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>knight_distance(a, b)</code> — наименьшее число ходов коня с клетки <code>a</code> на клетку <code>b</code> доски 8×8
+(<code>"a1"</code>…<code>"h8"</code>). Поиск в ширину.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  knight_distance("a1", "b3"), knight_distance("a1", "h8")
+       knight_distance("a1", "b2")
+Вывод: 1, 6
+       4
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>sliding_2x3(start)</code> — пятнашки 2×3: строка из 6 символов построчно, <code>"_"</code> — пустая клетка.
+Цель — <code>"12345_"</code>. Ход — сдвинуть в пустую клетку соседнюю по стороне фишку. Наименьшее число ходов или <code>−1</code>,
+если собрать нельзя. Почему ровно половину позиций собрать нельзя?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sliding_2x3("1234_5"), sliding_2x3("_12345"), sliding_2x3("21345_")
+Вывод: 1, 15, -1
+</code></pre></div>
+
+<h2>B. Деревья игр</h2>
+<p><strong>B1.</strong> <code>nim(heaps)</code> — ним: ход — взять сколько угодно (хотя бы один) камней из одной кучки, кто не может
+ходить — проиграл. Ответ — <code>("second", None)</code>, если ходящий проигрывает, иначе <code>("first", (кучка, сколько
+оставить))</code> — выигрывающий ход в кучке с наименьшим номером. Подсказка: XOR размеров.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  nim([3, 4, 5]), nim([1, 2, 3]), nim([7])
+Вывод: ("first", (0, 1)), ("second", None), ("first", (0, 0))
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>game_value(tree, maximizing=True)</code> — дерево игры: вложенные списки, лист — число. В корне ходит
+максимизирующий, на следующем уровне — минимизирующий, и так по очереди.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  game_value([[3, 5], [2, 9], [0, 1]])
+       game_value([[[1, 8], [3, 2]], [[9, 4], [6, 7]]])
+Вывод: 3
+       7
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>alphabeta_leaves(tree)</code> — какие листья посмотрит альфа-бета (дети слева направо, отсечение при
+<code>alpha ≥ beta</code>) — по порядку просмотра. Нарисуйте дерево из примера и отметьте отсечённые ветки.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  alphabeta_leaves([[3, 5], [2, 9], [0, 1]])
+       alphabeta_leaves([[5, 6], [7, 4, 5], [3, 1]])
+Вывод: [3, 5, 2, 0]
+       [5, 6, 7, 4, 3]
+</code></pre></div>
+
+<h2>C. Выигрышные позиции</h2>
+<p><strong>C1.</strong> <code>ttt_games()</code> — сколько разных партий крестиков-ноликов: последовательностей ходов до победы или
+до заполнения поля. Ответ — <code>{"total", "x", "o", "draw"}</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ttt_games()
+Вывод: {"total": 255168, "x": 131184, "o": 77904, "draw": 46080}
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>losing_positions(n, moves)</code> — игра «бери камни»: за ход берём <code>k ∈ moves</code> камней (если хватает),
+кто не может ходить — проиграл. Все позиции <code>0..n</code>, проигрышные для того, кто ходит. Позиция проигрышная,
+если любой ход ведёт в выигрышную.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  losing_positions(20, {1, 3, 4}), losing_positions(10, {1, 2})
+Вывод: [0, 2, 7, 9, 14, 16], [0, 3, 6, 9]
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>grundy(n, moves)</code> — числа Шпрага — Гранди той же игры: <code>g(s) = mex {g(s − k)}</code>, <code>mex</code> — наименьшее
+неотрицательное число не из множества. <code>sum_winner(heaps, moves)</code> — несколько кучек, ход — в одной кучке
+по правилам C2: <code>"first"</code>, если XOR чисел Гранди кучек не ноль, иначе <code>"second"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  grundy(10, {1, 3, 4})
+       sum_winner([2, 7], {1, 3, 4}), sum_winner([3, 5, 6], {1, 2})
+Вывод: [0, 1, 0, 1, 2, 3, 2, 0, 1, 0, 1]
+       "second", "first"
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>principal_variation(tree)</code> — главная линия: номера детей на пути от корня до листа, если оба
+играют идеально (дерево как в B2); при равных значениях — левый ребёнок. Чем она полезна боту, который
+думает над следующим ходом?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  principal_variation([[3, 5], [2, 9], [0, 1]])
+       principal_variation([[[1, 8], [3, 2]], [[9, 4], [6, 7]]])
+Вывод: [0, 0]
+       [1, 1, 1]
+</code></pre></div>
+
+<h2>D. Ускорения</h2>
+<p><strong>D1.</strong> <code>grid_paths(grid)</code> — число путей из левого верхнего угла в правый нижний ходами вправо и вниз;
+<code>"#"</code> — стена. Перебор с запоминанием (<code>functools.cache</code>): поле 16×16 без стен — мгновенно.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  grid_paths(["...", "...", "..."]), grid_paths(["..#", "...", "#.."])
+       grid_paths(["." * 16] * 16)
+Вывод: 6, 4
+       155117520
+</code></pre></div>
+
+<p><strong>D2.</strong> Хэширование Зобриста — ключ таблицы транспозиций. <code>zobrist_table(cells, pieces, seed=58)</code>:
+<code>rng = random.Random(seed)</code>, <code>table[клетка][фигура] = rng.getrandbits(64)</code> (клетки снаружи, фигуры внутри).
+<code>zobrist(board, table)</code> — XOR <code>table[i][v − 1]</code> по клеткам с фигурой <code>v ≥ 1</code>. <code>zobrist_move(h, cell, old, new,
+table)</code> — хэш после замены <code>old</code> на <code>new</code> в одной клетке за O(1).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  t = zobrist_table(9, 2); h = zobrist([1, 0, 0, 0, 2, 0, 0, 0, 0], t); hex(h)
+       zobrist([1, 0, 0, 0, 2, 0, 0, 0, 1], t) == zobrist_move(h, 8, 0, 1, t)
+Вывод: "0x414f0e3a63d72d85"
+       True
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>order_gain(tree)</code> — сколько листьев посмотрит альфа-бета (B3) в исходном порядке и после
+идеального упорядочения: у каждого узла дети отсортированы по значению (B2) — лучшие для ходящего первыми,
+при равенстве порядок сохраняется. Ответ — пара чисел.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  order_gain([[[1, 8], [3, 2]], [[9, 4], [6, 7]]])
+       order_gain([[3, 5], [2, 9], [0, 1]])
+Вывод: (8, 5)
+       (4, 4)
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> ИИ-соперник вашей игры (семинар 21): три позиции с известным ответом («выиграй за ход», «заблокируй»,
+«не попадись в вилку»), тесты на них и лимит времени на ход.</p>
+<p><strong>E2.</strong> Отчёт о нагрузке (семинар 22): таблица «до/после» по p95 и ошибкам, одна оптимизация агента,
+которая помогла, и одна, которая не дала ничего.</p>
+<p><strong>E3.</strong> Две реплики API за Nginx: игроки одной комнаты на разных репликах видят ходы друг друга
+(Redis pub/sub). Покажите, где хранится состояние комнаты.</p>
+<p><strong>E4 · босс.</strong> Кубик в дереве игры. Ответы — <code>fractions.Fraction</code>. За каждую часть свой плюс.</p>
+<p>а) <code>expectimax(node)</code> — узел: число (лист) или пара <code>(тип, дети)</code>, тип <code>"max"</code>, <code>"min"</code> или <code>"chance"</code>;
+у <code>"chance"</code> дети — пары <code>(вероятность, узел)</code>, сумма вероятностей не 1 — <code>ValueError</code>. Значение случайного
+узла — среднее, взвешенное вероятностями.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  h = Fraction(1, 2)
+       expectimax(("max", [("chance", [(h, 10), (h, 0)]), ("min", [4, 7])]))
+Вывод: Fraction(5, 1)
+</code></pre></div>
+
+<p>б) <code>reach_probability(target)</code> — игра «Свинья»: бросаем кубик; выпала 1 — ход сгорает, 2–6 — прибавляются
+к сумме хода. Бросаем, пока сумма меньше <code>target</code>. Вероятность набрать <code>≥ target</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  reach_probability(2), reach_probability(20)
+Вывод: Fraction(5, 6), Fraction(5675645, 15116544)
+</code></pre></div>
+
+<p>в) <code>expected_hold(k)</code> — ожидаемые очки за ход при стратегии «бросать, пока сумма меньше <code>k</code>»; <code>best_hold(limit=100)</code>
+— все <code>k</code> из <code>1..limit</code> с наибольшим ожиданием, по возрастанию.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  expected_hold(2), best_hold()
+Вывод: Fraction(10, 3), [20, 21]
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>solve_connect(cols, rows, k)</code> — кто выигрывает «k в ряд» (фишки падают вниз, первый ходит в любой
+столбец) при идеальной игре: <code>1</code>, <code>−1</code> или <code>0</code>. Нужны таблица транспозиций и ранний выход по найденной победе;
+<code>(4, 4, 4)</code> должно решаться за секунды. Что изменится, если проверять победу только у последней фишки?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  solve_connect(3, 3, 3), solve_connect(4, 3, 3), solve_connect(4, 4, 4)
+Вывод: 0, 1, 0
+</code></pre></div></body></html>

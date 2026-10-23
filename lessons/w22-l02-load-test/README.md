@@ -10,6 +10,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 11 «Деревья игр и перебор» (сезон 2): [лист PDF](../../contests/c11-game-trees/sheet.pdf), [исходник](../../contests/c11-game-trees/sheet.md); решения — `solutions/contests/c11-game-trees/`
 
 ## Агентная разработка
 
