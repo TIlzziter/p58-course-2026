@@ -1,0 +1,120 @@
+title: Семинар: деплой MVP на VPS и репетиция демо
+kicker: Неделя 4 · Семинар
+parts: Деплой|Проверка и демо
+full: Весь семинар · 135 мин
+short: Основное · 110 мин
+
+@part 1
+## Игра 1 выходит в интернет | 2 | cover
+sub: Поднимаем сервер, собираем compose, получаем HTTPS{br}и репетируем демо Т1
+chips: VPS | ssh | docker compose | certbot | BotFather
+
+## План | 2
+| Блок | Время | Результат |
+| Подготовка VPS: ssh, firewall, Docker | 20 мин | `docker run hello-world` на сервере |
+| Репозиторий и `.env` на сервере | 15 мин | `docker compose up -d` |
+| Домен и HTTPS | 30 мин | `https://<команда>.p58-games.ru` |
+| Перерыв | 10 мин | — |
+| Ревью конфигов по чек-листу (лаба 05) | 25 мин | отчёт в PR |
+| Mini App в BotFather, смоук-тест | 15 мин | игра открывается из бота |
+| Репетиция демо | 20 мин | сценарий на 3 минуты |
+
+## Подготовка VPS | 8
+```bash На своём ноутбуке и затем на сервере
+ssh-keygen -t ed25519 -C "team1-devops"            # ключ, если ещё нет
+ssh-copy-id root@203.0.113.10                      # положить ключ на сервер
+ssh root@203.0.113.10
+
+adduser deploy && usermod -aG sudo deploy          # работаем не под root
+curl -fsSL https://get.docker.com | sh             # официальный скрипт установки Docker
+usermod -aG docker deploy
+ufw allow OpenSSH && ufw allow 80,443/tcp && ufw enable
+```
+:: tech
+card: Вход по ключу :: После проверки входа по ключу отключаем пароль: `PasswordAuthentication no` в `/etc/ssh/sshd_config`. Подбор паролей к ssh начнётся в первый же час.
+card: Docker и ufw :: Порты, опубликованные Docker (`ports:`), **обходят** правила ufw. Поэтому база не должна иметь `ports` вовсе, а не «закрыта фаерволом».
+
+## Код и секреты на сервере | 6
+```bash ~deploy
+git clone https://github.com/<org>/<repo>.git game && cd game
+cp .env.example .env && nano .env      # BOT_TOKEN, DB_PASSWORD, WEBAPP_URL
+chmod 600 .env
+docker compose up -d --build
+docker compose ps                      # все сервисы running, db — healthy
+```
+- `.env` создаём **только на сервере** руками, в git его нет.
+- `.env.example` в репозитории перечисляет переменные без значений: новый человек сразу видит, что заполнить.
+q: Где у нас окажется токен бота, если сделать `docker compose build` с `COPY . .` и без `.dockerignore`? :: В слое образа. Любой, кто получит образ, достанет токен; токен придётся отозвать в BotFather.
+
+## Домен: A-запись | 4
+- В панели DNS: `team1.p58-games.ru` → `A` → IP сервера.
+- Ждём и проверяем с ноутбука: `dig +short team1.p58-games.ru`.
+- Проверяем HTTP до сертификата: `curl -I http://team1.p58-games.ru` → ответ nginx.
+! Сначала DNS, потом certbot: Let's Encrypt проверяет домен по адресу из DNS.
+
+## HTTPS: курица и яйцо | 7
+- Nginx не стартует с `listen 443 ssl`, пока файлов сертификата нет. А certbot нужен работающий nginx на 80-м порту.
+- Порядок: **1)** конфиг только с `listen 80` и `/.well-known/` → **2)** получить сертификат → **3)** включить блок 443 → `nginx -s reload`.
+```bash Получить сертификат через контейнер certbot
+docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
+  -d team1.p58-games.ru --email devops@example.ru --agree-tos --no-eff-email
+docker compose exec nginx nginx -t && docker compose exec nginx nginx -s reload
+```
+:: tech
+card: Сервис certbot в compose :: `image: certbot/certbot`, тома `./certbot/conf:/etc/letsencrypt` и `./certbot/www:/var/www/certbot`. У nginx те же тома с `:ro`. Отлаживаем с `--staging`: у Let's Encrypt есть лимиты на число выпусков.
+card: Автопродление :: Таймер или cron раз в сутки: `docker compose run --rm certbot renew && docker compose exec nginx nginx -s reload`. Certbot продлевает, только когда срок подходит к концу.
+
+@part 2
+## Ревью конфигов агента | 8
+- Сегодня агент уже написал вашей команде Dockerfile и compose. DevOps проверяет их **до мержа**.
+- Запускаем **лабу 05**: `report()` по вашим `Dockerfile`, `compose.yml`, `nginx.conf`, `.dockerignore`.
+- Каждое замечание из отчёта — чекбокс в описании PR. Мержим, когда нет 🔴.
+```python scripts/review_configs.py
+from pathlib import Path
+from review import report
+
+read = lambda p: Path(p).read_text() if Path(p).exists() else ""
+print(report(read("api/Dockerfile"), read("compose.yml"), read("nginx/default.conf"), read(".dockerignore")))
+```
+:: tech
+card: Автоматизация сейчас, CI потом :: Пока запускаем руками. На неделе 10 тот же скрипт станет шагом GitHub Actions, и PR с 🔴 не пройдёт проверку.
+card: В AGENTS.md :: Каждая повторяющаяся ошибка агента — новое правило в разделе «Docker»: «база без ports», «секреты только через env_file».
+
+## BotFather и Mini App | 5
+- `/mybots` → бот → **Bot Settings → Menu Button**: адрес `https://team1.p58-games.ru`.
+- Или `/newapp`: отдельное Mini App с прямой ссылкой `t.me/<бот>/<app>`.
+- Кнопку `WebAppInfo` в `/start` (неделя 2) переключаем на тот же адрес через `WEBAPP_URL` в `.env`.
+q: Почему Mini App не открывается по `http://203.0.113.10:8080`? :: Telegram открывает Mini App только по HTTPS. Нужен домен и сертификат.
+
+## Смоук-тест после деплоя | 6
+| Проверка | Как | Ожидаем |
+| Сертификат | `curl -I https://team1.p58-games.ru` | `HTTP/2 200` |
+| Редирект | `curl -I http://team1.p58-games.ru` | `301` на https |
+| API | `curl https://team1.p58-games.ru/api/health` | `{"status": "ok"}` |
+| База не торчит | `nc -zv team1.p58-games.ru 5432` с ноутбука | соединение не установлено |
+| Бот | `/start` в Telegram | кнопка «Играть» открывает игру |
+| Перезагрузка | `sudo reboot`, через минуту снова все проверки | всё поднялось само |
+> Смоук-тест — короткий список проверок «не дымит ли». Записываем его в `docs/DEPLOY.md` и прогоняем после каждого деплоя.
+
+## Когда что-то не так | 5
+| Симптом | Где смотреть |
+| 502 Bad Gateway | `docker compose logs api`: API упал или слушает 127.0.0.1 |
+| 404 на `/api/...` | слэш в `proxy_pass`, префикс в роутере |
+| Бот молчит | `docker compose logs bot`: токен, второй экземпляр бота с тем же токеном |
+| Белый экран в Mini App | DevTools: ошибки JS, смешанный контент `http://` на HTTPS-странице |
+| База пустая после обновления | том не подключён или `down -v` |
+
+## Репетиция демо Т1 | 6
+- **3 минуты** на команду: проблема → живая игра из бота → как работаем (доска, PR, агент) → что дальше.
+- Играем **на телефоне** с выводом экрана, второй игрок — из зала.
+- План Б: заранее записанное видео 30 секунд на случай, если Wi-Fi подведёт.
+- Каждый в команде говорит хотя бы одну фразу про свою роль.
+:: tech
+card: Критерии демо :: Игра открывается из бота по HTTPS; сыграна партия до победы; показан PR с ревью; названа одна ошибка агента и как её нашли.
+card: Обратная связь :: Слушатели записывают «понравилось / непонятно / предложение» — по одной карточке на команду. Разбираем в конце семинара.
+
+## Итоги и домашнее задание | 3
+- MVP живёт на VPS: compose, nginx, HTTPS, Mini App открывается из бота.
+- Конфиги агента прошли ревью по чек-листу DevOps.
+- Есть сценарий демо и план Б.
+- Домашнее задание: **лабораторная 05** «Ревью Docker-конфигов» и **контест 2**.

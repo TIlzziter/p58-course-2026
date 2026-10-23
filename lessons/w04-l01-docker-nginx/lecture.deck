@@ -1,0 +1,254 @@
+title: Docker, compose и Nginx: от ноутбука до HTTPS
+kicker: Неделя 4 · Лекция
+parts: Контейнеры и compose|Nginx, домен, HTTPS
+full: Вся лекция · 135 мин
+short: Основное · 105 мин
+
+@part 1
+## «У меня работает» → работает везде | 2 | cover
+sub: Как упаковать API и бота в контейнеры, собрать всё одной командой{br}и выставить игру в интернет по HTTPS
+chips: Dockerfile | docker compose | Nginx | Let's Encrypt
+
+## Зачем нам Docker | 5
+- У каждого свой Python, свои пакеты, своя ОС. На сервере всё снова по-другому.
+- **Контейнер** — процесс с собственной файловой системой, сетью и ограничениями, изолированный от остальных.
+- Внутри всё, что нужно приложению: Python 3.12, пакеты, код. Снаружи нужен только Docker.
+- Одна и та же сборка запускается на ноутбуке, у соседа по команде и на VPS.
+:: tech
+card: Не виртуальная машина :: Контейнер использует ядро хоста (namespaces и cgroups в Linux), поэтому стартует за доли секунды и весит десятки мегабайт, а не гигабайты.
+card: На Windows и macOS :: Docker Desktop запускает маленькую Linux-ВМ, а контейнеры живут в ней. Поэтому на Mac монтирование папок медленнее, чем на Linux-сервере.
+
+## Образ и контейнер | 6
+| Понятие | Что это | Аналогия |
+| Образ (image) | Неизменяемый шаблон: файлы + команда запуска | Класс |
+| Контейнер | Запущенный экземпляр образа со своим состоянием | Объект |
+| Реестр (registry) | Хранилище образов: Docker Hub, ghcr.io | PyPI |
+| Тег | Версия образа: `python:3.12-slim`, `games:v3` | Версия пакета |
+- Контейнер удалили — всё, что он записал внутри себя, пропало. Для данных нужны **тома**.
+q: Почему нельзя писать `FROM python` без тега? :: Тег по умолчанию `latest` меняется со временем: завтра сборка возьмёт другой Python, и «вчера работало».
+
+## Dockerfile для FastAPI | 8
+```dockerfile api/Dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+RUN useradd --create-home --uid 1000 app
+USER app
+
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+:: tech
+card: Порядок важен :: Сначала зависимости, потом код. Код меняется каждый день, зависимости — редко: слой с `pip install` берётся из кэша.
+card: 0.0.0.0, а не 127.0.0.1 :: Внутри контейнера `127.0.0.1` — сам контейнер. Чтобы до uvicorn достучались снаружи, слушаем все интерфейсы.
+card: USER app :: Не запускаем от root: если в приложении дыра, у взломщика будет меньше прав.
+
+## Слои и кэш | 6
+- Каждая инструкция `RUN`, `COPY`, `ADD` создаёт **слой**. Образ — стопка слоёв.
+- При пересборке Docker берёт слой из кэша, если инструкция и входные файлы не изменились.
+- Изменился слой — **все слои после него** собираются заново.
+flow: n:FROM ~ кэш -> c:COPY requirements ~ кэш -> v:RUN pip ~ кэш -> g:COPY app/ ~ заново
+> Поменяли одну строку кода — пересобрался только последний слой: секунды вместо минут.
+:: tech
+card: Смотрим слои :: `docker history games-api` — размер и команда каждого слоя. Большой слой после `COPY . .` часто значит, что в образ попали `.git` или `.venv`.
+card: slim и alpine :: `python:3.12-slim` (Debian) ≈ 120–150 МБ и совместим с колёсами pip. `alpine` меньше, но на musl многие пакеты собираются из исходников — для Python обычно не выигрыш.
+
+## .dockerignore и секреты | 6
+```text .dockerignore
+.git
+.env
+.venv/
+__pycache__/
+tests/
+```
+- Секреты (токен бота, пароль БД) **не кладём в образ**: ни `COPY .env`, ни `ENV BOT_TOKEN=...`. Передаём при запуске.
+! Образ можно скачать и разобрать по слоям. Удалить файл в следующем слое бесполезно: он остался в предыдущем.
+:: tech
+card: COPY . . :: Копирует **всё**, что не исключено в `.dockerignore`: вместе с `.git` в образ уезжает вся история, включая когда-то закоммиченные токены.
+card: Как передать секрет :: `env_file: .env` в compose, а сам `.env` — только на сервере и в `.gitignore`. В репозитории лежит `.env.example` без значений.
+
+## Основные команды | 5
+```bash Терминал
+docker build -t games-api ./api             # собрать образ
+docker run --rm -p 8000:8000 games-api      # запустить, порт хоста 8000 → контейнера 8000
+docker ps                                   # что запущено
+docker logs -f <контейнер>                  # логи (то, что приложение печатает в stdout)
+docker exec -it <контейнер> sh              # зайти внутрь работающего контейнера
+docker images                               # образы и их размер
+```
+:: tech
+card: -p хост:контейнер :: `-p 127.0.0.1:5432:5432` публикует порт только для самого сервера. Без IP — на всех интерфейсах, то есть в интернет.
+card: Логи в stdout :: В контейнере не пишем логи в файлы: Docker собирает stdout/stderr, а `PYTHONUNBUFFERED=1` убирает задержку вывода.
+
+## Тома: где живут данные | 5
+- **Именованный том** (`pgdata:/var/lib/postgresql/data`) — Docker хранит данные отдельно от контейнера.
+- **Bind mount** (`./nginx.conf:/etc/nginx/conf.d/default.conf:ro`) — папка или файл с хоста.
+- Пересоздали контейнер базы — данные в томе на месте. `docker compose down -v` удаляет и тома!
+q: Куда PostgreSQL в контейнере пишет данные, если тома нет? :: В слой контейнера. Удалили контейнер (например, при обновлении образа) — база пропала.
+
+## docker compose: весь проект одним файлом | 8
+```yaml compose.yml
+services:
+  api:
+    build: ./api
+    env_file: .env
+    depends_on: { db: { condition: service_healthy } }
+    restart: unless-stopped
+  bot:
+    build: ./bot
+    env_file: .env
+    restart: unless-stopped
+  db:
+    image: postgres:16
+    environment: { POSTGRES_PASSWORD: "${DB_PASSWORD}" }
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "postgres"], interval: 5s }
+  nginx:
+    image: nginx:1.27-alpine
+    ports: ["80:80", "443:443"]
+    volumes: ["./nginx:/etc/nginx/conf.d:ro", "./web:/usr/share/nginx/html:ro"]
+volumes: { pgdata: {} }
+```
+:: tech
+card: Наружу — только nginx :: У `api` и `db` нет `ports`: до них можно добраться только из сети compose. Боту порты не нужны: в режиме polling он сам ходит к Telegram.
+card: healthcheck :: `depends_on` с `service_healthy` ждёт, пока база реально примет соединения, а не просто запустится.
+
+## Сеть compose | 5
+- Compose создаёт для проекта общую сеть; сервисы находят друг друга **по имени сервиса**.
+- Из `api` база доступна как `db:5432`: `DATABASE_URL=postgresql+asyncpg://postgres:...@db:5432/game`.
+- Из `nginx` API доступен как `http://api:8000`.
+- `localhost` внутри контейнера — **сам контейнер**, а не соседний сервис и не хост.
+! Самая частая ошибка первого деплоя: `DATABASE_URL=...@localhost:5432` внутри контейнера.
+
+## Цикл работы с compose | 4 | opt
+```bash Терминал
+docker compose up -d --build     # собрать и запустить в фоне
+docker compose ps                # состояние и healthcheck
+docker compose logs -f api       # логи одного сервиса
+docker compose restart bot       # перезапустить один сервис
+docker compose down              # остановить и удалить контейнеры (тома остаются)
+```
+:: tech
+card: Обновление на сервере :: `git pull && docker compose up -d --build` — пересоберутся и перезапустятся только изменившиеся сервисы.
+card: Старый синтаксис :: `docker-compose` (через дефис) и ключ `version:` в начале файла устарели. Пишем `docker compose`.
+
+@part 2
+## Reverse proxy | 6
+flow: n:Telegram ~ браузер игрока -> c:nginx ~ :443, TLS -> v:/api/ ~ api:8000 -> g:/ ~ статика web/
+- Игрок видит **один адрес**: `https://game.example.ru`.
+- Nginx принимает HTTPS, отдаёт статику (HTML, JS, картинки) и **пересылает** `/api/` в FastAPI.
+- Сертификат, сжатие и лимиты настраиваются в одном месте, а не в каждом сервисе.
+:: tech
+card: Почему не uvicorn наружу :: Nginx быстрее отдаёт файлы, держит тысячи медленных соединений и закрывает приложение от прямого доступа.
+card: Один домен — без CORS :: Страница и API на одном адресе: браузеру не нужны CORS-заголовки, `fetch("/api/...")` просто работает.
+
+## Конфиг Nginx | 8
+```nginx nginx/default.conf
+server {
+    listen 80;
+    server_name game.example.ru;
+
+    root /usr/share/nginx/html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://api:8000/;              # слэш в конце: /api/rooms → /rooms
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+:: tech
+card: Слэш в proxy_pass :: `proxy_pass http://api:8000/;` заменяет `/api/` на `/`. Без слэша приложению придёт полный путь `/api/rooms`, и нужен `root_path` или префикс в роутере.
+card: X-Forwarded-* :: Без этих заголовков FastAPI видит IP nginx, а не игрока, и думает, что запрос пришёл по HTTP.
+
+## WebSocket через Nginx | 4 | opt
+```nginx Добавим на неделе 6
+location /ws/ {
+    proxy_pass http://api:8000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 1h;
+}
+```
+- WebSocket начинается с HTTP-запроса `Upgrade`. Без этих строк nginx его не пропустит.
+- `proxy_read_timeout` по умолчанию 60 с: тихое соединение оборвётся, поэтому увеличиваем и шлём ping.
+
+## Домен и DNS | 5
+- Покупаем домен или берём поддомен школы: `p58-games.ru`, `team1.p58-games.ru`.
+- В DNS заводим **A-запись**: `game.p58-games.ru → 203.0.113.10` (IP нашего VPS).
+- Проверяем: `dig +short game.p58-games.ru` или `nslookup`. Обновление занимает от минут до часов (TTL).
+q: Зачем нужен домен, если есть IP? :: Сертификаты Let's Encrypt выдаются на доменное имя, а Mini App требует HTTPS. Плюс IP может смениться, а адрес в боте — нет.
+
+## HTTPS и Let's Encrypt | 7
+- Telegram открывает Mini App **только по HTTPS**.
+- Сертификат подтверждает: «этот ключ принадлежит владельцу домена». Его подписывает центр сертификации.
+- **Let's Encrypt** выдаёт сертификаты бесплатно и автоматически по протоколу ACME.
+- Проверка HTTP-01: certbot кладёт файл в `/.well-known/acme-challenge/`, Let's Encrypt забирает его по HTTP с нашего домена.
+```bash На сервере
+certbot certonly --webroot -w /var/www/certbot -d game.p58-games.ru
+# → /etc/letsencrypt/live/game.p58-games.ru/fullchain.pem и privkey.pem
+```
+:: tech
+card: Срок жизни :: Сертификаты короткие (сейчас 90 дней, и Let's Encrypt постепенно сокращает срок). Поэтому только **автопродление**: `certbot renew` по таймеру и перезагрузка nginx.
+card: Порт 80 открыт :: Для HTTP-01 Let's Encrypt должен достучаться до 80-го порта. На нём же делаем редирект на HTTPS.
+
+## Nginx с HTTPS | 7
+```nginx nginx/default.conf
+server {
+    listen 80;
+    server_name game.p58-games.ru;
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 301 https://$host$request_uri; }
+}
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name game.p58-games.ru;
+    ssl_certificate     /etc/letsencrypt/live/game.p58-games.ru/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/game.p58-games.ru/privkey.pem;
+    # дальше те же location / и location /api/
+}
+```
+:: tech
+card: Тома для сертификатов :: В compose nginx монтирует `/etc/letsencrypt` и `/var/www/certbot` (только чтение), certbot — те же папки на запись.
+card: Проверка :: `curl -I https://game.p58-games.ru` и `nginx -t` перед перезагрузкой: опечатка в конфиге не уронит работающий сервер.
+
+## Агент пишет Dockerfile | 6
+- Просим агента: «Dockerfile и compose для api, bot, db, nginx по `AGENTS.md`».
+- Агент пишет быстро, но типичные огрехи повторяются: `FROM python:latest`, `COPY . .` до `pip install`, `ENV BOT_TOKEN=...`, `ports: 5432:5432` у базы, запуск от root.
+- Роль **DevOps** в команде: проверяет конфиги по чек-листу до мержа.
+- Правила для агента дописываем в `AGENTS.md`, чтобы не повторял.
+> На семинаре лаба 05 превращает этот чек-лист в программу, которая ревьюит конфиги автоматически.
+
+## Чек-лист DevOps | 6
+| Проверка | Почему |
+| Базовый образ с тегом версии, `-slim` | Воспроизводимость, размер |
+| Зависимости до кода, `--no-cache-dir` | Кэш слоёв, размер |
+| `.dockerignore`: `.git`, `.env`, `.venv` | Секреты и мусор не попадут в образ |
+| Нет секретов в `ENV`, `ARG`, `COPY` | Образ можно разобрать |
+| `USER` не root | Меньше прав при взломе |
+| Наружу только 80/443 nginx | База и API не торчат в интернет |
+| `restart`, `healthcheck` у базы | Переживаем перезагрузку сервера |
+
+## Проверь себя | 4
+q: Поменяли одну строку в `app/main.py`. Какие слои пересоберутся в нашем Dockerfile? :: Только `COPY app/` и всё после него. Слой с `pip install` возьмётся из кэша.
+q: API в контейнере не может подключиться к `localhost:5432`. Почему? :: `localhost` — это сам контейнер `api`. База доступна по имени сервиса: `db:5432`.
+q: Запрос `/api/rooms` доходит до FastAPI как `/api/rooms` и получает 404. Что поправить? :: Поставить слэш в конце: `proxy_pass http://api:8000/;` — или включить префикс в приложении.
+
+## Итоги | 3
+- Образ — шаблон из слоёв, контейнер — запущенный образ, данные — в томах.
+- Dockerfile: тег версии, зависимости до кода, без секретов, не root.
+- Compose: сервисы находят друг друга по имени; наружу только nginx.
+- Nginx: статика + `/api/` → FastAPI; HTTPS от Let's Encrypt с автопродлением.
+- Домашнее задание: прочитать чек-лист DevOps, подготовить Dockerfile для своего сервиса.
