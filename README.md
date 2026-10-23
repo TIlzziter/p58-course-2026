@@ -87,7 +87,7 @@ tools/                         сборка презентаций, листов
 | 23 | 12.04–18.04 | [45 · Лекция](lessons/w23-l01-hackathon-window/README.md) | Окно внешнего хакатона: подготовка и участие |  |  |
 | 23 | 12.04–18.04 | [46 · Семинар](lessons/w23-l02-hackathon-retro/README.md) | Семинар: ретро хакатона, буфер, опционально QuestHub |  |  |
 | 24 | 19.04–25.04 | [47 · Лекция](lessons/w24-l01-extension-cycle/README.md) | Расширение продукта: полный цикл spec-first |  |  |
-| 24 | 19.04–25.04 | [48 · Семинар](lessons/w24-l02-extension-impl/README.md) | Семинар: реализация расширения по мартовской спеке |  | c12 |
+| 24 | 19.04–25.04 | [48 · Семинар](lessons/w24-l02-extension-impl/README.md) | Семинар: реализация расширения по мартовской спеке |  | [c12](contests/c12-load-scale/sheet.pdf) |
 | 25 | 26.04–02.05 | [49 · Лекция](lessons/w25-l01-ux-accessibility/README.md) | UX: юзабилити-тесты, доступность |  |  |
 | 25 | 26.04–02.05 | [50 · Семинар](lessons/w25-l02-usability-tests/README.md) | Семинар: тесты на одноклассниках, правки интерфейса |  |  |
 | 26 | 03.05–09.05 | [51 · Лекция](lessons/w26-l01-backups-runbook/README.md) | Надёжность: бэкапы PostgreSQL, восстановление, runbook | [lab20](lessons/w26-l01-backups-runbook/labs/lab20-backups/README.md) |  |
