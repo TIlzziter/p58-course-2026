@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4 в ряд</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  body { margin: 0; display: grid; place-items: center; min-height: 100vh; background: var(--tg-theme-bg-color, #fff); }
+  canvas { width: min(96vw, 560px); aspect-ratio: 7 / 6; touch-action: none; }
+</style>
+</head>
+<body>
+<canvas id="board"></canvas>
+<script>
+const ROWS = 6, COLS = 7, COLORS = ["", "#e53935", "#fdd835"];
+const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));   // не fill([]) — иначе общие строки
+let player = 1, hover = -1;
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+
+function resize() {                         // чёткость при devicePixelRatio = 2 и 3
+  const dpr = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  canvas.width = Math.round(r.width * dpr);
+  canvas.height = Math.round(r.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+
+function draw() {
+  const r = canvas.getBoundingClientRect(), cw = r.width / COLS, ch = r.height / ROWS;
+  ctx.fillStyle = "#1e4fd8";
+  ctx.fillRect(0, 0, r.width, r.height);
+  if (hover >= 0) { ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(hover * cw, 0, cw, r.height); }
+  for (let row = 0; row < ROWS; row++)
+    for (let col = 0; col < COLS; col++) {
+      ctx.beginPath();
+      ctx.arc(col * cw + cw / 2, row * ch + ch / 2, Math.min(cw, ch) * 0.38, 0, 2 * Math.PI);
+      ctx.fillStyle = COLORS[board[row][col]] || "#fff";
+      ctx.fill();
+    }
+}
+
+function colAt(e) {                         // та же формула, что в задаче B3
+  const r = canvas.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  return x >= 0 && x < r.width ? Math.floor(x * COLS / r.width) : -1;
+}
+
+canvas.addEventListener("pointermove", e => { hover = colAt(e); draw(); });
+canvas.addEventListener("pointerleave", () => { hover = -1; draw(); });
+canvas.addEventListener("pointerdown", e => {
+  const col = colAt(e);
+  if (col < 0) return;
+  for (let row = ROWS - 1; row >= 0; row--)
+    if (board[row][col] === 0) { board[row][col] = player; player = 3 - player; break; }
+  window.Telegram?.WebApp?.HapticFeedback?.impactOccurred("light");
+  draw();
+});
+window.addEventListener("resize", resize);
+window.Telegram?.WebApp?.ready();
+resize();
+</script>
+</body>
+</html>

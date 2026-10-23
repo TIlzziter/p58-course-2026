@@ -1,0 +1,189 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 2 · Сетки, игры и подписи</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 2 · Сетки, игры и подписи</h1>
+<p>Неделя 4 · темы недель 3–4: поле игры как двумерный список, правила и проверка победы, клик по canvas,
+подпись <code>initData</code> и HMAC, Docker и Nginx. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.
+Поле «4 в ряд» хранится как в лабе 4: <code>board[строка][столбец]</code>, строка 0 — верхняя, <code>0</code> — пусто, <code>1</code> и <code>2</code> — фишки игроков.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Сетки</h2>
+<p><strong>A1.</strong> Верните фишки столбца <code>c</code> снизу вверх, пустые клетки пропустите.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  column([[0, 0, 0],
+               [1, 0, 2],
+               [2, 1, 1]], 0)
+Вывод: [2, 1]
+</code></pre></div>
+
+<p><strong>A2.</strong> Включите «гравитацию»: все фишки падают вниз своего столбца, порядок фишек в столбце не меняется.
+Верните <strong>новое</strong> поле, исходное не трогайте. Подсказка: <code>[[0] * cols for _ in range(rows)]</code>, а не <code>[[0] * cols] * rows</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  gravity([[1, 0, 2],
+                [0, 2, 0],
+                [0, 0, 1]])
+Вывод: [[0, 0, 0],
+        [0, 0, 2],
+        [1, 2, 1]]
+</code></pre></div>
+
+<p><strong>A3.</strong> Найдите длину самой длинной непрерывной линии фишек игрока <code>p</code> по горизонтали или вертикали.
+Подсказка: столбцы поля — это <code>zip(*board)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  longest_run([[1, 1, 0, 1],
+                    [0, 1, 1, 1],
+                    [2, 1, 2, 2]], 1)
+Вывод: 3
+</code></pre></div>
+
+<h2>B. Игры</h2>
+<p><strong>B1.</strong> Обобщённые крестики-нолики: поле <code>n×n</code> задано строками из <code>X</code>, <code>O</code> и <code>.</code>. Побеждает тот, у кого <code>k</code> одинаковых
+знаков подряд по горизонтали, вертикали или диагонали. Верните победителя или <code>None</code>. Четыре направления — четыре пары
+<code>(dr, dc)</code>, а не четыре копии кода.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  k_in_row(["X.O.", "XO..", "O...", "...."], 3)
+Вывод: "O"
+</code></pre></div>
+
+<p><strong>B2.</strong> Поле крестиков-ноликов — строка из 9 символов. Крестики ходят первыми. Чей сейчас ход: <code>"X"</code>, <code>"O"</code> или
+<code>"invalid"</code>, если такое число фишек получиться не могло.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  next_turn("XO.X.....")
+Вывод: "O"
+
+Ввод:  next_turn("XXX......")
+Вывод: "invalid"
+</code></pre></div>
+
+<p><strong>B3.</strong> Canvas с полем <code>rows×cols</code> растянут на странице до <code>css_w×css_h</code> CSS-пикселей. По координатам клика внутри canvas
+(<code>event.offsetX</code>, <code>event.offsetY</code>) верните <code>(строка, столбец)</code> или <code>None</code>, если клик вне поля. Учтите, что на телефоне
+<code>css_w</code> не делится на <code>cols</code> нацело.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  click_to_cell(175, 10, 350, 300, 6, 7)
+Вывод: (0, 3)
+
+Ввод:  click_to_cell(350, 0, 350, 300, 6, 7)
+Вывод: None
+</code></pre></div>
+
+<p><strong>B4*.</strong> Простой бот для «4 в ряд». Выберите столбец для игрока <code>p</code>: сначала тот, что выигрывает сразу; если такого нет,
+то тот, что закрывает немедленный выигрыш соперника; иначе свободный столбец, ближайший к центру (при равенстве левый).
+Если при выигрыше или защите подходят несколько столбцов, берите левый. Полное поле — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  best_drop(&lt;пустое поле 6×7&gt;, 1)
+Вывод: 3
+
+Ввод:  best_drop(&lt;внизу у игрока 2 фишки в столбцах 1, 2, 3&gt;, 1)
+Вывод: 0
+</code></pre></div>
+
+<h2>C. Подписи</h2>
+<p><strong>C1.</strong> Разберите строку запроса в словарь без <code>parse_qs</code> и <code>parse_qsl</code>. Пары разделены <code>&amp;</code>, ключ и значение — первым <code>=</code>.
+<code>+</code> означает пробел, <code>%XX</code> — байты UTF-8 (можно <code>urllib.parse.unquote_plus</code>). Пара без <code>=</code> даёт пустое значение,
+пустые пары пропускаем.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_query("user=%D0%90%D0%BD%D1%8F&amp;msg=hello+world&amp;flag&amp;a=1%3D2")
+Вывод: {"user": "Аня", "msg": "hello world", "flag": "", "a": "1=2"}
+</code></pre></div>
+
+<p><strong>C2.</strong> Напишите <code>sign(message, key)</code>, которая возвращает HMAC-SHA256 в hex. Затем по списку пар
+<code>(сообщение, подпись)</code> верните индексы подделок. Подпись может прийти заглавными буквами, это не подделка.
+Сравнивайте через <code>hmac.compare_digest</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sign("id=42", "secret")
+Вывод: "d04769d2311b20c5a04150ecc123192ce18ba3a6f2fc39d99d2a6e97abe5391e"
+
+Ввод:  forged([("id=42", sign("id=42", "secret")), ("id=1", sign("id=42", "secret")),
+               ("id=7", sign("id=7", "secret").upper()), ("x", "00")], "secret")
+Вывод: [1, 3]
+</code></pre></div>
+
+<p><strong>C3.</strong> Даны отметки <code>auth_date</code> (секунды), текущее время <code>now</code> и предел <code>max_age</code>. Сколько отметок свежие: не из будущего
+и не старше <code>max_age</code> секунд (ровно <code>max_age</code> — ещё свежая)?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fresh([100, 90, 200, 0, 40], 100, 60)
+Вывод: 3
+</code></pre></div>
+
+<h2>D. Docker</h2>
+<p><strong>D1.</strong> Разберите строку из раздела <code>ports</code> файла compose в словарь <code>ip</code>, <code>host</code>, <code>container</code>, <code>proto</code>. Без IP публикуется
+на <code>0.0.0.0</code>; если указан только порт контейнера, то <code>ip</code> и <code>host</code> равны <code>None</code>. Протокол по умолчанию <code>tcp</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_port("127.0.0.1:5432:5432")
+Вывод: {"ip": "127.0.0.1", "host": 5432, "container": 5432, "proto": "tcp"}
+
+Ввод:  parse_port("8080:80")
+Вывод: {"ip": "0.0.0.0", "host": 8080, "container": 80, "proto": "tcp"}
+</code></pre></div>
+
+<p><strong>D2.</strong> Разберите ссылку на образ в тройку <code>(реестр, имя, тег)</code>. Реестр — первая часть до <code>/</code>, если в ней есть <code>.</code> или <code>:</code>
+либо это <code>localhost</code>; иначе <code>docker.io</code>. Тег по умолчанию <code>latest</code>. Официальные образы Docker Hub получают префикс
+<code>library/</code>. Осторожно: в <code>localhost:5000/api</code> двоеточие — это порт, а не тег.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_image("python:3.12-slim")
+Вывод: ("docker.io", "library/python", "3.12-slim")
+
+Ввод:  parse_image("registry.example.ru:5000/team/bot:2.0")
+Вывод: ("registry.example.ru:5000", "team/bot", "2.0")
+</code></pre></div>
+
+<p><strong>D3.</strong> Разберите файл <code>.env</code> в словарь. Пустые строки и строки с <code>#</code> в начале пропускаем, <code>export</code> в начале убираем,
+строки без <code>=</code> пропускаем. Значение в кавычках (<code>"…"</code> или <code>'…'</code>) берём как есть без кавычек, а у значения без кавычек
+отрезаем комментарий <code>#…</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  export BOT_TOKEN=123:ABC
+       DB_URL="postgresql://u:p@db/game"
+       DEBUG=1 # включить
+       HASH="a#b"
+Вывод: {"BOT_TOKEN": "123:ABC", "DB_URL": "postgresql://u:p@db/game", "DEBUG": "1", "HASH": "a#b"}
+</code></pre></div>
+
+<p><strong>D4*.</strong> Возьмите <code>examples/Dockerfile.agent</code> из лабы 5 и перепишите его: образ <code>python:3.12-slim</code>, зависимости
+отдельным слоем до копирования кода, <code>.dockerignore</code>, запуск не от root, никаких секретов в образе. Покажите <code>docker images</code>
+(размер меньше 250 МБ) и вывод <code>report(...)</code> из лабы 5 на вашем Dockerfile: «Замечаний нет ✅».</p>
+<h2>E. Mini App и сервер</h2>
+<p><strong>E1.</strong> <code>POST /check</code> с телом <code>{"init_data": "..."}</code> проверяет подпись <code>initData</code> по алгоритму Telegram (токен из
+переменной окружения <code>BOT_TOKEN</code>) и свежесть (не старше суток). Ответ — <code>{"ok": true, "user_id": 42}</code> или
+<code>{"ok": false, "user_id": null}</code>, даже на мусорную строку. Ответ не должен зависеть от порядка полей в строке.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  POST /check {"init_data": "auth_date=...&amp;query_id=AAH&amp;user=%7B%22id%22%3A+42...&amp;hash=..."}
+Вывод: {"ok": true, "user_id": 42}
+</code></pre></div>
+
+<p><strong>E2.</strong> Страница с canvas: поле 6×7, при наведении подсвечивается столбец под курсором, клик бросает фишку (цвета
+игроков по очереди). Canvas чёткий на экране с <code>devicePixelRatio = 2</code>. Покажите в браузере и в Telegram.</p>
+<p><strong>E3.</strong> Соберите compose из двух сервисов: ваше приложение из E1 и <code>nginx</code>. Nginx отдаёт страницу из E2 по <code>/</code> и
+проксирует <code>/api/</code> на приложение. Наружу открыт только порт nginx. Покажите <code>curl localhost:8080/api/check ...</code>.</p>
+<p><strong>E4 · босс.</strong> «Сапёр»: класс <code>Minesweeper(rows, cols, mines)</code>, где <code>mines</code> — множество клеток <code>(r, c)</code> с минами.
+За каждую часть свой плюс.</p>
+<p>а) <code>count(r, c)</code> — число мин среди восьми соседей. <code>view()</code> — список строк: <code>#</code> закрыто, <code>F</code> флаг, <code>.</code> открыто и рядом нет
+мин, цифра — открыто и рядом столько мин.</p>
+<p>б) <code>open(r, c)</code> открывает клетку и возвращает, сколько клеток открылось. Если у клетки 0 соседей-мин, открываются и все
+соседи, и дальше волной (обход в ширину, <code>collections.deque</code>). Мина — <code>status = "lost"</code>, в <code>view()</code> мины показаны <code>*</code>.
+Открытая клетка или клетка под флагом — 0, ничего не меняется.</p>
+<p>в) <code>flag(r, c)</code> ставит или снимает флаг на закрытой клетке и возвращает, стоит ли он теперь; <code>mines_left()</code> — мины минус
+флаги. Все клетки без мин открыты — <code>status = "won"</code>. После конца игры <code>open</code> и <code>flag</code> бросают <code>GameOver</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  g = Minesweeper(4, 5, {(0, 4), (2, 1)})
+       g.open(3, 4)
+       g.view()
+Вывод: 9
+       ["#####",
+        "##111",
+        "##1..",
+        "##1.."]
+</code></pre></div>
+
+<p><strong>E5*.</strong> API для «Сапёра» на FastAPI: <code>POST /games</code> (размер и мины, ответ 201), <code>POST /games/{id}/open</code> и
+<code>POST /games/{id}/flag</code> с телом <code>{"r": ..., "c": ...}</code>. В ответе <code>view</code>, <code>status</code>, <code>mines_left</code>, но <strong>никогда</strong> — список мин.
+Клетка вне поля — 422, нет игры — 404, игра окончена — 409. Тесты через <code>TestClient</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  pytest
+Вывод: 4 passed
+</code></pre></div></body></html>
