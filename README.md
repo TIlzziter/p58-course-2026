@@ -59,7 +59,7 @@ tools/                         сборка презентаций, листов
 | 9 | 21.12–24.12 | [18 · Семинар](lessons/w09-l02-pr-review-retro/README.md) | Семинар: CI на каждый PR, кейсы PROD, ревью агент + человек, ретро полугодия |  |  |
 | — | 25.12–10.01 | — | **Зимние каникулы** (ориентировочно); по желанию — QuestHub | — | — |
 | 10 | 11.01–17.01 | [19 · Лекция](lessons/w10-l01-cd-deploy/README.md) | CD: автодеплой на VPS после merge, секреты, staging и prod | [lab10](lessons/w10-l01-cd-deploy/labs/lab10-secret-scanner/README.md) |  |
-| 10 | 11.01–17.01 | [20 · Семинар](lessons/w10-l02-deploy-pipeline/README.md) | Семинар: пайплайн деплоя, правила про секреты в AGENTS.md |  | c05 |
+| 10 | 11.01–17.01 | [20 · Семинар](lessons/w10-l02-deploy-pipeline/README.md) | Семинар: пайплайн деплоя, правила про секреты в AGENTS.md |  | [c05](contests/c05-pipelines-secrets/sheet.pdf) |
 | 11 | 18.01–24.01 | [21 · Лекция](lessons/w11-l01-game-algorithms/README.md) | Алгоритмы игры 2: игровой цикл, конечный автомат, честный рандом, коллизии | [lab11](lessons/w11-l01-game-algorithms/labs/lab11-snake-engine/README.md) |  |
 | 11 | 18.01–24.01 | [22 · Семинар](lessons/w11-l02-game2-spec/README.md) | Семинар: спека и серверная логика игры 2, тесты по таблице правил |  |  |
 | 12 | 25.01–31.01 | [23 · Лекция](lessons/w12-l01-game-frontend/README.md) | Фронтенд игр: requestAnimationFrame, интерполяция, тема Telegram, мобильная вёрстка; Pyodide |  |  |

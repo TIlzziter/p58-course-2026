@@ -1,0 +1,167 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 5 · Конвейеры и секреты</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 5 · Конвейеры и секреты</h1>
+<p>Неделя 10 · темы недель 9–10: workflow, <code>needs</code> и матрица, версии, переменные окружения и секреты, деплой и откат.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Конвейер</h2>
+<p>Конвейер задан словарём «job → список needs». Пример для всех задач A:</p>
+<div class="codehilite"><pre><span></span><code>J = {"lint": [], "types": [], "test": ["lint"], "build": ["test", "types"], "e2e": ["build"], "docs": []}
+D = {"lint": 1, "types": 2, "test": 5, "build": 3, "e2e": 4, "docs": 2}      # минуты
+</code></pre></div>
+
+<p><strong>A1.</strong> <code>stages(jobs)</code> — волны запуска: в волне все jobs, чьи <code>needs</code> выполнены в прошлых волнах; внутри волны —
+по имени. Цикл или ссылка на несуществующий job — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  stages(J)
+Вывод: [["docs", "lint", "types"], ["test"], ["build"], ["e2e"]]
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>pipeline_time(jobs, duration)</code> — сколько минут идёт весь конвейер, если машин сколько угодно.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  pipeline_time(J, D)
+Вывод: 13                     # lint 1 → test 5 → build 3 → e2e 4
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>affected(jobs, failed)</code> — какие jobs GitHub пропустит, если упал <code>failed</code>: все, кто прямо или через других
+от него зависит. По имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  affected(J, "lint"), affected(J, "e2e")
+Вывод: ["build", "e2e", "test"], []
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>runners_time(jobs, duration, k)</code> — у вас <code>k</code> машин. Как только машина освободилась, она берёт готовый
+job с наименьшим именем. Сколько минут займёт конвейер?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  runners_time(J, D, 1), runners_time(J, D, 2)
+Вывод: 17, 13
+</code></pre></div>
+
+<h2>B. Версии</h2>
+<p><strong>B1.</strong> <code>sort_versions(vs)</code> — по возрастанию как версии, а не как строки. При равных числах более короткая запись
+раньше: <code>3.12</code> перед <code>3.12.0</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sort_versions(["3.10", "3.9", "3.12.1", "3.12", "3.12.0", "2.7"])
+Вывод: ["2.7", "3.9", "3.10", "3.12", "3.12.0", "3.12.1"]
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>satisfies(version, spec)</code> — подходит ли версия под условия через запятую: <code>&gt;=</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>==</code>, <code>!=</code>.
+Недостающие части — нули (<code>3.12</code> равно <code>3.12.0</code>). В <code>==</code> и <code>!=</code> можно <code>*</code> в конце: <code>==3.12.*</code>. Пустое условие —
+подходит всё. Другой оператор — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  satisfies("3.12.1", "&gt;=3.10,&lt;3.13"), satisfies("3.11.0", "!=3.11.*"), satisfies("3.12", "==3.12.0")
+Вывод: True, False, True
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>bump(version, part)</code> — следующая версия <code>major.minor.patch</code>: младшие части обнуляются.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  bump("1.4.2", "major"), bump("1.4.2", "minor"), bump("0.9.9", "patch")
+Вывод: "2.0.0", "1.5.0", "0.9.10"
+</code></pre></div>
+
+<h2>C. Секреты и окружение</h2>
+<p><strong>C1.</strong> <code>env_diff(old, new)</code> — что поменялось в окружении, <strong>без значений</strong> (их нельзя печатать в лог):
+<code>"+ KEY"</code> — добавлен, <code>"- KEY"</code> — удалён, <code>"~ KEY"</code> — изменён. По ключу.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  env_diff({"A": "1", "B": "2", "C": "3"}, {"A": "1", "B": "x", "D": "4"})
+Вывод: ["~ B", "- C", "+ D"]
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>interpolate(value, env)</code> — подстановка как в <code>docker compose</code>: <code>$VAR</code> и <code>${VAR}</code> (нет — пустая строка),
+<code>${VAR:-def}</code> (нет <strong>или пусто</strong> → <code>def</code>), <code>${VAR-def}</code> (только если нет), <code>$$</code> → <code>$</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  env = {"USER": "game", "EMPTY": "", "PORT": "8000"}
+       interpolate("${HOST:-localhost}:${PORT}", env), interpolate("${EMPTY:-d}|${EMPTY-d}|${NOPE-d}", env)
+       interpolate("cost $$5 ${NOPE}x", env)
+Вывод: "localhost:8000", "d||d", "cost $5 x"
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>redact_url(url)</code> — спрятать пароль в адресе подключения: <code>схема://пользователь:пароль@…</code>. Пользователь
+остаётся, пароля нет — строка без изменений. <code>@</code> после <code>/</code> — уже не про пароль.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  redact_url("postgresql://game:S3cr3t@db:5432/game"), redact_url("redis://:pw@redis:6379/0")
+       redact_url("https://example.org/a@b")
+Вывод: "postgresql://game:***@db:5432/game", "redis://:***@redis:6379/0", "https://example.org/a@b"
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>leaked_tokens(commits)</code> — проверка истории. Коммиты идут по порядку, у каждого <code>sha</code> и
+<code>files: {путь: (добавленные строки, удалённые строки)}</code>. Токен бота: 8–10 цифр, <code>:</code>, 35 символов <code>A-Za-z0-9_-</code>.
+Верните для каждого токена <code>(маска, sha первого появления, есть ли он сейчас хоть в одном файле)</code> в порядке
+появления. Маска — первые 4 и последние 2 символа через <code>…</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  T1 = "123456789:AAH" + "x" * 32
+       [{"sha": "a1", "files": {"bot.py": (['TOKEN = "' + T1 + '"'], [])}},
+        {"sha": "b2", "files": {"bot.py": (["TOKEN = os.getenv('BOT_TOKEN')"], ['TOKEN = "' + T1 + '"'])}}]
+Вывод: [("1234…xx", "a1", False)]          # удалён, но в истории есть — токен надо отозвать
+</code></pre></div>
+
+<h2>D. Деплой</h2>
+<p><strong>D1.</strong> <code>next_release(tags, part="patch")</code> — следующий тег релиза после наибольшего корректного <code>vX.Y.Z</code>
+(сравнение как версий). Остальные теги пропускаем. Корректных нет — <code>"v0.1.0"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  next_release(["v1.2.3", "v1.10.0", "release-2", "v1.9.9", "v2.0"]), next_release(["v1.2.3"], "minor")
+Вывод: "v1.10.1", "v1.3.0"
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>rollback_target(deploys)</code> — история деплоев <code>(версия, "ok" | "failed")</code>. Сейчас работает последняя <code>ok</code>.
+Откатываемся на ближайшую более раннюю <code>ok</code>, <strong>отличную</strong> от текущей. Нет такой — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rollback_target([("1.0", "ok"), ("1.1", "ok"), ("1.2", "failed"), ("1.1", "ok")])
+Вывод: "1.0"
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>canary(errors, requests, threshold, window)</code> — новая версия получает часть трафика. По минутам известны
+ошибки и запросы. Найдите первую минуту (с нуля), когда доля ошибок за последние <code>window</code> минут (включая эту)
+<strong>строго больше</strong> <code>threshold</code>. В начале окно неполное — берём, что есть; запросов 0 — доля 0. Не было — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  canary([0, 1, 5, 9, 2], [100] * 5, 0.03, 2)
+Вывод: 3                     # минута 2: 6/200 = 0.03 — ещё нет; минута 3: 14/200 = 0.07
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Зелёный CI в репозитории команды: <code>lint</code> → <code>test</code> → <code>build</code>, защита <code>main</code> (обязательные проверки и одно
+одобрение). Покажите PR, где CI сначала красный, потом зелёный, и попытку пуша в <code>main</code> напрямую.</p>
+<p><strong>E2.</strong> Автодеплой: после merge в <code>main</code> workflow выкладывает новую версию на сервер (staging), версия видна по
+<code>/health</code>. Покажите откат на прошлую версию одной командой или повторным запуском workflow.</p>
+<p><strong>E3.</strong> Секреты: в <code>AGENTS.md</code> есть раздел о секретах, в репозитории есть <code>.env.example</code>, нет <code>.env</code>. Хук или шаг CI
+со сканером (лаба 10 или <code>gitleaks</code>) ловит токен в тестовом коммите. Объясните, что делать, если токен уже
+запушен.</p>
+<p><strong>E4 · босс.</strong> Обновление без простоя: <code>n</code> копий сервиса за Nginx. За каждую часть свой плюс.</p>
+<p>а) <code>rolling_plan(n, max_unavailable, max_surge)</code> — состояния <code>(старых, новых)</code> после каждого шага, пока все <code>n</code> не
+новые. Шаг: сначала запускаем новые, сколько можно (всего копий не больше <code>n + max_surge</code>, новых не больше <code>n</code>), затем
+гасим старые, пока работающих не меньше <code>n − max_unavailable</code>. Оба параметра 0 — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rolling_plan(4, 1, 1), rolling_plan(3, 1, 0)
+Вывод: [(2, 1), (0, 3), (0, 4)], [(2, 0), (1, 1), (0, 2), (0, 3)]
+</code></pre></div>
+
+<p>б) <code>ready_ticks(checks, need)</code> — у каждой новой копии список результатов проверок <code>/health</code>. Копия готова после
+<code>need</code> успешных проверок <strong>подряд</strong>. Для каждой — номер проверки (с нуля), после которой она готова, или <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ready_ticks([[True, True, False, True, True, True], [False, True, True], [True, False]], 2)
+Вывод: [1, 2, None]
+</code></pre></div>
+
+<p>в) <code>rollback_plan(n, max_unavailable, max_surge, state)</code> — новая версия сломалась в состоянии <code>state</code>. Откат по тем
+же правилам, только теперь «новые» — это старые. Ответ — снова в виде <code>(старых, новых)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rollback_plan(3, 0, 1, (1, 2)), rollback_plan(4, 1, 1, (2, 1))
+Вывод: [(2, 1), (3, 0)], [(4, 0)]
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>rebuilt_from(dockerfile, changed, base_changed=False)</code> — индекс первой инструкции Dockerfile, которая
+пересоберётся (после неё пересобирается всё); всё из кэша — <code>None</code>. <code>FROM</code> пересобирается, только если поменялся
+базовый образ. <code>COPY</code>/<code>ADD</code>: если какой-то изменённый файл подходит под один из источников (<code>fnmatch</code>; папка — всё
+внутри неё; <code>.</code> — всё). Флаги вида <code>--chown=…</code> — не источники. Остальные инструкции сами по себе из кэша.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  DF = ["FROM python:3.12-slim", "WORKDIR /app", "COPY requirements.txt .",
+             "RUN pip install -r requirements.txt", "COPY app/ ./app", 'CMD ["python", "-m", "app"]']
+       rebuilt_from(DF, ["app/main.py"]), rebuilt_from(DF, ["requirements.txt"]), rebuilt_from(DF, ["README.md"])
+Вывод: 4, 2, None            # поэтому requirements.txt копируют раньше кода
+</code></pre></div></body></html>

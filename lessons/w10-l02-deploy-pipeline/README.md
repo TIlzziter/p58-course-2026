@@ -11,6 +11,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 5 «Конвейеры и секреты» (сезон 2): [лист PDF](../../contests/c05-pipelines-secrets/sheet.pdf), [исходник](../../contests/c05-pipelines-secrets/sheet.md); решения — `solutions/contests/c05-pipelines-secrets/`
 
 ## Агентная разработка
 

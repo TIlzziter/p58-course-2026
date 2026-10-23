@@ -1,0 +1,77 @@
+title: Семинар: пайплайн деплоя, правила про секреты в AGENTS.md
+kicker: Неделя 10 · Семинар
+parts: Деплой на staging|Откат и секреты
+full: Весь семинар · 135 мин
+short: Основное · 110 мин
+
+@part 1
+## Деплой одной кнопкой — merge | 2 | cover
+sub: Собираем workflow деплоя на staging, засекаем откат{br}и записываем правила о секретах для агента
+chips: deploy.yml | SSH | GHCR | /health | откат | AGENTS.md
+
+## План | 2
+| Блок | Время | Результат |
+| Сервер: пользователь `deploy`, ключ, папка | 20 мин | `ssh deploy@staging` работает |
+| `deploy.yml`: образ в GHCR и выкладка | 35 мин | merge → новая версия на staging |
+| Перерыв | 10 мин | — |
+| Проверка `/health` и откат | 25 мин | откат меньше чем за 2 минуты |
+| Секреты: `AGENTS.md`, сканер, `.env.example` | 20 мин | правила в репозитории |
+| Итоги, контест 5 | 5 мин | — |
+
+## Подготовка сервера | 6
+```bash на сервере
+sudo adduser --disabled-password deploy && sudo usermod -aG docker deploy
+sudo mkdir -p /srv/game && sudo chown deploy /srv/game
+# на ноутбуке: отдельный ключ только для CI
+ssh-keygen -t ed25519 -f ci_deploy -N "" -C "ci-deploy"
+ssh-copy-id -i ci_deploy.pub deploy@staging.example.org
+```
+- Приватный `ci_deploy` → *Settings → Environments → staging → Secrets* как `STAGING_SSH_KEY`, затем удалить с ноутбука.
+! Ключ — секрет. Не вставляем его в чат агента, не коммитим, не отправляем в мессенджер.
+
+## compose на сервере | 5
+```yaml /srv/game/compose.yml
+services:
+  api:
+    image: ghcr.io/team/game:${IMAGE_TAG:?нужен IMAGE_TAG}
+    env_file: .env                    # лежит только на сервере, chmod 600
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+```
+- `${IMAGE_TAG:?…}` — без тега compose откажется стартовать, а не возьмёт случайный `latest`.
+
+## workflow деплоя | 8
+flow: n:push в main -> c:build ~ образ :sha -> a:push ~ ghcr.io -> v:deploy-staging ~ ssh, compose up -> g:smoke ~ /health == sha
+- Агенту: «Напиши `.github/workflows/deploy.yml` по схеме со слайда. Секреты — только через `env:`, имена: `STAGING_SSH_KEY`, переменная `STAGING_HOST`. Значений не спрашивай».
+- Проверяем линтером из лабы 09: `lint_workflow` должен вернуть `[]`.
+- Ревью человеком: где секрет может попасть в лог? (`set -x`, `echo`, сообщение об ошибке `ssh`).
+
+@part 2
+## Smoke-тест | 5
+```bash шаг после deploy
+for i in $(seq 30); do
+  v=$(curl -fsS https://staging.example.org/health | python -c "import json,sys; print(json.load(sys.stdin)['version'])") \
+    && [ "$v" = "$TAG" ] && exit 0
+  sleep 2
+done
+echo "staging не отдал версию $TAG" && exit 1
+```
+- Версию в образ передаём при сборке: `--build-arg VERSION=$GITHUB_SHA` → `ENV APP_VERSION`.
+
+## Откат на время | 6
+- Ломаем специально: PR, где `/health` возвращает 500. Merge → smoke-тест красный.
+- Откат: `workflow_dispatch` с полем `tag` = прошлый sha (или `IMAGE_TAG=… docker compose up -d` по SSH).
+- Засекаем время от «заметили» до «staging снова зелёный». Цель — меньше 2 минут.
+q: Что если сломанная версия успела выполнить миграцию базы? :: Откат кода не откатывает схему. Поэтому миграции делаем обратно совместимыми: старый код должен работать с новой схемой. Тогда откатывать нужно только образ.
+
+## Секреты в AGENTS.md | 6
+- Дописываем раздел «Секреты» (шаблон — на слайде лекции) и проверяем его: просим агента «покажи, что в `.env`». Он должен отказаться и предложить `.env.example`.
+- `.env.example` — все переменные `Settings`, значения пустые. CI проверяет, что ключи совпадают (`check_env` из лабы 10).
+- Хук `pre-commit` со сканером — у каждого в команде; в CI — шаг `gitleaks` или `scan_tree`.
+> Защита в три слоя: правило для агента, хук у человека, сканер в CI. Каждый слой иногда пропускает — вместе почти никогда.
+
+## Итоги | 2
+- Merge → staging за пару минут, откат меньше чем за две.
+- Контест 5 — на этой неделе. PROD, второй этап, — 12–22 января.
