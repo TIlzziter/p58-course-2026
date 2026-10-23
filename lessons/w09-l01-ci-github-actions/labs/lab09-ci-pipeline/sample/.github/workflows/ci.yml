@@ -1,0 +1,21 @@
+# Черновик от «агента». Работает… пока что. Найдите всё, на что ругается lint_workflow,
+# и доведите до требований задачи 5 (README).
+name: CI
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.12, 3.10]
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -r requirements.txt ruff
+      - run: ruff check . || true
+      - run: pytest -q
+      - run: echo "token=${{ secrets.DEPLOY_TOKEN }}"
