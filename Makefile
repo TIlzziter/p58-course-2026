@@ -16,5 +16,8 @@ readmes:    ## README уроков и таблица расписания в REA
 rating:     ## шаблон таблицы рейтинга
 	$(PYTHON) tools/rating.py
 
+audit:
+	$(PYTHON) tools/audit_decks.py lessons/*/lecture.html lessons/*/seminar.html
+
 check:      ## проверить лабораторные, контесты и уроки
 	PYTHON=$(PYTHON) scripts/check_all.sh

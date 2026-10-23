@@ -61,6 +61,7 @@ def check_contest(sol: Path) -> list[str]:
 
 
 def check_lessons() -> list[str]:
+    import audit_decks
     import deck
     import syllabus
     errors = []
@@ -85,6 +86,10 @@ def check_lessons() -> list[str]:
             errors.append(f"{lesson.dir}: нет лабораторной {lesson.lab}")
         if lesson.part == 1 and n < 18:
             errors.append(f"{lesson.dir}: в лекции всего {n} слайдов")
+        if shutil.which("google-chrome") or shutil.which("chromium"):
+            bad = audit_decks.audit(html)
+            if bad:
+                errors.append(f"{lesson.dir}: не помещаются слайды {' '.join(bad)}")
     print(f"  уроков в расписании: {len(syllabus.LESSONS)}, ошибок: {len(errors)}")
     return errors
 
