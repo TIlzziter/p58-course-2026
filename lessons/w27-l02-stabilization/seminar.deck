@@ -61,7 +61,7 @@ git push origin v1.0.0-rc1          # CI собирает образ и выка
 
 ## Changelog | 3
 ```markdown CHANGELOG.md
-## v1.0.0-rc1 — 2027-05-06
+## v1.0.0-rc1 — 2027-05-13
 ### Новое
 - подсказки в партии (за флагом HINTS_ENABLED)
 ### Исправлено

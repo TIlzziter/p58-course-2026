@@ -33,7 +33,7 @@ chips: runbook | staging | pg_restore | таймер | сверка | отчёт
 | хронометрист | старт аварии → игра снова работает |
 
 ## Отчёт учений | 4
-```markdown docs/drill-2027-04.md
+```markdown docs/drill-2027-05.md
 Авария: DROP TABLE matches (staging), 14:05
 Восстановили: 14:23 — RTO 18 мин (цель 30) ✔
 Потеряно: с ночного бэкапа 03:00 — RPO 11 ч (цель 24) ✔
