@@ -91,7 +91,7 @@ tools/                         сборка презентаций, листов
 | 25 | 26.04–02.05 | [49 · Лекция](lessons/w25-l01-ux-accessibility/README.md) | UX: юзабилити-тесты, доступность |  |  |
 | 25 | 26.04–02.05 | [50 · Семинар](lessons/w25-l02-usability-tests/README.md) | Семинар: тесты на одноклассниках, правки интерфейса |  |  |
 | 26 | 03.05–09.05 | [51 · Лекция](lessons/w26-l01-backups-runbook/README.md) | Надёжность: бэкапы PostgreSQL, восстановление, runbook | [lab20](lessons/w26-l01-backups-runbook/labs/lab20-backups/README.md) |  |
-| 26 | 03.05–09.05 | [52 · Семинар](lessons/w26-l02-restore-drill/README.md) | Семинар: учение по восстановлению; feature freeze |  | c13 |
+| 26 | 03.05–09.05 | [52 · Семинар](lessons/w26-l02-restore-drill/README.md) | Семинар: учение по восстановлению; feature freeze |  | [c13](contests/c13-reliability-time/sheet.pdf) |
 | 27 | 10.05–16.05 | [53 · Лекция](lessons/w27-l01-docs-portfolio/README.md) | Документация и портфолио: README, архитектура, видео-демо |  |  |
 | 27 | 10.05–16.05 | [54 · Семинар](lessons/w27-l02-stabilization/README.md) | Семинар: стабилизация, багфиксы, release candidate |  |  |
 | 28 | 17.05–23.05 | [55 · Лекция](lessons/w28-l01-pitch/README.md) | Публичное выступление и питч |  |  |

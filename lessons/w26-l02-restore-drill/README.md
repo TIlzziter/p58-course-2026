@@ -10,6 +10,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 13 «Надёжность и время» (сезон 2): [лист PDF](../../contests/c13-reliability-time/sheet.pdf), [исходник](../../contests/c13-reliability-time/sheet.md); решения — `solutions/contests/c13-reliability-time/`
 
 ## Агентная разработка
 

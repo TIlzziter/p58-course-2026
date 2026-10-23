@@ -1,0 +1,187 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 13 · Надёжность и время</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 13 · Надёжность и время</h1>
+<p>Неделя 26 · темы недель 24–26: длительности и часовые пояса, расписания, повторы и идемпотентность,
+доступность и инциденты, время в распределённой системе; в проектной части — UX, бэкапы и runbook.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Время</h2>
+<p><strong>A1.</strong> <code>parse_duration(s)</code> — <code>"1h30m"</code>, <code>"2d"</code>, <code>"45s"</code>, <code>"1h 5m"</code> → секунды. Единицы <code>d</code>, <code>h</code>, <code>m</code>, <code>s</code>
+идут по убыванию, каждая не больше раза, числа целые, пробелы игнорируются. Иначе (и пустая строка) —
+<code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_duration("1h30m"), parse_duration("2d"), parse_duration("1h 5m")
+       parse_duration("30m1h")
+Вывод: 5400, 172800, 3900
+       ValueError
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>utc_to_local(ts, tz)</code> — момент UTC <code>"ГГГГ-ММ-ДДTЧЧ:ММ:ССZ"</code> → местное время зоны <code>tz</code> в ISO со
+смещением (<code>zoneinfo</code>). <code>local_day_bounds(day, tz)</code> — начало и конец местных суток в UTC. Почему сутки
+28.03.2027 в Берлине короче 24 часов?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  utc_to_local("2027-03-28T01:30:00Z", "Europe/Berlin")
+       utc_to_local("2027-04-26T21:30:00Z", "Europe/Moscow")
+       local_day_bounds("2027-03-28", "Europe/Berlin")
+Вывод: "2027-03-28T03:30:00+02:00"
+       "2027-04-27T00:30:00+03:00"
+       ("2027-03-27T23:00:00Z", "2027-03-28T22:00:00Z")
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>uptime(outages, start, end)</code> — доступность за <code>[start, end)</code> в процентах, 3 знака. Простои
+<code>(начало, конец)</code> могут пересекаться и выходить за границы периода.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  uptime([(100, 200), (150, 300), (900, 1100)], 0, 1000), uptime([], 0, 10)
+Вывод: 70.0, 100.0
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>cron_next(expr, after)</code> — упрощённый cron <code>"минута час * * день_недели"</code>: в полях <code>*</code>, число,
+список через запятую, диапазон <code>a-b</code>, шаг <code>*/n</code>; день недели 0–6, 0 — воскресенье. Ближайший момент
+строго после <code>after</code>. День месяца и месяц не <code>*</code> — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  cron_next("0 3 * * *", datetime(2027, 4, 26, 3, 0))
+       cron_next("*/15 9-18 * * 1-5", datetime(2027, 4, 30, 18, 50))
+Вывод: datetime(2027, 4, 27, 3, 0)
+       datetime(2027, 5, 3, 9, 0)
+</code></pre></div>
+
+<h2>B. Повторы</h2>
+<p><strong>B1.</strong> <code>backoff_schedule(n, base, cap, seed=None)</code> — паузы перед повторами 1…n: <code>min(cap, base · 2^(i−1))</code>.
+С <code>seed</code> — «полный джиттер»: <code>rng = random.Random(seed)</code>, пауза <code>rng.uniform(0, та же величина)</code>.
+3 знака. Зачем джиттер, если клиентов тысяча?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  backoff_schedule(6, 0.5, 5), backoff_schedule(4, 1, 10, seed=58)
+Вывод: [0.5, 1.0, 2.0, 4.0, 5.0, 5.0], [0.581, 0.411, 2.568, 7.572]
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>retry(fn, attempts, retry_on=(Exception,), base=0.1, cap=5.0, sleep=None)</code> — вызвать <code>fn()</code>
+до <code>attempts</code> раз. Исключение из <code>retry_on</code> — <code>sleep(пауза из B1)</code> и снова; другое — пробросить сразу.
+Успех — <code>(результат, номер попытки)</code>. Попытки кончились — пробросить последнее исключение.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sl = []; retry(flaky, 5, (ConnectionError,), sleep=sl.append); sl
+Вывод: ("ok", 3); [0.1, 0.2]          # flaky падает дважды, потом "ok"
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>IdempotencyStore(ttl)</code> — ключ идемпотентности. <code>handle(key, body, fn, now=0)</code>: первый раз —
+<code>fn(body)</code> и запомнить ответ; тот же <code>key</code> и <code>body</code> — тот же ответ без вызова; тот же <code>key</code> с другим
+<code>body</code> — <code>Conflict</code>. Упавший <code>fn</code> не запоминаем. Ключ живёт <code>ttl</code> секунд.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  s = IdempotencyStore(100)
+       s.handle("k1", {"x": 1}, fn), s.handle("k1", {"x": 1}, fn, 50)
+       s.handle("k1", {"x": 2}, fn, 60)
+Вывод: {"order": 1}, {"order": 1}
+       Conflict
+</code></pre></div>
+
+<h2>C. Надёжность</h2>
+<p><strong>C1.</strong> <code>availability(spec)</code> — доступность системы: число — компонент; <code>("series", [...])</code> — нужны все;
+<code>("parallel", [...])</code> — хватит одного. 6 знаков. Что выгоднее: вторая реплика API или второй Redis?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  availability(("series", [0.999, ("parallel", [0.99, 0.99]), 0.9995]))
+       availability(("parallel", [0.9, 0.9, 0.9]))
+Вывод: 0.998401
+       0.999
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>downtime_budget(slo_percent, days=30)</code> — допустимый простой в минутах, 1 знак.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  downtime_budget(99.9), downtime_budget(99.5), downtime_budget(99.99, 365)
+Вывод: 43.2, 216.0, 52.6
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>incident_stats(outages, start, end)</code> — простои в секундах, пересекающиеся — один инцидент.
+<code>{"count", "mttr_min" — средняя длительность в минутах, "mtbf_h" — (период − простой) / count в часах}</code>,
+1 знак. Нет инцидентов — <code>mttr_min</code> 0.0, <code>mtbf_h</code> <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  incident_stats([(3600, 4200), (4000, 4800), (86400, 87000)], 0, 7 * 86400)
+Вывод: {"count": 2, "mttr_min": 15.0, "mtbf_h": 83.8}
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>health_transitions(checks, fail_after=3, recover_after=2)</code> — проверки здоровья (<code>True</code> —
+ответил). Сначала <code>"up"</code>; в <code>"down"</code> — после <code>fail_after</code> неудач подряд, обратно — после
+<code>recover_after</code> удач подряд. Ответ — <code>(индекс проверки, новое состояние)</code>. Зачем такой гистерезис?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  health_transitions([True, False, False, True, False, False, False, False,
+                           True, False, True, True, True])
+Вывод: [(6, "down"), (11, "up")]
+</code></pre></div>
+
+<h2>D. Время в распределённой системе</h2>
+<p><strong>D1.</strong> <code>lamport(events)</code> — часы Лэмпорта. Событие <code>(процесс, "local")</code>, <code>(процесс, "send", id)</code> или
+<code>(процесс, "recv", id)</code>. <code>local</code> и <code>send</code>: часы <code>+1</code>; <code>recv</code>: <code>max(часы, метка сообщения) + 1</code>.
+Ответ — метка каждого события.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  lamport([("A", "local"), ("A", "send", "m1"), ("B", "local"), ("B", "local"),
+                ("B", "local"), ("B", "recv", "m1"), ("B", "send", "m2"),
+                ("A", "recv", "m2")])
+Вывод: [1, 2, 1, 2, 3, 4, 5, 6]
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>vc_compare(a, b)</code> — векторные часы (нет ключа — 0): <code>"equal"</code>, <code>"before"</code>, <code>"after"</code> или
+<code>"concurrent"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  vc_compare({"A": 1, "B": 2}, {"A": 1, "B": 3}), vc_compare({"A": 2}, {"B": 1})
+       vc_compare({"A": 1}, {"A": 1, "B": 0})
+Вывод: "before", "concurrent"
+       "equal"
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>lww_merge(*replicas)</code> — регистр «последняя запись побеждает»: ключ → <code>(время, узел, значение)</code>.
+Побеждает большее время, при равенстве — больший узел. Ответ — ключ → значение по алфавиту ключей.
+Почему результат не зависит от порядка реплик?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  lww_merge({"skin": (5, "api1", "red"), "lang": (1, "api1", "ru")},
+                 {"skin": (5, "api2", "blue"), "sound": (2, "api2", "off")})
+Вывод: {"lang": "ru", "skin": "blue", "sound": "off"}
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Отчёт UX (семинар 25): три проблемы с тяжестью и долей участников, одна исправленная P1 и
+повторный тест после правки.</p>
+<p><strong>E2.</strong> Runbook восстановления (лекция 26) проходит проверку из лабораторной 20 и восстановлен «вслепую»
+на семинаре: покажите время восстановления и сверку строк.</p>
+<p><strong>E3.</strong> Ночной бэкап базы staging: cron или сервис, ротация, копия не на том же диске. Покажите вчерашний
+файл и его sha256.</p>
+<p><strong>E4 · босс.</strong> Очередь задач с повторами (награды, рассылки бота). За каждую часть свой плюс.</p>
+<p>а) <code>next_attempt_at(fail_time, attempt, base=1, cap=60)</code> — после неудачной попытки <code>attempt</code> (с 1)
+следующая через <code>min(cap, base · 2^(attempt − 1))</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  next_attempt_at(10, 1), next_attempt_at(10, 4)
+Вывод: 11.0, 18.0
+</code></pre></div>
+
+<p>б) <code>simulate(jobs, max_attempts=4, base=1, cap=60)</code> — задача: <code>id → (время постановки, исходы попыток)</code>;
+список кончился — дальше неудачи. Попытки мгновенны. Ответ: <code>id → ("done" | "dead", попыток, время
+последней попытки)</code>. <code>timeline(jobs)</code> — все попытки по времени: <code>(время, id, попытка)</code>, при равенстве —
+по <code>id</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  J = {"a": (0, [False, False, True]), "b": (1, [True]), "c": (2, [])}; simulate(J)
+Вывод: {"a": ("done", 3, 3.0), "b": ("done", 1, 1), "c": ("dead", 4, 9.0)}
+</code></pre></div>
+
+<p>в) <code>apply_rewards(deliveries)</code> — доставка «хотя бы один раз»: <code>(id события, игрок, монеты)</code> может
+прийти повторно. Начислить каждое событие один раз; тот же <code>id</code> с другим содержимым — <code>ValueError</code>.
+Ответ — баланс по алфавиту игроков.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  apply_rewards([("e1", "ann", 10), ("e2", "bob", 5), ("e1", "ann", 10),
+                      ("e3", "ann", 3)])
+Вывод: {"ann": 13, "bob": 5}
+</code></pre></div>
+
+<p><strong>E5*.</strong> Аренда лидерства с fencing-токенами: только один экземпляр бота рассылает награды.
+<code>Lease(ttl).acquire(owner, now)</code> — свободна или истекла — новый токен (на 1 больше прошлого), занята
+другим — <code>None</code>, тем же — продлить. <code>Storage.write(token, value)</code> — отказ, если токен меньше уже
+виденного. <code>run(script, ttl=10)</code> — <code>("acq", кто, время)</code>, <code>("write", токен, значение)</code>,
+<code>("rel", кто, токен)</code> → результаты по порядку. Почему без токенов «зомби» A испортил бы данные?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  run([("acq", "A", 0), ("write", 1, "a1"), ("acq", "B", 5), ("acq", "B", 12),
+            ("write", 2, "b1"), ("write", 1, "a2"), ("acq", "A", 13), ("rel", "B", 2),
+            ("acq", "A", 14), ("write", 3, "a3")])
+Вывод: [1, True, None, 2, True, False, None, True, 3, True]
+</code></pre></div></body></html>
