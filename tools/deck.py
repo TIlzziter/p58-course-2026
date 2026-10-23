@@ -25,8 +25,8 @@ JS = (ROOT / "templates" / "deck.js").read_text(encoding="utf-8")
 EXTRA_CSS = """
 /* Дополнения курса «Проект 58»: подсветка кода и пара новых блоков */
 .term pre{text-align:left}
-.term.code pre{font-size:19px;line-height:1.42;white-space:pre;overflow:hidden}
-.term.code.small pre{font-size:16.5px}
+.term.code pre{font-size:17.5px;line-height:1.4;white-space:pre;overflow:hidden}
+.term.code.small pre{font-size:16px}
 .term .k{color:#c4b5fd}.term .kc,.term .kn,.term .kd,.term .ow{color:#c4b5fd}
 .term .s,.term .s1,.term .s2,.term .sa,.term .sd,.term .si,.term .se,.term .sb{color:#86efac}
 .term .c,.term .c1,.term .cm,.term .ch,.term .cs{color:#7d8ca5;font-style:italic}
@@ -40,6 +40,11 @@ EXTRA_CSS = """
 .split{display:grid;grid-template-columns:1.05fr 1fr;gap:24px;align-items:start}
 .flow{flex-wrap:wrap;row-gap:10px}
 .note{font-size:19px;color:var(--muted);line-height:1.4}
+.term.code.tiny pre{font-size:14.5px;line-height:1.36;padding:12px 18px}
+.split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.split .term.code pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.4;padding:14px 16px}
+.splitside .cols,.splitside .cols3,.splitside .stack{display:grid;grid-template-columns:1fr;gap:14px}
+.technical .splitside .card{padding:16px 18px}.technical .splitside .card .cs{font-size:19px;line-height:1.38}.technical .splitside .card .cs code{font-size:16px}.technical .splitside .card .ct{font-size:20px}
 .tbl.small{font-size:20px}.tbl.small td{padding:8px 12px}
 """
 
@@ -64,6 +69,10 @@ def code_block(lang: str, title: str, lines: list[str], small: bool) -> str:
     body = highlight(src, lexer, FORMATTER).rstrip("\n")
     head = f'<div class="thead"><span class="ttl">{inline(title)}</span></div>' if title else ""
     cls = "term code small" if small else "term code"
+    if len(lines) > 15 or max((len(x) for x in lines), default=0) > 88:
+        cls = "term code tiny"
+    elif len(lines) > 11:
+        cls = "term code small"
     return f'<div class="{cls}">{head}<pre>{body}</pre></div>'
 
 
@@ -206,6 +215,18 @@ def parse(text: str):
     return meta, slides
 
 
+def code_blocks(lines: list[str]) -> list[str]:
+    """Только блоки кода из списка строк слайда (вместе с ограничителями)."""
+    out, inside = [], False
+    for line in lines:
+        if line.strip().startswith("```"):
+            inside = not inside
+            out.append(line)
+        elif inside:
+            out.append(line)
+    return out
+
+
 def build(src: Path, dst: Path) -> int:
     meta, slides = parse(src.read_text(encoding="utf-8"))
     title = meta.get("title", src.stem)
@@ -226,7 +247,14 @@ def build(src: Path, dst: Path) -> int:
         meta_cls = "meta optional-label" if opt else "meta"
         opt_txt = " · дополнительно" if opt else ""
         simple = render_blocks(s["simple"])
-        tech = render_blocks(s["technical"]) or simple
+        tech_lines = s["technical"]
+        carried = code_blocks(s["simple"])
+        if tech_lines and carried and not any(l.strip().startswith("```") for l in tech_lines):
+            # код виден в обоих режимах: в техническом — слева, пояснения справа
+            tech = (f'<div class="split"><div class="splitcode">{render_blocks(carried)}</div>'
+                    f'<div class="splitside">{render_blocks(tech_lines)}</div></div>')
+        else:
+            tech = render_blocks(tech_lines) or simple
         sections.append(
             f'<section class="{cls}" id="slide-{n}" data-lesson="{s["part"]}" aria-label="Слайд {n}. {html.escape(s["title"])}">'
             f'<div class="titleblock"><div class="kicker">{html.escape(k)}<span class="{meta_cls}">{s["mins"]} мин{opt_txt}</span></div>'

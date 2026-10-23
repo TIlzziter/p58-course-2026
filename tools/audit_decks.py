@@ -16,8 +16,10 @@ ss.forEach((s,i)=>{ss.forEach(x=>x.classList.remove('active'));s.classList.add('
 const cs=getComputedStyle(s);const avail=s.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
 const kids=[...s.children].filter(k=>k.offsetParent!==null&&getComputedStyle(k).position!=='absolute');
 if(!kids.length)return;let top=1e9,bot=-1e9;kids.forEach(k=>{const r=k.getBoundingClientRect();top=Math.min(top,r.top);bot=Math.max(bot,r.top+Math.max(r.height,k.scrollHeight))});
-let wide=0;s.querySelectorAll('pre,table').forEach(p=>{if(p.offsetParent&&p.scrollWidth>p.clientWidth+2)wide=1});
-const h=Math.round(bot-top);if(h>avail+2||wide)out.push(mode[0]+(i+1)+'='+h+'/'+Math.round(avail)+(wide?'w':''))})}
+let wide=0;s.querySelectorAll('pre,.card,td').forEach(p=>{if(!p.offsetParent)return;const box=(p.closest('.term')||p).getBoundingClientRect();
+const rg=document.createRange();rg.selectNodeContents(p);for(const r of rg.getClientRects()){if(r.width===0)continue;
+if(r.bottom>box.bottom+1)wide='h';if(r.right>box.right+1)wide='w'}});
+const h=Math.round(bot-top);if(h>avail+2||wide)out.push(mode[0]+(i+1)+'='+h+'/'+Math.round(avail)+(wide||''))})}
 const p=document.createElement('pre');p.id='audit';p.textContent='@@'+out.join(' ')+'@@';document.body.append(p)})</script>"""
 
 
