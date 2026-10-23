@@ -13,6 +13,7 @@ fakeredis>=2.23
 redis>=5.0
 pyyaml>=6
 pandas>=2.2
+matplotlib>=3.8      # графики в лабе 17
 ruff>=0.6
 # сборка презентаций и листов контестов
 markdown>=3.6
