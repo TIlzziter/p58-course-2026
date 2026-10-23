@@ -56,20 +56,20 @@ def minimax(g, depth, alpha=-INF, beta=INF, me=True):
     if depth == 0 or g.over():
         return g.score()
     best = -INF if me else INF
-    for m in g.ordered_moves():           # хорошие ходы первыми — больше отсечений
+    for m in g.ordered_moves():     # сильные ходы первыми
         v = minimax(g.play(m), depth - 1, alpha, beta, not me)
         if me:
             best, alpha = max(best, v), max(alpha, v)
         else:
             best, beta = min(best, v), min(beta, v)
         if alpha >= beta:
-            break                         # альфа-бета: дальше смотреть незачем
+            break                   # отсечение
     return best
 ```
-- Альфа-бета даёт тот же ответ, что минимакс; в лучшем порядке ходов — около b^(d/2) позиций вместо b^d.
 
 ## ИИ-соперник: Монте-Карло | 5
-- Когда дерево огромное и оценку позиции не придумать — доигрываем случайно и считаем победы.
+- Альфа-бета: ответ как у минимакса, но при хорошем порядке ходов ≈ b^(d/2) позиций вместо b^d.
+- Дерево огромное, оценки нет — доигрываем случайно и считаем победы.
 - UCT выбирает, где доигрывать: `w/n + c·√(ln N / n)`, обычно c ≈ √2.
 | Ход | Победы w | Игры n | UCT при N = 100 |
 | A | 6 | 10 | 1.56 |
