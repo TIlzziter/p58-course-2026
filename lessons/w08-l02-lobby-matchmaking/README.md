@@ -12,6 +12,7 @@
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab08-redis-matchmaking`](labs/lab08-redis-matchmaking/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab08-redis-matchmaking/`
+- Контест 4 «Базы данных и кэш» (сезон 1): [лист PDF](../../contests/c04-databases-cache/sheet.pdf), [исходник](../../contests/c04-databases-cache/sheet.md); решения — `solutions/contests/c04-databases-cache/`
 
 ## Агентная разработка
 

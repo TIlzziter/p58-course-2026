@@ -54,7 +54,7 @@ tools/                         сборка презентаций, листов
 | 7 | 07.12–13.12 | [13 · Лекция](lessons/w07-l01-postgres-sqlalchemy/README.md) | PostgreSQL вместо SQLite: SQLAlchemy 2 (async), миграции Alembic |  |  |
 | 7 | 07.12–13.12 | [14 · Семинар](lessons/w07-l02-db-rating/README.md) | Семинар: таблицы игроков, матчей и рейтинга; история партий | [lab07](lessons/w07-l02-db-rating/labs/lab07-sqlalchemy-rating/README.md) |  |
 | 8 | 14.12–20.12 | [15 · Лекция](lessons/w08-l01-redis/README.md) | Redis: сессии, комнаты, TTL, pub/sub; несколько копий приложения |  |  |
-| 8 | 14.12–20.12 | [16 · Семинар](lessons/w08-l02-lobby-matchmaking/README.md) | Семинар: лобби, очередь матчмейкинга, приглашение другу ссылкой из бота | [lab08](lessons/w08-l02-lobby-matchmaking/labs/lab08-redis-matchmaking/README.md) | c04 |
+| 8 | 14.12–20.12 | [16 · Семинар](lessons/w08-l02-lobby-matchmaking/README.md) | Семинар: лобби, очередь матчмейкинга, приглашение другу ссылкой из бота | [lab08](lessons/w08-l02-lobby-matchmaking/labs/lab08-redis-matchmaking/README.md) | [c04](contests/c04-databases-cache/sheet.pdf) |
 | 9 | 21.12–24.12 | [17 · Лекция](lessons/w09-l01-ci-github-actions/README.md) | CI в GitHub Actions: ruff, pytest, сборка образа | [lab09](lessons/w09-l01-ci-github-actions/labs/lab09-ci-pipeline/README.md) |  |
 | 9 | 21.12–24.12 | [18 · Семинар](lessons/w09-l02-pr-review-retro/README.md) | Семинар: CI на каждый PR, кейсы PROD, ревью агент + человек, ретро полугодия |  |  |
 | — | 25.12–10.01 | — | **Зимние каникулы** (ориентировочно); по желанию — QuestHub | — | — |

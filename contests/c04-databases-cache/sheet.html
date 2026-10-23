@@ -1,0 +1,174 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 4 · Базы данных и кэш</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 4 · Базы данных и кэш</h1>
+<p>Неделя 8 · темы недель 7–8: SQL и связи таблиц, рейтинг Эло, миграции Alembic, типы данных Redis, TTL и очереди.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. SQL</h2>
+<p>Во всех задачах A — база SQLite (<code>import sqlite3</code>) со схемой ниже. Ответ получайте <strong>одним SQL-запросом</strong>
+(для A4* — запрос плюс короткий цикл в Python). Параметры подставляйте через <code>?</code>, а не f-строкой.</p>
+<div class="codehilite"><pre><span></span><code>CREATE TABLE players (id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, rating INTEGER NOT NULL DEFAULT 1000);
+CREATE TABLE matches (id INTEGER PRIMARY KEY, p1 INTEGER NOT NULL REFERENCES players(id),
+                      p2 INTEGER NOT NULL REFERENCES players(id),
+                      result TEXT NOT NULL CHECK (result IN ('win1', 'win2', 'draw')));
+</code></pre></div>
+
+<p>Пример данных для всех задач A:</p>
+<div class="codehilite"><pre><span></span><code>players: 1 Аня 1100 · 2 Боря 1050 · 3 Вика 1100 · 4 Гоша 1000
+matches (p1, p2, result): (1, 2, win1) (2, 3, draw) (3, 1, win2) (1, 2, win2) (1, 3, win1) (1, 2, win1)
+</code></pre></div>
+
+<p><strong>A1.</strong> <code>top_players(conn, n)</code> — первые <code>n</code> игроков: рейтинг по убыванию, при равенстве — по имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  top_players(conn, 3)
+Вывод: [("Аня", 1100), ("Вика", 1100), ("Боря", 1050)]
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>games_count(conn)</code> — сколько партий сыграл каждый игрок (за любую сторону). Игроки без партий тоже нужны.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  games_count(conn)
+Вывод: {"Аня": 5, "Боря": 4, "Вика": 3, "Гоша": 0}
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>win_rate(conn, name)</code> — доля побед игрока, округлённая до двух знаков; нет партий или нет игрока — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  win_rate(conn, "Аня"), win_rate(conn, "Боря"), win_rate(conn, "Гоша")
+Вывод: 0.8, 0.25, None
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>best_streak(conn, name)</code> — самая длинная серия побед подряд (партии по порядку <code>id</code>; ничья серию прерывает).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  best_streak(conn, "Аня")
+Вывод: 2
+</code></pre></div>
+
+<h2>B. Рейтинг</h2>
+<p>Ожидаемый счёт <code>E = 1 / (1 + 10 ** ((rb − ra) / 400))</code>, изменение <code>Δ = round(k · (score − E))</code>, <code>k = 32</code>.</p>
+<p><strong>B1.</strong> <code>elo_delta(ra, rb, score, k=32)</code> — изменение рейтинга игрока A (у B — ровно <code>−Δ</code>).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  elo_delta(1000, 1000, 1), elo_delta(1200, 1000, 1), elo_delta(1000, 1200, 1), elo_delta(1200, 1000, 0.5)
+Вывод: 16, 8, 24, -8
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>replay(matches, start=1000)</code> — проиграйте партии <code>(a, b, result)</code> по порядку, начиная со <code>start</code> для каждого
+нового игрока. Верните итоговые рейтинги, отсортированные по имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  replay([("Аня", "Боря", "win1"), ("Боря", "Вика", "draw"), ("Аня", "Вика", "win2")])
+Вывод: {"Аня": 999, "Боря": 985, "Вика": 1016}
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>rank_with_ties(ratings)</code> — места с учётом равенства «как на олимпиаде»: 1, 1, 3, 4. Внутри места — по имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rank_with_ties({"Аня": 1100, "Боря": 1050, "Вика": 1100, "Гоша": 1000})
+Вывод: [(1, "Аня"), (1, "Вика"), (3, "Боря"), (4, "Гоша")]
+</code></pre></div>
+
+<h2>C. Redis</h2>
+<p>Функции асинхронные и получают клиент <code>r</code> (<code>redis.asyncio.Redis</code> с <code>decode_responses=True</code>; в тестах — <code>fakeredis</code>).
+Подберите подходящий тип данных — это часть задачи.</p>
+<p><strong>C1.</strong> <code>add_win(r, name)</code> добавляет игроку победу и возвращает их число; <code>top_wins(r, n)</code> — первые <code>n</code> по
+победам, при равенстве по имени. Ключ — <code>wins</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  победы: Аня, Боря, Аня, Вика, Боря, Аня;  top_wins(r, 3)
+Вывод: [("Аня", 3), ("Боря", 2), ("Вика", 1)]
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>remember_recent(r, user, item, limit=5)</code> — «недавние игры»: <code>item</code> встаёт первым, повторов нет, хранится не
+больше <code>limit</code>. Возвращает список после добавления. Ключ — <code>recent:&lt;user&gt;</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  по очереди c4, snake, c4, chess, go, ttt, mines
+Вывод: ["mines", "ttt", "go", "chess", "c4"]
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>once(r, key, ttl)</code> — защита от двойной записи результата партии: <code>True</code> только при первом вызове с этим
+ключом в течение <code>ttl</code> секунд. Ключ — <code>once:&lt;key&gt;</code>. Одна команда Redis.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  once(r, "match:42", 60), once(r, "match:42", 60), once(r, "match:43", 60)
+Вывод: True, False, True
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>sliding_allow(r, key, limit, window, now)</code> — скользящее окно: разрешить, если за последние <code>window</code> секунд
+(интервал <code>(now − window, now]</code>) было меньше <code>limit</code> <strong>разрешённых</strong> запросов. <code>now</code> передаётся явно.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  limit=3, window=10, now = 0, 1, 2, 3, 9.5, 10.5, 11, 12, 13
+Вывод: True, True, True, False, False, True, True, True, False
+</code></pre></div>
+
+<h2>D. Схемы и миграции</h2>
+<p><strong>D1.</strong> <code>parse_ddl(sql)</code> — по тексту с командами <code>CREATE TABLE</code> (регистр любой, бывает <code>IF NOT EXISTS</code>) верните
+словарь «таблица → список колонок». Строки-ограничения (<code>PRIMARY KEY (...)</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code>, <code>CHECK</code>,
+<code>CONSTRAINT</code>) — не колонки. Осторожно: запятые бывают внутри скобок, <code>NUMERIC(6, 1)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  CREATE TABLE players (id INTEGER PRIMARY KEY, tg_id BIGINT NOT NULL,
+           rating NUMERIC(6, 1) DEFAULT 1000, UNIQUE (tg_id));
+Вывод: {"players": ["id", "tg_id", "rating"]}
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>migration_order(revisions)</code> — словарь «ревизия → предыдущая» (<code>None</code> у первой), как <code>down_revision</code> в Alembic.
+Верните порядок применения. Две ревизии с одной предыдущей (ветвление), ссылка на несуществующую ревизию, цикл
+или несколько первых — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  migration_order({"c3": "b2", "a1": None, "b2": "a1"})
+Вывод: ["a1", "b2", "c3"]
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>review_migration(text)</code> — автоматическое ревью файла миграции. Верните предупреждения по порядку:
+<code>"drop"</code> — в <code>upgrade</code> есть <code>op.drop_column</code> или <code>op.drop_table</code>; <code>"not_null_without_default"</code> — <code>op.add_column</code>
+с <code>nullable=False</code> без <code>server_default</code> (каждый вызов в одной строке); <code>"empty_downgrade"</code> — в <code>downgrade</code> нет ни одного <code>op.</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  def upgrade() -&gt; None:
+           op.drop_column("players", "rating")
+           op.add_column("players", sa.Column("elo", sa.Integer(), nullable=False))
+
+       def downgrade() -&gt; None:
+           pass
+Вывод: ["drop", "not_null_without_default", "empty_downgrade"]
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> PostgreSQL в compose вашего проекта: покажите <code>docker compose ps</code> (у <code>db</code> статус <code>healthy</code>),
+<code>alembic upgrade head</code> на чистой базе и <code>\d matches</code> в <code>psql</code>. Данные переживают <code>docker compose down</code> и <code>up</code>.</p>
+<p><strong>E2.</strong> Индекс на деле. Заполните таблицу <code>matches</code> 200 000 строк, покажите план и время запроса
+<code>... WHERE p1 = ? ORDER BY id DESC LIMIT 10</code> до и после индекса (<code>EXPLAIN QUERY PLAN</code> в SQLite или
+<code>EXPLAIN ANALYZE</code> в PostgreSQL). Объясните, почему индекс на <code>(p1, id)</code> лучше, чем на <code>p1</code>.</p>
+<p><strong>E3.</strong> Хранение комнат: попросите агента предложить два варианта (например, hash на комнату или JSON-строка;
+комнаты в Redis или в PostgreSQL) и составьте с командой таблицу «плюсы / минусы» по 4+ критериям.
+Защитите выбранный вариант.</p>
+<p><strong>E4 · босс.</strong> Турнир по вашей игре. За каждую часть свой плюс.</p>
+<p>а) <code>round_robin(players)</code> — расписание «каждый с каждым» методом круга: первый игрок стоит на месте, остальные
+сдвигаются по кругу на одну позицию каждый тур. В туре пары <code>(players[i], players[n−1−i])</code>. При нечётном числе
+добавьте <code>None</code> в конец — его соперник отдыхает (пара <code>(игрок, None)</code>).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  round_robin(["A", "B", "C", "D"])
+Вывод: [[("A", "D"), ("B", "C")], [("A", "C"), ("D", "B")], [("A", "B"), ("C", "D")]]
+</code></pre></div>
+
+<p>б) <code>standings(players, results)</code> — таблица <code>(имя, очки, победы, ничьи, поражения)</code>: победа 3 очка, ничья 1.
+Порядок: очки, победы — по убыванию, затем имя. Неизвестный игрок или результат — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  standings(["Аня", "Боря", "Вика", "Гоша"],
+                 [("Аня", "Боря", "win1"), ("Боря", "Вика", "draw"), ("Вика", "Аня", "win1")])
+Вывод: [("Вика", 4, 1, 1, 0), ("Аня", 3, 1, 0, 1), ("Боря", 1, 0, 1, 1), ("Гоша", 0, 0, 0, 0)]
+</code></pre></div>
+
+<p>в) <code>swiss_pairs(order, played)</code> — пары «швейцарского» тура: игроки по месту в таблице; первый свободный играет с
+ближайшим по таблице, с кем ещё не встречался (<code>played</code> — множество <code>frozenset</code> пар). Если дальше разбить нельзя —
+перебор с возвратом. Невозможно или число игроков нечётное — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  swiss_pairs(["A", "B", "C", "D"], {frozenset("CD")})
+Вывод: [("A", "C"), ("B", "D")]          # A–B, C–D нельзя: C и D уже играли
+</code></pre></div>
+
+<p><strong>E5*.</strong> Класс <code>LRU(capacity)</code> — кэш, который при переполнении выбрасывает то, к чему дольше всего не обращались.
+<code>get(key, default=None)</code>, <code>put(key, value)</code>, <code>len()</code>, <code>keys()</code> (от давнего к свежему), счётчики <code>hits</code> и <code>misses</code>.
+Все операции — O(1). Подсказка: <code>collections.OrderedDict.move_to_end</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  c = LRU(2); c.put("a", 1); c.put("b", 2); c.get("a"); c.put("c", 3); c.keys()
+Вывод: ["a", "c"]
+</code></pre></div></body></html>
