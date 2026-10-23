@@ -71,7 +71,7 @@ tools/                         сборка презентаций, листов
 | 15 | 15.02–21.02 | [29 · Лекция](lessons/w15-l01-security/README.md) | Безопасность и ответственность: античит, rate limit, данные пользователей, prompt injection | [lab15](lessons/w15-l01-security/labs/lab15-anticheat-ratelimit/README.md) |  |
 | 15 | 15.02–21.02 | [30 · Семинар](lessons/w15-l02-security-audit/README.md) | Семинар: аудит безопасности, feature freeze |  |  |
 | 16 | 22.02–28.02 | [31 · Лекция](lessons/w16-l01-review-t2/README.md) | Повторение к срезу Т2, ретро триместра |  |  |
-| 16 | 22.02–28.02 | [32 · Семинар](lessons/w16-l02-demo-t2/README.md) | Демо Т2 и срез Т2 |  | c08 |
+| 16 | 22.02–28.02 | [32 · Семинар](lessons/w16-l02-demo-t2/README.md) | Демо Т2 и срез Т2 |  | [c08](contests/c08-security/sheet.pdf) |
 | 17 | 01.03–07.03 | [33 · Лекция](lessons/w17-l01-llm-in-product/README.md) | LLM в продукте: API модели, промпты, ограничения, модерация | [lab16](lessons/w17-l01-llm-in-product/labs/lab16-llm-evals/README.md) |  |
 | 17 | 01.03–07.03 | [34 · Семинар](lessons/w17-l02-extension-spec/README.md) | Семинар: выбор расширения и его спека, набор evals |  |  |
 | 18 | 08.03–14.03 | [35 · Лекция](lessons/w18-l01-hackathon-format/README.md) | Формат хакатона: шаблон проекта, роли под таймер, питч |  |  |

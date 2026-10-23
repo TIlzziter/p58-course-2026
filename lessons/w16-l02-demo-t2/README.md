@@ -11,6 +11,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 8 «Безопасность» (сезон 2): [лист PDF](../../contests/c08-security/sheet.pdf), [исходник](../../contests/c08-security/sheet.md); решения — `solutions/contests/c08-security/`
 
 ## Агентная разработка
 

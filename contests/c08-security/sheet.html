@@ -1,0 +1,199 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 8 · Безопасность</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 8 · Безопасность</h1>
+<p>Неделя 16 · темы недель 15–16 и всего Т2: подписи и пароли, ввод от игроков, лимиты, античит, токены, права
+агента. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Подписи и пароли</h2>
+<p><strong>A1.</strong> <code>sign(secret, payload)</code> и <code>verify(secret, payload, sig)</code> — подпись словаря: HMAC-SHA256 (модули <code>hmac</code>,
+<code>hashlib</code>) от канонического JSON — ключи по алфавиту, без пробелов (<code>sort_keys=True, separators=(",", ":")</code>,
+<code>ensure_ascii=False</code>), ответ в hex. <code>verify</code> сравнивает через <code>hmac.compare_digest</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  sig = sign("s3cret", {"user": 42, "score": 120})
+       verify("s3cret", {"score": 120, "user": 42}, sig)
+       verify("s3cret", {"user": 42, "score": 9999}, sig)
+Вывод: sig = "6f953c8dd277e649e1930eb4ef5dd8307298821a2ab92c518b30c7bb1b8f92d4"
+       True
+       False
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>hash_password(password, salt, iterations=100_000)</code> — <code>hashlib.pbkdf2_hmac("sha256", …)</code>, строка
+<code>"pbkdf2_sha256$итерации$соль_hex$хеш_hex"</code>. <code>check_password(password, stored)</code> — <code>True</code>/<code>False</code>; испорченная
+строка — <code>False</code>, без исключений.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  h = hash_password("qwerty", bytes.fromhex("a1b2c3d4"), 1000)
+       check_password("qwerty", h), check_password("qwertY", h)
+       check_password("x", "bad")
+Вывод: h = "pbkdf2_sha256$1000$a1b2c3d4$"
+           "3702611b3c803fe657bd2829f1a2cd358e57e9e2015c32e48871cb322d6bdf29"  # слитно
+       True, False
+       False
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>naive_equal_steps(a, b)</code> — наивное сравнение строк: разной длины — <code>(False, 0)</code>; иначе слева направо до
+первого несовпадения. Ответ — <code>(равны ли, сколько пар символов сравнили)</code>. По времени такого сравнения можно
+угадать, сколько первых символов совпало.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  naive_equal_steps("hunter2", "hunter3"), naive_equal_steps("abc", "abcd"),
+       naive_equal_steps("pin7", "pin7")
+Вывод: (False, 7), (False, 0), (True, 4)
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>timing_attack(oracle, alphabet, length)</code> — <code>oracle(guess)</code> возвращает то же, что A3 для секрета длины
+<code>length</code>. Восстановите секрет, вызвав <code>oracle</code> не больше <code>len(alphabet) · length</code> раз. Объясните, почему
+<code>compare_digest</code> от этого защищает.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  secret = "k3y9"; oracle = lambda g: naive_equal_steps(secret, g)
+       timing_attack(oracle, "0123456789abcdefghijklmnopqrstuvwxyz", 4)
+Вывод: "k3y9"                 # 118 вызовов вместо 36⁴ = 1 679 616
+</code></pre></div>
+
+<h2>B. Ввод от игроков</h2>
+<p><strong>B1.</strong> <code>safe_name(name)</code> — имя для рейтинга: <code>unicodedata.normalize("NFC", …)</code>, пробелы по краям убрать,
+несколько подряд — один. Длина от 2 до 16, символы — буквы и цифры любого алфавита (<code>isalnum</code>), <code>_</code>, <code>-</code>, пробел.
+Имена <code>admin</code>, <code>system</code>, <code>bot</code> в любом регистре заняты. Нарушение — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  safe_name("  Аня  Ли "), safe_name("Боря_2010")
+       safe_name("Ann&lt;script&gt;"), safe_name("ADMIN")
+Вывод: "Аня Ли", "Боря_2010"
+       ValueError, ValueError
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>render_rating(rows)</code> — HTML-список рейтинга <code>(имя, очки)</code>: по убыванию очков, при равенстве — по имени.
+Экранирование своё (<code>escape_html</code>): <code>&amp; &lt; &gt; " '</code> → <code>&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;#x27;</code>. Строки через <code>"\n"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  render_rating([("bob", 50), ("&lt;img src=x&gt;", 120), ("ann", 50)])
+Вывод: &lt;ol&gt;
+       &lt;li&gt;&lt;b&gt;&amp;lt;img src=x&amp;gt;&lt;/b&gt; — 120&lt;/li&gt;
+       &lt;li&gt;&lt;b&gt;ann&lt;/b&gt; — 50&lt;/li&gt;
+       &lt;li&gt;&lt;b&gt;bob&lt;/b&gt; — 50&lt;/li&gt;
+       &lt;/ol&gt;
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>find_sql_injection(code)</code> — номера строк (с 1), где у <code>execute(</code> или <code>text(</code> первый аргумент — f-строка
+или строковый литерал, к которому применяют <code>%</code>, <code>+</code> или <code>.format(</code>. Параметры вторым аргументом — это нормально.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  1 rows = db.execute(f"SELECT * FROM players WHERE name = '{name}'")
+       2 db.execute(text("SELECT * FROM players WHERE id = :id"), {"id": pid})
+       3 db.execute("DELETE FROM matches WHERE id = " + mid)
+       4 q = text("SELECT %s" % col)
+       5 cur.execute("SELECT * FROM t WHERE a = %s", (a,))
+Вывод: [1, 3, 4]
+</code></pre></div>
+
+<h2>C. Лимиты</h2>
+<p><strong>C1.</strong> <code>fixed_window(times, limit, window)</code> — фиксированные окна <code>[k·window, (k+1)·window)</code>, в каждом не больше
+<code>limit</code> разрешённых. Ответ — разрешён ли каждый запрос. Найдите в примере, сколько запросов прошло за 13 секунд.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fixed_window([0, 10, 50, 59, 60, 61, 62, 119, 125], 3, 60)
+Вывод: [True, True, True, False, True, True, True, False, True]
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>gcra(times, period, burst)</code> — алгоритм GCRA: число TAT сначала 0. Запрос в момент <code>t</code>: <code>cur = max(TAT, t)</code>;
+если <code>cur − t &gt; period · (burst − 1)</code> — отказ, TAT не меняется; иначе разрешить и <code>TAT = cur + period</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  gcra([0, 0, 0, 0, 100, 250, 250, 1000], 100, 3)
+Вывод: [True, True, True, False, True, True, False, True]
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>fail2ban(failures, threshold, window, ban)</code> — неудачные входы <code>(ts, ip)</code> (отсортируйте по <code>ts</code>). Набралось
+<code>threshold</code> неудач в <code>(t − window, t]</code> — бан <code>(ip, t, t + ban)</code>. Неудачи во время бана не считаем, после — счёт
+с нуля.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  A, B = "1.1.1.1", "2.2.2.2"
+       fail2ban([(0, A), (5, A), (7, B), (9, A), (20, A),
+                 (40, A), (80, A), (85, A), (88, A)], 3, 10, 60)
+Вывод: [("1.1.1.1", 9, 69), ("1.1.1.1", 88, 148)]
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>clusters(logins)</code> — входы <code>(user, ip, device)</code>. Пользователи связаны, если у них общий ip или общее
+устройство — в том числе через цепочку других. Найдите группы от двух человек (мультиаккаунты для накрутки):
+внутри по имени, группы по возрастанию. IP и устройство — разные пространства имён.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  clusters([("ann", "ip1", "phoneA"), ("bob", "ip2", "phoneA"),
+                 ("cat", "ip2", "pc1"), ("dan", "ip3", "pc2"),
+                 ("eve", "ip4", "pc3"), ("fay", "ip4", "pc4")])
+Вывод: [["ann", "bob", "cat"], ["eve", "fay"]]
+</code></pre></div>
+
+<h2>D. Античит</h2>
+<p><strong>D1.</strong> <code>replay_score(events, claimed)</code> — сервер сам пересчитывает счёт змейки: <code>eat</code> +10, <code>gold</code> +50, умноженные
+на серию. Серия растёт на 1 (не больше 3), если с прошлой еды было не больше двух <code>tick</code>, иначе снова 1. После <code>die</code>
+события не считаем; неизвестное событие — <code>ValueError</code>. Ответ — <code>(счёт, совпал ли с claimed)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  replay_score(["eat", "tick", "eat", "tick", "tick", "gold",
+                     "tick", "tick", "tick", "eat", "die", "gold"], 250)
+Вывод: (190, False)            # 10 + 20 + 150 + 10
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>seq_check(messages)</code> — сообщения <code>(игрок, seq)</code>. Для каждого: <code>"dup"</code> — seq не больше последнего принятого
+у этого игрока (повтор, не принимаем); <code>"gap"</code> — больше ожидаемого (принимаем); иначе <code>"ok"</code>. Первый ожидаемый — 1.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  seq_check([("ann", 1), ("ann", 2), ("bob", 1), ("ann", 2),
+                  ("ann", 5), ("ann", 3), ("bob", 2)])
+Вывод: ["ok", "ok", "ok", "dup", "gap", "dup", "ok"]
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>fog_of_war(units, player, radius)</code> — что отправить игроку: его юниты <code>(владелец, x, y)</code> и чужие на
+расстоянии Чебышёва (<code>max(|dx|, |dy|)</code>) не больше <code>radius</code> от любого его юнита. Порядок — как во входе.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fog_of_war([("ann", 0, 0), ("bob", 2, 1), ("bob", 5, 5),
+                   ("cat", 9, 9), ("ann", 8, 8)], "ann", 2)
+Вывод: [("ann", 0, 0), ("bob", 2, 1), ("cat", 9, 9), ("ann", 8, 8)]
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Чек-лист безопасности команды (<code>docs/security.md</code>, семинар 15): покажите три закрытых пункта и как их
+проверить — запросом, тестом или командой.</p>
+<p><strong>E2.</strong> Демо: попробуйте подделать счёт или ход своей игры через DevTools или <code>curl</code> на staging — сервер должен
+отказать. Покажите строку лога с причиной отказа, без секретов.</p>
+<p><strong>E3.</strong> Отчёт агента-аудитора: одна верная находка, одна ложная и одна, которую агент пропустил, а люди нашли.</p>
+<p><strong>E4 · босс.</strong> Мини-JWT на HMAC-SHA256. base64url без <code>=</code> в конце, JSON компактный с ключами по алфавиту.
+За каждую часть свой плюс.</p>
+<p>а) <code>encode(payload, secret, kid="k1")</code> — <code>"заголовок.данные.подпись"</code>, заголовок
+<code>{"alg": "HS256", "kid": kid, "typ": "JWT"}</code>, подпись — HMAC-SHA256 от строки <code>"заголовок.данные"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  encode({"sub": 42, "iat": 1000, "exp": 1600}, "key-one", "k1")
+Вывод: "eyJhbGciOiJIUzI1NiIsImtpZCI6ImsxIiwidHlwIjoiSldUIn0."
+       "eyJleHAiOjE2MDAsImlhdCI6MTAwMCwic3ViIjo0Mn0."
+       "vjgFsc7SBxsA7sciCKmX3excOGUsbko006pJIQBlrhk"          # три части слитно
+</code></pre></div>
+
+<p>б) <code>decode(token, keys, now, leeway=0)</code> — <code>keys</code>: <code>kid → секрет</code>. Проверки по порядку, ошибка — <code>ValueError</code>
+с текстом: <code>"format"</code>, <code>"alg"</code> (только <code>HS256</code>, никакого <code>none</code>), <code>"kid"</code>, <code>"signature"</code>, <code>"expired"</code>
+(<code>now &gt; exp + leeway</code>), <code>"not_yet"</code> (<code>now &lt; nbf − leeway</code>). Ответ — данные.</p>
+<div class="codehilite"><pre><span></span><code># T — токен из части а)
+Ввод:  decode(T, {"k1": "key-one"}, 1200)
+       decode(T, {"k1": "key-one"}, 1700), decode(T, {"k1": "wrong"}, 1200)
+Вывод: {"exp": 1600, "iat": 1000, "sub": 42}
+       ValueError("expired"), ValueError("signature")
+</code></pre></div>
+
+<p>в) <code>refresh(token, keys, current_kid, now, ttl, max_age)</code> — новый токен с теми же данными, <code>iat = now</code>,
+<code>exp = now + ttl</code>, подписанный ключом <code>current_kid</code> (ротация ключей). Истёкший — ошибка <code>decode</code>; нет <code>iat</code> —
+<code>"iat"</code>; <code>now − iat &gt; max_age</code> — <code>"too_old"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  r = refresh(T, {"k1": "key-one", "k2": "key-two"}, "k2", 1500, 600, 3600)
+       decode(r, {"k2": "key-two"}, 1500)
+Вывод: {"exp": 2100, "iat": 1500, "sub": 42}
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>audit_policy(rules, calls)</code> — права агента. Правила <code>(allow|deny, шаблон)</code> по порядку, решает первое
+совпавшее, не совпало ни одно — <code>deny</code>. Шаблон — <code>fnmatch.fnmatchcase</code>, плюс фигурные скобки <code>{a,b}</code> (не вложены,
+их может быть несколько). Ответ — <code>(решения по вызовам, номера правил с 0, которые ни разу не решили)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rules = [("deny", "shell:git push*"), ("allow", "shell:git {status,diff,log}*"),
+                ("allow", "shell:{pytest,ruff}*"), ("deny", "read:*.env"),
+                ("allow", "read:*"), ("allow", "shell:git commit*")]
+       audit_policy(rules, ["shell:git status", "shell:git push origin main",
+                            "shell:pytest -q", "read:src/app.py", "read:deploy/.env",
+                            "http:pypi.org", "shell:rm -rf /"])
+Вывод: ([True, False, True, True, False, False, False], [5])
+</code></pre></div></body></html>
