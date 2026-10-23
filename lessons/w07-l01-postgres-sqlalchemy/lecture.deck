@@ -172,6 +172,20 @@ volumes: {pgdata: {}}
 ```
 - Без `volumes` база пропадёт вместе с контейнером. Пароль — из `.env`, не из git.
 
+## Ограничения в схеме | 5
+```python models.py
+class Player(Base):
+    __tablename__ = "players"
+    __table_args__ = (CheckConstraint("rating >= 0", name="rating_nonneg"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    name: Mapped[str] = mapped_column(String(32))
+    rating: Mapped[int] = mapped_column(default=1200)
+```
+- Правило в базе работает для всех: API, скрипта, миграции, агента.
+- `unique` на `tg_id`: двойной `/start` не создаст двух игроков — получим `IntegrityError` и обработаем.
+- `BigInteger`: id пользователей Telegram могут не поместиться в 32 бита.
+
 ## Проверь себя | 4
 q: Чем `flush` отличается от `commit`? :: `flush` отправляет SQL в базу внутри текущей транзакции (появляются id), `commit` её завершает и делает изменения видимыми другим.
 q: Почему `UNIQUE (tg_id)` лучше, чем проверка в Python перед вставкой? :: Две одновременные вставки обе пройдут проверку в Python. Ограничение в базе не пропустит вторую.

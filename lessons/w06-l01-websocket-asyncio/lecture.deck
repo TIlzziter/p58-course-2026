@@ -175,6 +175,31 @@ if room.game.turn == color:          # проверили
 - Ревью: каждой строке спеки — хотя бы один тест; нет тестов, которые проверяют реализацию, а не спеку.
 > Контрактные тесты — страховка для фронтенда: если кто-то переименует поле, тест упадёт раньше, чем сломается клиент.
 
+## Пинг и разрыв | 5
+- Телефон уехал в метро — TCP может долго не сообщать о разрыве. Игре нужен свой сигнал «жив».
+```python heartbeat.py
+async def heartbeat(ws: WebSocket, every: float = 15):
+    while True:
+        await asyncio.sleep(every)
+        await ws.send_json({"type": "ping"})  # упало — соединения нет
+```
+- Нет `pong` 2–3 интервала — убираем игрока и сообщаем комнате. Служебный ping uvicorn (раз в 20 с) в коде игры не виден.
+
+## Переподключение | 5
+```js client.js
+const hello = JSON.stringify({ type: "hello", room });
+let delay = 500;
+function connect() {
+  const ws = new WebSocket(url);
+  ws.onopen = () => { delay = 500; ws.send(hello); };
+  ws.onclose = () => {
+    setTimeout(connect, delay);
+    delay = Math.min(delay * 2, 10000);
+  };
+}
+```
+- После `hello` — **полное** состояние комнаты; задержка растёт вдвое до 10 с, чтобы не завалить сервер.
+
 ## Проверь себя | 4
 q: Чем `await asyncio.sleep(1)` отличается от `time.sleep(1)` в корутине? :: Первое отдаёт управление циклу — другие задачи работают. Второе останавливает весь поток.
 q: Какой код ответа у успешного рукопожатия WebSocket? :: 101 Switching Protocols.
