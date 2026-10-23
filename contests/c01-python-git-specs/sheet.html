@@ -1,0 +1,155 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 1 · Python-разминка, Git и спеки</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 1 · Python-разминка, Git и спеки</h1>
+<p>Неделя 2 · темы недель 1–2: Git-процесс, <code>AGENTS.md</code>, user story и критерии приёмки, протокол API, бот и FastAPI.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 14 обычных, 3 со звёздочкой, 3 частей босса — всего <b>58</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Строки и условия</h2>
+<p><strong>A1.</strong> Из имени ветки достаньте номер issue. Если номера нет или ветка не по правилам <code>тип/номер-slug</code>, верните <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  issue_number("feature/12-board")
+Вывод: 12
+
+Ввод:  issue_number("main")
+Вывод: None
+</code></pre></div>
+
+<p><strong>A2.</strong> Дан список сообщений коммитов. Напечатайте только те, что относятся к области <code>game</code> (начинаются с <code>game:</code>).
+Коммиты слияния (начинаются с <code>Merge</code>) пропускаем. Дошли до строки <code>--</code> — заканчиваем.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ["game: поле 6×7", "Merge pull request #3", "bot: /start", "game: ход", "--", "game: сюда не дойдём"]
+Вывод: game: поле 6×7
+       game: ход
+</code></pre></div>
+
+<p><strong>A3.</strong> Ревьюеры по очереди оставляют вердикты <code>"approve"</code> или <code>"changes"</code>. PR можно мержить, если есть хотя бы
+одно <code>"approve"</code> и после последнего <code>"changes"</code> кто-то ещё раз поставил <code>"approve"</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  can_merge(["changes", "approve"])
+Вывод: True
+
+Ввод:  can_merge(["approve", "changes"])
+Вывод: False
+</code></pre></div>
+
+<h2>B. Словари и множества</h2>
+<p><strong>B1.</strong> Дан список авторов коммитов (по одному на коммит). Верните список пар <code>(автор, число коммитов)</code>,
+по убыванию числа коммитов, при равенстве — по алфавиту.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  top_authors(["Маша", "Петя", "Маша", "Аня", "Петя", "Маша"])
+Вывод: [("Маша", 3), ("Петя", 2), ("Аня", 1)]
+</code></pre></div>
+
+<p><strong>B2.</strong> Роли учеников лежат в словаре: имя → (основная, дополнительная). Верните множество ролей из списка
+<code>ROLES</code>, которые никто не взял <strong>основной</strong>.</p>
+<div class="codehilite"><pre><span></span><code>ROLES = {"аналитика", "бэкенд", "фронтенд", "тестирование", "devops", "дизайн"}
+
+Ввод:  free_roles({"Аня": ("бэкенд", "devops"), "Петя": ("фронтенд", "дизайн"), "Маша": ("бэкенд", "аналитика")})
+Вывод: {"аналитика", "тестирование", "devops", "дизайн"}
+</code></pre></div>
+
+<p><strong>B3.</strong> Даны списки файлов, которые меняют два открытых PR. Верните отсортированный список файлов, на которых
+возможен конфликт. Без вложенных циклов.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  conflict_files(["bot/main.py", "api/rooms.py", "README.md"], ["api/rooms.py", "web/app.js", "README.md"])
+Вывод: ["README.md", "api/rooms.py"]
+</code></pre></div>
+
+<p><strong>B4*.</strong> Восемь учеников надо разделить на две подкоманды по четыре так, чтобы суммарный опыт (число решённых задач
+за прошлый год) отличался как можно меньше. Верните минимальную разницу. Подсказка: <code>itertools.combinations</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  split_teams([10, 20, 30, 40, 50, 60, 70, 80])
+Вывод: 0        # 10+40+50+80 = 20+30+60+70 = 180
+</code></pre></div>
+
+<h2>C. Спеки и протоколы</h2>
+<p><strong>C1.</strong> В тексте issue критерии приёмки — строки-чекбоксы <code>- [ ]</code> и <code>- [x]</code>. Верните процент выполненных,
+округлённый до целого. Если чекбоксов нет — <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  done_percent("Задача\n- [x] падает вниз\n- [ ] полный столбец\n- [x] тесты")
+Вывод: 67
+</code></pre></div>
+
+<p><strong>C2.</strong> User story пишется по шаблону «Как &lt;роль&gt;, я хочу &lt;действие&gt;, чтобы &lt;ценность&gt;». Разберите строку в словарь,
+а если она не по шаблону — верните <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_story("Как игрок, я хочу пригласить друга, чтобы сыграть вдвоём")
+Вывод: {"role": "игрок", "want": "пригласить друга", "why": "сыграть вдвоём"}
+</code></pre></div>
+
+<p><strong>C3.</strong> По протоколу игры клиент присылает ход <code>{"type": "move", "col": &lt;0..6&gt;}</code>. Напишите <code>validate_move(msg)</code>,
+которая возвращает список ошибок (пустой — всё хорошо). Проверьте: это словарь, <code>type</code> равен <code>"move"</code>,
+<code>col</code> — целое число (не <code>bool</code>!) от 0 до 6, лишних ключей нет.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  validate_move({"type": "move", "col": 3})
+Вывод: []
+
+Ввод:  validate_move({"type": "move", "col": "3", "cheat": 1})
+Вывод: ["col должен быть целым числом", "лишние ключи: cheat"]
+</code></pre></div>
+
+<h2>D. Git</h2>
+<p><strong>D1.</strong> Заведите репозиторий под контест и коммитьте каждую решённую задачу отдельно, по правилу <code>область: что сделано</code>
+(область — буква раздела: <code>a: ...</code>, <code>b: ...</code>). Покажите <code>git log --oneline</code>, где хотя бы три коммита.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  git log --oneline
+Вывод: a3f9c21 c: процент выполненных критериев
+       7be4d02 b: топ авторов коммитов
+       1c0e5aa a: номер issue из имени ветки
+</code></pre></div>
+
+<p><strong>D2.</strong> В учебном монорепо создайте issue с критериями приёмки, ветку <code>feature/&lt;номер&gt;-...</code>, сделайте изменение и откройте
+PR по шаблону (разделы «Что сделано», «Как проверить», «Что сгенерировал агент», строка <code>Closes #N</code>).
+Получите одобрение и влейте.</p>
+<p><strong>D3*.</strong> Устройте конфликт: в двух ветках по-разному поменяйте одну строку в <code>AGENTS.md</code> и слейте обе в <code>main</code>.
+Разрешите конфликт так, чтобы в файле остались оба правила. Покажите <code>git log --oneline --graph</code>.</p>
+<h2>E. FastAPI и бот</h2>
+<p><strong>E1.</strong> <code>GET /ping</code> отвечает <code>{"pong": true}</code>. <code>GET /rooms/{room_id}</code> отдаёт комнату из словаря <code>ROOMS</code>, а если её
+нет — статус 404.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  GET /rooms/abc        # ROOMS = {"abc": {"players": ["Аня"]}}
+Вывод: {"id": "abc", "players": ["Аня"]}
+
+Ввод:  GET /rooms/zzz
+Вывод: 404 {"detail": "Комната не найдена"}
+</code></pre></div>
+
+<p><strong>E2.</strong> Бот на aiogram 3: на <code>/start</code> отвечает приветствием и кнопкой «Играть», которая открывает Mini App
+(<code>WebAppInfo</code>, адрес — любой ваш HTTPS-адрес). Покажите в Telegram. Токен — только из переменной окружения.</p>
+<p><strong>E3.</strong> Сгенерируйте агентом <code>POST /rooms</code> (создаёт комнату с уникальным <code>id</code>) и проведите ревью его кода: найдите
+и запишите хотя бы два замечания (проверка входа, ответ 201, коды ошибок, лишний код). Сдаёте код и список замечаний.</p>
+<p><strong>E4 · босс.</strong> Доска задач команды на FastAPI. За каждую часть свой плюс. Колонки: <code>backlog</code>, <code>todo</code>, <code>in_progress</code>,
+<code>review</code>, <code>done</code>.</p>
+<p>а) <code>POST /issues</code> с телом <code>{"title": "..."}</code> создаёт задачу в <code>backlog</code> (ответ 201, у задачи <code>id</code>, <code>title</code>, <code>status</code>).
+<code>GET /issues</code> отдаёт все задачи, а с параметром <code>?status=review</code> — только задачи из этой колонки.</p>
+<p>б) <code>POST /issues/{id}/move</code> с телом <code>{"to": "todo"}</code> двигает задачу. Разрешены только переходы
+<code>backlog → todo → in_progress → review → done</code> и возврат <code>review → in_progress</code>. Запрещённый переход — 409,
+нет задачи — 404.</p>
+<p>в) <code>GET /board</code> возвращает колонки со списками <code>id</code> и процент задач в <code>done</code> (округлить до целого, на пустой доске 0).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  POST /issues {"title": "Поле 6×7"}
+Вывод: 201 {"id": 1, "title": "Поле 6×7", "status": "backlog"}
+
+Ввод:  POST /issues/1/move {"to": "done"}
+Вывод: 409 {"detail": "Нельзя перейти из backlog в done"}
+
+Ввод:  GET /board
+Вывод: {"backlog": [1], "todo": [], "in_progress": [], "review": [], "done": [], "done_percent": 0}
+</code></pre></div>
+
+<p><strong>E5*.</strong> Тесты на E4 через <code>TestClient</code>: хотя бы по одному на каждую часть и один на запрещённый переход.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  pytest
+Вывод: 4 passed
+</code></pre></div></body></html>

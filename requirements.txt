@@ -1,0 +1,16 @@
+# Всё, что нужно для лабораторных, контестов и сборки материалов (Python 3.12+)
+pytest>=8
+pytest-asyncio>=0.24
+fastapi>=0.115
+httpx>=0.27
+pydantic>=2.7
+sqlalchemy>=2.0
+aiosqlite>=0.20
+fakeredis>=2.23
+pyyaml>=6
+pandas>=2.2
+ruff>=0.6
+# сборка презентаций и листов контестов
+markdown>=3.6
+pygments>=2.18
+openpyxl>=3.1
