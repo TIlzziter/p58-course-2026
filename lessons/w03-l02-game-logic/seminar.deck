@@ -1,0 +1,136 @@
+title: Семинар: логика «4 в ряд», pytest и canvas
+kicker: Неделя 3 · Семинар
+parts: Логика и тесты|Транспорт и клиент
+full: Весь семинар · 135 мин
+short: Основное · 110 мин
+
+@part 1
+## Игра 1 оживает | 2 | cover
+sub: Логика на сервере с тестами, тонкий HTTP-слой{br}и canvas-клиент, который только рисует
+chips: pytest | parametrize | FastAPI | canvas | initData
+
+## План | 2
+| Блок | Время | Результат |
+| Тесты по спеке до кода | 20 мин | `tests/test_connect4.py` |
+| Логика: поле, ход, победа | 35 мин | `api/game/connect4.py` |
+| Перерыв | 10 мин | — |
+| HTTP-слой и initData | 30 мин | `POST /rooms/{id}/moves` |
+| Canvas-клиент | 30 мин | поле в Mini App |
+| Итоги, лабораторные 03–04 | 5 мин | — |
+
+## Тесты раньше кода | 10
+- QA и аналитик переводят критерии спеки в тесты; поле рисуем **картинкой** — тест читается как правило.
+```python tests/test_connect4.py
+def board_from(text):
+    m = {".": 0, "x": 1, "o": 2}
+    return [[m[ch] for ch in line.strip()] for line in text.strip().splitlines()]
+
+def test_diagonal_win():
+    b = board_from("""
+        .......
+        .......
+        x......
+        ox.....
+        oox....
+        ooox...""")
+    assert winner(b) == 1
+```
+
+## parametrize: много случаев — один тест | 8
+```python
+import pytest
+
+@pytest.mark.parametrize("col", [-1, 7, 100])
+def test_bad_column(col):
+    with pytest.raises(MoveError) as e:
+        drop(new_board(), col, 1)
+    assert e.value.code == "bad_column"
+```
+- Каждый набор параметров — **отдельный тест** в отчёте: видно, какой случай упал.
+- `pytest.raises` проверяет, что исключение **было**, и даёт его посмотреть.
+:: tech
+card: Граничные значения :: Ошибки живут на краях: столбцы `-1`, `0`, `6`, `7`; поле пустое и полное; четвёрка у самого края. Берём значения по обе стороны границы.
+card: Фикстуры :: Повторяющуюся подготовку (пустое поле, партия на середине) выносим в `@pytest.fixture` в `conftest.py`.
+
+## Ловушка [[0]*7]*6 | 6
+```python
+board = [[0] * 7] * 6
+board[5][0] = 1
+print(board[0][0])   # 1 — все строки один и тот же список!
+
+board = [[0] * 7 for _ in range(6)]   # правильно: 6 разных списков
+```
+q: Почему `[0] * 7` безопасно, а `[[0] * 7] * 6` — нет? :: Умножение списка копирует ссылки. Числа неизменяемы, поэтому для `[0]*7` это неважно; а 6 ссылок на один список — это одна строка шесть раз.
+
+## Логика: что пишем | 15
+| Функция | Правило из спеки |
+| `new_board()` | 6 строк × 7 столбцов, 0 — пусто |
+| `drop(board, col, p)` | фишка падает вниз, ошибки `bad_column`, `column_full` |
+| `winning_line(board)` | 4 направления, без перехода через край |
+| `status(board)` | `win1`, `win2`, `draw`, `playing` |
+| `Game.play(col)` | смена хода, `game_over` после конца |
+> Каждая функция — **чистая или почти чистая**: вход → выход, без HTTP и глобальных переменных.
+:: tech
+card: Четыре направления :: `(0,1)` вправо, `(1,0)` вниз, `(1,1)` вниз-вправо, `(1,-1)` вниз-влево. Остальные четыре — те же линии с другого конца.
+card: Агент в паре :: Хорошая задача для агента — «напиши `winning_line` по этим тестам». Плохая — «сделай игру». Тесты пишет человек.
+
+## Перерыв | 10 | break
+big: 10 минут
+sub: Дальше — подключаем логику к API и клиенту
+
+@part 2
+## Тонкий HTTP-слой | 12
+```python api/routes/moves.py
+@app.post("/rooms/{room_id}/moves")
+def move(room_id: int, body: MoveIn, user: dict = Depends(current_user)) -> dict:
+    room = rooms.get(room_id)
+    if room is None:
+        raise error(404, "room_not_found", "Нет комнаты")
+    if user["id"] != room.player_ids[room.game.turn - 1]:
+        raise error(409, "not_your_turn", "Сейчас ход соперника")
+    try:
+        room.game.play(body.column)
+    except MoveError as e:
+        raise error(409, e.code, "Ход невозможен") from None
+    return room.game.to_json()
+```
+:: tech
+card: Перевод ошибок :: Логика бросает `MoveError("column_full")`, HTTP-слой превращает это в 409 с тем же `code`. Список кодов — один, в спеке.
+card: Кто игрок :: `user` приходит из `current_user` — проверенной `initData`. Никаких `player_id` из тела запроса.
+
+## Проверка HTTP-слоя | 6
+```python tests/test_moves_api.py
+def test_move_requires_init_data(client):
+    r = client.post("/rooms/1/moves", json={"column": 3})
+    assert r.status_code == 401
+
+def test_full_column_is_409(client, room, anya, borya):
+    for who in [anya, borya] * 3:
+        client.post("/rooms/1/moves", json={"column": 0}, headers=who)
+    r = client.post("/rooms/1/moves", json={"column": 0}, headers=anya)
+    assert r.json()["detail"]["code"] == "column_full"
+```
+:: tech
+card: Фикстуры-игроки :: `anya` и `borya` — заголовки `Authorization: tma ...`, подписанные тестовым токеном. Подпись делает функция `sign` из лабораторной 03.
+
+## Canvas-клиент | 15
+- Фронтенд берёт `draw()` и обработчик клика со слайдов лекции.
+- Состояние — **только из ответа сервера**; ошибку показываем текстом над полем.
+- Тест на телефоне: открыть Mini App из бота, сыграть партию вдвоём.
+| Проверка | Как |
+| Клик попадает в столбец | клик по краям всех 7 столбцов |
+| Ошибка видна | ход не в свою очередь |
+| Чёткость | телефон с `dpr = 3` |
+| Тема | светлая и тёмная тема Telegram |
+
+## Разбор: где агент ошибся в initData | 5 | opt
+- Даём агенту задачу «проверка `initData`» и сравниваем с алгоритмом Telegram.
+- Типичные промахи: ключ и сообщение HMAC наоборот, `==` вместо `compare_digest`, нет проверки `auth_date`.
+- Ученики пишут **тесты на поддельные данные**: подмена `id`, чужой токен, старая дата.
+> Тест на подделку ценнее десяти тестов «всё хорошо».
+
+## Итоги | 3
+- Логика игры 1 покрыта тестами, тесты — из критериев спеки.
+- HTTP-слой тонкий: проверяет игрока и переводит ошибки в коды.
+- Canvas-клиент рисует ответ сервера и не решает правил.
+- Домашнее задание: **лабораторные 03 и 04**.

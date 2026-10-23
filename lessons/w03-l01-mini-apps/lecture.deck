@@ -1,0 +1,227 @@
+title: Telegram Mini Apps: initData, HMAC и canvas
+kicker: Неделя 3 · Лекция
+parts: Mini App и подпись|Клиент на canvas
+full: Вся лекция · 135 мин
+short: Основное · 105 мин
+
+@part 1
+## Mini App: сайт внутри Telegram | 2 | cover
+sub: Как страница узнаёт, кто играет, почему серверу нельзя{br}верить на слово и как нарисовать поле на canvas
+chips: Telegram.WebApp | initData | HMAC-SHA256 | canvas
+
+## Что такое Mini App | 6
+- Обычная веб-страница (HTML, CSS, JS), которую Telegram открывает **во встроенном браузере**.
+- Открывается кнопкой бота, кнопкой меню или прямой ссылкой `t.me/<бот>/<app>`.
+- Страница подключает `telegram-web-app.js` и получает объект **`window.Telegram.WebApp`**.
+- Адрес страницы — только **HTTPS**.
+:: tech
+card: Встроенный браузер :: На Android — WebView на Chromium, на iOS — WKWebView (Safari), на компьютере — встроенный движок клиента. Проверяем на всех, на которых играют наши пользователи.
+card: Чем отличается от сайта :: Тема и цвета Telegram (`themeParams`), кнопки MainButton и BackButton, вибрация `HapticFeedback`, закрытие `close()`, развёртывание `expand()`.
+
+## Минимальная страница | 8
+```html web/index.html
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h1 id="hello">Загрузка…</h1>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();                                    // страница готова, убрать заставку
+    tg.expand();                                   // на всю высоту
+    const user = tg.initDataUnsafe.user;           // только для показа!
+    document.getElementById("hello").textContent = `Привет, ${user?.first_name ?? "гость"}!`;
+  </script>
+</body>
+</html>
+```
+:: tech
+card: initDataUnsafe :: Это уже разобранный объект — удобно для приветствия. Но слово **Unsafe** в имени честное: подделать его может кто угодно, открыв страницу в обычном браузере.
+card: viewport :: Без `meta viewport` телефон отрисует страницу как на компьютере и уменьшит. Для игр это первая причина «всё мелкое».
+
+## Почему нельзя верить клиенту | 6
+- Страницу можно открыть **вне Telegram** и выполнить любой JS.
+- Запрос к API можно отправить **вообще без страницы**: `curl -d '{"user_id": 1}' ...`.
+- Значит, сервер должен **сам убедиться**, кто это, — по подписи.
+q: Клиент прислал `{"user_id": 42, "move": 3}`. Почему нельзя просто записать ход игроку 42? :: Любой может прислать чужой `user_id`. Нужна проверка, что данные выдал Telegram, — подпись `initData`.
+
+## initData — строка с подписью | 7
+```text Telegram.WebApp.initData
+query_id=AAHdF6IQAAAAAN0XohDhrOrc
+&user=%7B%22id%22%3A42%2C%22first_name%22%3A%22%D0%90%D0%BD%D1%8F%22%7D
+&auth_date=1760000000
+&hash=67ad69adf1102b65c9ab2c7f3b8a55f1311ce40ccc2014db3bd45ad5d4fadf28
+```
+- Это **строка запроса** (как после `?` в адресе): поля через `&`, значения URL-закодированы. Подпись — токеном `123456:TEST-TOKEN-for-lab03` из лабораторной 03.
+- `user` — JSON с `id`, `first_name`, `username`, `language_code`…
+- `auth_date` — когда Telegram выдал данные (Unix-время), `hash` — **подпись**.
+:: tech
+card: Как передать серверу :: Клиент отправляет **сырую** строку `initData` (не разобранный объект!) в заголовке: `Authorization: tma <initData>`. Сервер проверяет подпись и только потом верит `user`.
+card: Поле signature :: В новых версиях есть ещё `signature` — подпись Ed25519 для проверки третьими лицами без токена. При проверке токеном бота она просто одно из полей.
+
+## Хеш и HMAC | 8
+- **Хеш** (SHA-256): из любых данных — 32 байта «отпечатка». Изменился 1 бит — отпечаток совсем другой.
+- Но хеш может посчитать **кто угодно**: подделал данные — пересчитал хеш.
+- **HMAC** = хеш данных **с секретным ключом**. Без ключа правильный HMAC не посчитать.
+```python Эксперимент
+import hashlib, hmac
+hashlib.sha256(b"id=42").hexdigest()[:16]     # '2a553fd53e66b69f' — посчитает любой
+hmac.new(b"secret", b"id=42", hashlib.sha256).hexdigest()[:16]   # 'd04769d2311b20c5' — только зная ключ
+```
+:: tech
+card: Свойства :: Устойчивость к подделке: зная пары (сообщение, HMAC), нельзя вычислить HMAC нового сообщения без ключа. Ключ знают только Telegram и наш сервер.
+card: Почему не просто sha256(key + msg) :: Для SHA-256 такая конструкция уязвима к атаке удлинения сообщения. HMAC специально построен (два вложенных хеша), чтобы этого не было.
+
+## Алгоритм проверки Telegram | 8
+flow: n:initData -> c:поля без hash ~ по алфавиту, через \n -> v:HMAC ~ ключ secret_key -> g:сравнить с hash
+- **1.** `data_check_string` = все поля кроме `hash`, `key=value`, по алфавиту, через `\n`.
+- **2.** `secret_key = HMAC_SHA256(key="WebAppData", msg=bot_token)`.
+- **3.** `hex(HMAC_SHA256(key=secret_key, msg=data_check_string)) == hash` → данные от Telegram.
+- **4.** `auth_date` не слишком старый → данные свежие.
+! Самая частая ошибка — перепутать ключ и сообщение в шаге 2: `"WebAppData"` — это **ключ**.
+
+## Проверка в коде | 8
+```python api/auth.py
+import hashlib, hmac
+from urllib.parse import parse_qsl
+
+def verify_init_data(raw: str, bot_token: str) -> dict | None:
+    fields = dict(parse_qsl(raw, strict_parsing=True))
+    received = fields.pop("hash", "")
+    check = "\n".join(f"{k}={v}" for k, v in sorted(fields.items()))
+    secret = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+    expected = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
+    return fields if hmac.compare_digest(received, expected) else None
+```
+:: tech
+card: compare_digest :: `==` завершает сравнение на первом расхождении — по времени ответа можно подбирать подпись. `hmac.compare_digest` работает за постоянное время.
+card: parse_qsl :: Декодирует `%D0%90` в «А» и `%26` в `&`. Ручное `split("&")` ломается на значениях, где есть `=` или `&`.
+
+## Свежесть и повторы | 5
+- Подпись верна, но строку могли **перехватить** и прислать через неделю.
+- Проверяем: `now - auth_date ≤ max_age` (например, сутки) и `auth_date` не из будущего.
+- Для действий с последствиями (ставка, покупка) — короткий срок или своя сессия.
+:: tech
+card: Сессия после входа :: Частый приём: проверили `initData` один раз → выдали свой токен сессии (подписанный сервером) на час. Дальше запросы с ним.
+card: Часы сервера :: Проверка времени требует правильных часов. На VPS включаем синхронизацию времени (NTP), иначе «всё истекло» после перезагрузки.
+
+## FastAPI: зависимость current_user | 6 | opt
+```python api/deps.py
+from fastapi import Depends, Header, HTTPException
+
+def current_user(authorization: str = Header(default="")) -> dict:
+    if not authorization.startswith("tma "):
+        raise HTTPException(401, detail={"code": "no_init_data", "message": "Нет initData"})
+    fields = verify_init_data(authorization[4:], settings.bot_token)
+    if fields is None:
+        raise HTTPException(401, detail={"code": "bad_hash", "message": "Подпись неверна"})
+    return json.loads(fields["user"])
+
+@app.post("/rooms/{room_id}/moves")
+def move(room_id: int, body: MoveIn, user: dict = Depends(current_user)): ...
+```
+:: tech
+card: Depends :: FastAPI сам вызовет `current_user` перед обработчиком и передаст результат. Одна проверка — на все защищённые эндпоинты.
+
+## Проверь себя | 4
+q: Зачем нужен `initData`, если есть `initDataUnsafe`? :: `initDataUnsafe` нельзя проверить; `initData` — сырая строка с подписью, её проверяет сервер.
+q: Что будет, если злоумышленник поменяет в `user` id с 42 на 1? :: Изменится `data_check_string`, HMAC не совпадёт с `hash`, сервер откажет (401).
+q: Почему HMAC, а не SHA-256 от данных? :: SHA-256 может пересчитать любой; HMAC без секретного ключа не посчитать.
+
+## Перерыв | 10 | break
+big: 10 минут
+sub: Дальше — рисуем игровое поле на canvas
+
+@part 2
+## Клиент: HTML, CSS, JS | 5
+| Слой | Отвечает за | В игре |
+| HTML | структура | контейнер, canvas, кнопки |
+| CSS | внешний вид | цвета, отступы, тема Telegram |
+| JS | поведение | клики, запросы к API, отрисовка |
+- Тема Telegram доступна как CSS-переменные: `var(--tg-theme-bg-color)`, `var(--tg-theme-button-color)`.
+:: tech
+card: Почему canvas, а не div-ы :: Для «4 в ряд» хватило бы и сетки из `div`. Но змейке, анимациям и частицам нужен canvas: рисуем 60 раз в секунду без перестройки DOM.
+card: Без фреймворков :: В Т1 пишем на чистом JS: меньше слоёв — проще отлаживать. Сборщики и фреймворки — по решению команды фронтенда в Т2.
+
+## Canvas: система координат | 6
+- `<canvas width="350" height="300">` — растровое поле **350×300 пикселей**.
+- Начало координат — **левый верхний угол**, `x` вправо, `y` **вниз**.
+- Рисуем через контекст: `const ctx = canvas.getContext("2d")`.
+```js Основные вызовы
+ctx.fillStyle = "#1e3a8a"; ctx.fillRect(0, 0, 350, 300);        // фон
+ctx.beginPath(); ctx.arc(25, 25, 20, 0, 2 * Math.PI);            // круг: центр, радиус
+ctx.fillStyle = "#facc15"; ctx.fill();
+ctx.font = "20px sans-serif"; ctx.fillText("Ваш ход", 10, 290);  // текст
+```
+
+## Рисуем поле «4 в ряд» | 8
+```js web/board.js
+const CELL = 50, R = 20;
+const COLORS = ["#0b1020", "#facc15", "#ef4444"];   // пусто, игрок 1, игрок 2
+
+function draw(ctx, state) {
+  ctx.fillStyle = "#1e3a8a";
+  ctx.fillRect(0, 0, 7 * CELL, 6 * CELL);
+  state.board.forEach((row, r) => row.forEach((v, c) => {
+    ctx.beginPath();
+    ctx.arc(c * CELL + CELL / 2, r * CELL + CELL / 2, R, 0, 2 * Math.PI);
+    ctx.fillStyle = COLORS[v];
+    ctx.fill();
+  }));
+  for (const [r, c] of state.win_cells) {            // подсветка победной четвёрки
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(c * CELL + CELL / 2, r * CELL + CELL / 2, R, 0, 2 * Math.PI); ctx.stroke();
+  }
+}
+```
+:: tech
+card: Перерисовываем всё :: Для пошаговой игры проще перерисовать поле целиком после каждого ответа сервера, чем менять отдельные клетки. Кадр — доли миллисекунды.
+card: Данные от сервера :: `draw` получает ровно то, что вернул API. Клиент не хранит «свою правду» о поле.
+
+## Клик → столбец → запрос | 6
+```js web/app.js
+canvas.addEventListener("click", async (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * canvas.width / rect.width;   // учёт масштаба CSS
+  const column = Math.floor(x / CELL);
+  const r = await fetch(`/api/rooms/${roomId}/moves`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": `tma ${tg.initData}`},
+    body: JSON.stringify({column}),
+  });
+  if (r.ok) draw(ctx, await r.json());
+  else showError((await r.json()).detail.message);
+});
+```
+
+## Чёткость на телефоне | 4 | opt
+- У телефонов `devicePixelRatio` 2–3: canvas 350×300 растягивается и **мылится**.
+- Решение: внутренний размер × `dpr`, CSS-размер прежний, `ctx.scale(dpr, dpr)`.
+```js
+const dpr = window.devicePixelRatio || 1;
+canvas.width = 350 * dpr; canvas.height = 300 * dpr;
+canvas.style.width = "350px"; canvas.style.height = "300px";
+ctx.scale(dpr, dpr);
+```
+
+## Логика, транспорт, отрисовка | 6
+flow: g:connect4.py ~ правила -> c:FastAPI ~ HTTP, проверки -> a:app.js ~ запросы -> v:canvas ~ рисование
+- **Логика** не знает про HTTP: её тестируем pytest без сервера.
+- **Транспорт** не знает правил: вызывает логику и переводит ошибки в коды (409, 422).
+- **Отрисовка** не знает правил: рисует то, что пришло.
+> Так можно заменить любой слой (HTTP → WebSocket на неделе 6) и не трогать остальные.
+
+## Проверь себя | 4
+q: Где у canvas точка (0, 0)? :: В левом верхнем углу; ось y направлена вниз.
+q: Почему клиент не проверяет, полон ли столбец? :: Может проверять для подсказки, но решает сервер: клиенту не верим. Ошибку сервера клиент показывает.
+q: Почему поле мылится на телефоне? :: Из-за `devicePixelRatio` > 1: внутренний размер canvas меньше физических пикселей экрана.
+
+## Итоги | 3
+- Mini App — HTTPS-страница с `Telegram.WebApp`; `initDataUnsafe` — только для показа.
+- Сервер проверяет **`initData`**: поля без `hash` → HMAC с ключом от токена → `compare_digest` → свежесть.
+- Canvas: координаты от левого верхнего угла, перерисовка по состоянию с сервера.
+- Слои: логика — транспорт — отрисовка.
+- Домашнее задание: **лабораторная 03** «Проверка initData».
