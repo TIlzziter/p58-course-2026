@@ -1,0 +1,187 @@
+title: WebSocket и asyncio: игра в реальном времени
+kicker: Неделя 6 · Лекция
+parts: asyncio|WebSocket и протокол
+full: Вся лекция · 135 мин
+short: Основное · 105 мин
+
+@part 1
+## Два игрока онлайн | 2 | cover
+sub: Как один процесс Python держит сотни соединений{br}и как сервер сам сообщает игроку о ходе соперника
+chips: async/await | event loop | WebSocket | протокол | комнаты
+
+## Проблема HTTP для игр | 5
+- HTTP: клиент спросил — сервер ответил. Сервер **сам** написать не может.
+- Соперник сделал ход — как об этом узнает второй игрок?
+- Вариант «спрашивать каждую секунду» (polling): лишние запросы и задержка до секунды.
+- **WebSocket**: одно соединение, по которому обе стороны пишут когда хотят.
+q: 8 игроков опрашивают сервер раз в 500 мс. Сколько запросов в минуту, если ходов почти нет? :: 8 × 2 × 60 = 960 запросов, почти все с ответом «ничего нового».
+
+## Ждать, не блокируя | 6
+- Серверу почти всё время нечего делать: он **ждёт** сеть, базу, Redis.
+- Поток, который ждёт, ничего не делает, но занимает память. 1000 игроков — 1000 потоков?
+- **asyncio**: один поток, много задач. Пока одна ждёт сеть, выполняется другая.
+flow: n:задача A ~ ждёт сеть -> c:event loop ~ переключает -> v:задача B ~ считает -> g:задача A ~ данные пришли
+> Это не параллельность, а **конкурентность**: задачи по очереди используют один поток, переключаясь на `await`.
+
+## async def и await | 7
+```python asyncio_demo.py
+import asyncio
+
+async def player(name: str, delay: float) -> str:
+    print(f"{name} думает…")
+    await asyncio.sleep(delay)            # пока ждём — работают другие
+    print(f"{name} походил")
+    return name
+
+async def main():
+    first = await player("Аня", 1)                                       # ~1 c
+    both = await asyncio.gather(player("Боря", 2), player("Вика", 2))   # ~2 c, а не 4
+    print(first, both)
+
+asyncio.run(main())
+```
+:: tech
+card: Корутина :: `player("Аня", 1)` ничего не выполняет, а создаёт объект корутины. Выполнится она, когда её `await`-нут или превратят в задачу.
+card: gather :: Запускает корутины конкурентно и ждёт все; результаты в порядке аргументов. Время — по самой долгой, а не сумма.
+
+## Задачи и отмена | 6
+```python
+async def heartbeat(ws):
+    while True:
+        await asyncio.sleep(20)
+        await ws.send_json({"type": "ping"})
+
+async def session(ws):
+    beat = asyncio.create_task(heartbeat(ws))    # работает «в фоне»
+    try:
+        async with asyncio.timeout(600):         # Python 3.11+
+            await play(ws)
+    finally:
+        beat.cancel()                            # не забываем остановить
+```
+:: tech
+card: create_task :: Задача планируется сразу и выполняется, пока текущая корутина ждёт. Храните ссылку на задачу: иначе сборщик мусора может её удалить.
+card: TaskGroup :: `async with asyncio.TaskGroup() as tg:` (3.11+) — задачи в группе отменяются вместе, если одна упала. Безопаснее, чем ручной `gather`.
+
+## Главная ошибка: блокировка цикла | 6
+- `time.sleep(1)` внутри `async def` останавливает **весь** сервер на секунду: все игроки ждут.
+- То же с `requests.get(...)`, тяжёлым циклом на секунду, синхронным драйвером базы.
+- Ждём — через `await` с асинхронной библиотекой: `asyncio.sleep`, `httpx.AsyncClient`, `asyncpg`.
+- Синхронное и тяжёлое — в отдельный поток: `await asyncio.to_thread(func, arg)`.
+! Признак блокировки: один игрок делает тяжёлый ход — у всех остальных «зависает» игра.
+q: В FastAPI обычная `def`-функция маршрута тоже блокирует цикл? :: Нет: FastAPI запускает обычные `def`-маршруты в пуле потоков. Блокирует именно синхронный код внутри `async def`.
+
+@part 2
+## WebSocket: как начинается | 6
+```text Рукопожатие
+GET /ws/room1 HTTP/1.1
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+```
+- Обычный HTTP-запрос, ответ **101** — и дальше по тому же TCP кадры в обе стороны. Из Mini App — только `wss://` (поверх TLS).
+:: tech
+card: Кадры :: Сообщение делится на кадры: текст, двоичные данные, ping/pong, close с кодом. Кадры от клиента маскируются, чтобы старые прокси не путали их с HTTP.
+card: Через nginx :: Нужны `proxy_http_version 1.1` и заголовки `Upgrade` и `Connection` — мы видели это на неделе 4.
+
+## WebSocket в FastAPI | 8
+```python api/ws.py
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+app = FastAPI()
+
+@app.websocket("/ws/echo")
+async def echo(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            await websocket.send_json({"type": "echo", "data": msg})
+    except WebSocketDisconnect:
+        print("клиент ушёл")
+```
+:: tech
+card: Одна корутина на соединение :: На каждого клиента FastAPI запускает свой вызов `echo`. Пока он ждёт `receive_json`, цикл обслуживает остальных.
+card: Отключение :: Когда клиент закрыл вкладку, `receive_*` бросает `WebSocketDisconnect`. Уборку (выход из комнаты) делаем в `except` или `finally`.
+
+## Клиент в браузере | 6
+```js web/net.js
+const ws = new WebSocket(`wss://${location.host}/ws/${roomId}?name=${encodeURIComponent(name)}`);
+ws.onopen = () => ws.send(JSON.stringify({ type: "auth", init_data: Telegram.WebApp.initData }));
+ws.onmessage = (e) => {
+  const msg = JSON.parse(e.data);
+  if (msg.type === "state") draw(ctx, msg.state);
+  if (msg.type === "error") showError(msg.code);
+};
+ws.onclose = (e) => setTimeout(reconnect, backoff());   // 1 с, 2 с, 4 с… но не чаще
+canvas.onclick = (e) => ws.send(JSON.stringify({ type: "move", col: columnAt(e) }));
+```
+:: tech
+card: Авторизация :: Браузер не даёт выставить свой заголовок `Authorization` для WebSocket. Поэтому `initData` отправляем **первым сообщением** и проверяем так же, как в лабе 03.
+card: Переподключение :: Мобильная сеть рвётся постоянно. Клиент переподключается с растущей паузой, сервер по имени или id возвращает игрока в комнату.
+
+## Протокол сообщений | 7
+| Направление | Сообщение | Ответ |
+| → | `{"type": "move", "col": 3}` | всем `state` или отправителю `error` |
+| → | `{"type": "chat", "text": "gg"}` | всем `chat` |
+| → | `{"type": "ping"}` | отправителю `pong` |
+| ← | `{"type": "start", "players": {...}, "state": {...}}` | — |
+| ← | `{"type": "game_over", "result": "win1"}` | — |
+| ← | `{"type": "error", "code": "not_your_turn"}` | — |
+- Каждое сообщение — JSON с полем **`type`**; остальные поля зависят от типа.
+- Протокол записываем в `SPEC.md` раньше кода: по нему пишут и сервер, и клиент, и тесты.
+
+## Комната и рассылка | 7
+```python api/rooms.py
+class Room:
+    def __init__(self, room_id: str):
+        self.id, self.players, self.game = room_id, {}, Game()
+
+    def handle(self, name: str, msg: dict) -> list[tuple[str, dict]]:
+        if self.players[name] != self.game.turn:
+            return [(name, {"type": "error", "code": "not_your_turn"})]
+        self.game.play(msg["col"])
+        state = {"type": "state", "state": self.game.to_json()}
+        return [(player, state) for player in self.players]
+```
+:: tech
+card: Исходящие вместо отправки :: Комната не трогает сокеты, а возвращает список «кому что». Её легко тестировать без сети, а отправку делает тонкий слой.
+card: Источник истины :: Ход проверяет сервер. Клиент только присылает намерение и рисует состояние, которое пришло.
+
+## Состояние на сервере | 5
+- Комнаты лежат в словаре **в памяти процесса**: `rooms: dict[str, Room]`.
+- Перезапуск сервера — все партии пропали. Две копии сервера — у каждой свои комнаты.
+- Пока у нас один процесс, этого достаточно. На неделе 8 — Redis и pub/sub для нескольких копий.
+q: Почему нельзя запустить `uvicorn --workers 4` с комнатами в словаре? :: Каждый воркер — отдельный процесс со своим словарём. Игроки одной комнаты могут попасть в разные воркеры и не увидеть ходы друг друга.
+
+## Гонки в asyncio | 5 | opt
+- Один поток — но переключение на **каждом** `await`. Между проверкой и действием может вклиниться другой игрок.
+```python
+if room.game.turn == color:          # проверили
+    await save_to_db(room)            # ← здесь может выполниться ход соперника
+    room.game.play(col)               # и походим уже не в свою очередь
+```
+- Правило: проверка и изменение состояния — **без `await` между ними**, или под `asyncio.Lock()` комнаты.
+
+## Агент пишет контрактные тесты | 5
+- Даём агенту `SPEC.md` с таблицей протокола и просим: «тесты на каждую строку таблицы и на каждый код ошибки».
+- Такие тесты проверяют **контракт** — то, о чём договорились клиент и сервер, а не внутренности.
+- Ревью: каждой строке спеки — хотя бы один тест; нет тестов, которые проверяют реализацию, а не спеку.
+> Контрактные тесты — страховка для фронтенда: если кто-то переименует поле, тест упадёт раньше, чем сломается клиент.
+
+## Проверь себя | 4
+q: Чем `await asyncio.sleep(1)` отличается от `time.sleep(1)` в корутине? :: Первое отдаёт управление циклу — другие задачи работают. Второе останавливает весь поток.
+q: Какой код ответа у успешного рукопожатия WebSocket? :: 101 Switching Protocols.
+q: Где проверять, что ход сделан в свою очередь? :: На сервере, в комнате. Клиенту не верим.
+
+## Итоги | 3
+- asyncio: один поток, много задач; переключение на `await`; блокирующий код — враг.
+- WebSocket: рукопожатие по HTTP (101), дальше сообщения в обе стороны.
+- Протокол — JSON с `type`, записан в спеке; комната возвращает «кому что», сервер рассылает.
+- Домашнее задание: прочитать условие лабораторной 06, разобрать демо-тест PROD.

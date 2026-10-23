@@ -12,6 +12,7 @@
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab06-ws-rooms`](labs/lab06-ws-rooms/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab06-ws-rooms/`
+- Контест 3 «asyncio и протоколы» (сезон 1): [лист PDF](../../contests/c03-asyncio-protocols/sheet.pdf), [исходник](../../contests/c03-asyncio-protocols/sheet.md); решения — `solutions/contests/c03-asyncio-protocols/`
 
 ## Агентная разработка
 

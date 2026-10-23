@@ -1,0 +1,153 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 3 · asyncio и протоколы</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 3 · asyncio и протоколы</h1>
+<p>Неделя 6 · темы недель 5–6: повторение Т1, корутины и event loop, WebSocket, протокол сообщений, комнаты.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею. В задачах B время тоже проверяется:
+конкурентный код должен работать заметно быстрее последовательного.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Протоколы</h2>
+<p><strong>A1.</strong> Дан лог — список строк, каждая должна быть JSON-объектом с полем <code>type</code>. Посчитайте сообщения каждого типа.
+Всё, что не JSON, не объект или без строкового <code>type</code>, считайте под ключом <code>"invalid"</code>. Ключи отсортируйте.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  count_types(['{"type": "move", "col": 3}', '{"type": "ping"}', 'oops', '[1]', '{"type": 5}'])
+Вывод: {"invalid": 3, "move": 1, "ping": 1}
+</code></pre></div>
+
+<p><strong>A2.</strong> Сообщения разделены символом <code>\n</code>, но по сети приходят кусками как попало. По списку кусков верните целые
+сообщения; пустые пропустите, незаконченный хвост отбросьте.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  split_stream(['{"a":', '1}\n{"b"', ':2}\n{"c"'])
+Вывод: ['{"a":1}', '{"b":2}']
+</code></pre></div>
+
+<p><strong>A3.</strong> Кадр — 2 байта длины (big-endian) и текст в UTF-8. Длина считается в <strong>байтах</strong>, а не в символах.
+Напишите <code>encode_frame(text) -&gt; bytes</code> (длиннее 65535 байт — <code>ValueError</code>) и <code>decode_frames(data) -&gt; list[str]</code>
+(неполный последний кадр отбросить). Подсказка: <code>int.to_bytes</code>, <code>int.from_bytes</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  encode_frame("Ая")
+Вывод: b'\x00\x04\xd0\x90\xd1\x8f'
+
+Ввод:  decode_frames(encode_frame("ход 3") + encode_frame("ок") + b"\x00\x05ab")
+Вывод: ["ход 3", "ок"]
+</code></pre></div>
+
+<h2>B. asyncio</h2>
+<p>Во всех задачах дан «медленный сервис» — используйте его, не меняя:</p>
+<div class="codehilite"><pre><span></span><code>async def slow_double(x: int) -&gt; int:
+    await asyncio.sleep(0.1)
+    return x * 2
+</code></pre></div>
+
+<p><strong>B1.</strong> <code>async def double_all(xs)</code> возвращает <code>[slow_double(x) for x in xs]</code> в исходном порядке. Для 10 чисел — меньше
+0,5 с (последовательно было бы 1 с).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  asyncio.run(double_all([1, 2, 3]))
+Вывод: [2, 4, 6]          # за ~0.1 с
+</code></pre></div>
+
+<p><strong>B2.</strong> Игрок <code>name</code> «отвечает» через <code>delays[name]</code> секунд. Верните имя первого ответившего и <strong>отмените</strong> остальные
+задачи, не дожидаясь их. Подсказка: <code>asyncio.wait(..., return_when=asyncio.FIRST_COMPLETED)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  asyncio.run(first_answer({"Аня": 0.3, "Боря": 0.05, "Вика": 1.0}))
+Вывод: "Боря"             # за ~0.05 с
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>async def with_timeout(coro, seconds, default=None)</code> возвращает результат корутины или <code>default</code>, если она
+не уложилась в <code>seconds</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  asyncio.run(with_timeout(asyncio.sleep(1, result=1), 0.05, default="таймаут"))
+Вывод: "таймаут"
+</code></pre></div>
+
+<p><strong>B4*.</strong> <code>async def limited(factories, limit)</code>: <code>factories</code> — функции без аргументов, каждая возвращает корутину.
+Выполните все, но одновременно не больше <code>limit</code> (так не перегружают внешний API). Результаты — в исходном порядке.
+Подсказка: <code>asyncio.Semaphore</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  asyncio.run(limited([lambda i=i: slow_double(i) for i in range(9)], 3))
+Вывод: [0, 2, 4, 6, 8, 10, 12, 14, 16]    # за ~0.3 с, одновременно не больше трёх
+</code></pre></div>
+
+<h2>C. Комнаты</h2>
+<p><strong>C1.</strong> Рассадите игроков по порядку прихода в комнаты по <code>size</code> человек. Неполная последняя комната — это очередь
+ожидания. Верните пару (комнаты, ожидающие).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  assign_rooms(["a", "b", "c", "d", "e"], 2)
+Вывод: ([["a", "b"], ["c", "d"]], ["e"])
+</code></pre></div>
+
+<p><strong>C2.</strong> События <code>(время, "in" | "out")</code> — входы и выходы игроков. Найдите максимум одновременно онлайн.
+Если в одну секунду кто-то вышел и кто-то вошёл, сначала обрабатываем выход.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  max_online([(1, "in"), (2, "in"), (3, "out"), (3, "in"), (5, "in")])
+Вывод: 3
+</code></pre></div>
+
+<p><strong>C3.</strong> Игроки ходят по кругу в порядке <code>players</code>. По списку того, кто ходил, верните индекс первого хода не в свою
+очередь или <code>-1</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  first_out_of_turn(["Аня", "Боря", "Аня", "Аня"], ["Аня", "Боря"])
+Вывод: 3
+</code></pre></div>
+
+<p><strong>C4*.</strong> Матчмейкинг. Очередь — пары <code>(имя, рейтинг)</code>. Идём по очереди: берём первого свободного и ищем ему <strong>первого
+свободного дальше по очереди</strong> с разницей рейтинга не больше <code>max_diff</code>. Нашли — пара, не нашли — игрок ждёт.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  matchmake([("Аня", 1200), ("Боря", 1500), ("Вика", 1250), ("Гоша", 1480), ("Даня", 900)], 100)
+Вывод: [("Аня", "Вика"), ("Боря", "Гоша")]
+</code></pre></div>
+
+<h2>D. WebSocket</h2>
+<p>Все эндпоинты — в одном FastAPI-приложении. Проверка — через <code>TestClient</code> или две вкладки браузера.</p>
+<p><strong>D1.</strong> <code>/ws/echo</code>: на каждое сообщение отвечает <code>{"type": "echo", "data": &lt;то, что пришло&gt;}</code>. Если пришёл не JSON —
+<code>{"type": "error", "code": "bad_json"}</code>, соединение не закрываем.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  {"a": [1, 2]}
+Вывод: {"type": "echo", "data": {"a": [1, 2]}}
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>/ws/counter</code>: общий на всех счётчик. При подключении клиент получает <code>{"type": "count", "value": N}</code>.
+Любой клиент присылает <code>{"type": "inc"}</code> — <strong>все</strong> подключённые получают новое значение. Отключившимся не шлём.</p>
+<p><strong>D3.</strong> <code>/ws/chat/{room}?name=Аня</code>: чат по комнатам. Новый клиент сначала получает
+<code>{"type": "history", "messages": [...]}</code> — последние 5 сообщений комнаты (<code>{"from", "text"}</code>). Каждое непустое
+сообщение рассылается всем в этой комнате как <code>{"type": "chat", "from": ..., "text": ...}</code>. Подсказка: <code>deque(maxlen=5)</code>.</p>
+<h2>E. Игра по сети</h2>
+<p><strong>E1.</strong> Запустите сервер из лабы 06 и сыграйте партию с соседом из двух браузеров (или из бота). Покажите в DevTools
+вкладку Network → WS: сообщения <code>start</code>, <code>state</code>, <code>game_over</code>.</p>
+<p><strong>E2.</strong> Докажите, что <code>time.sleep</code> блокирует сервер. Сделайте эндпоинт <code>async def</code>, который спит 2 с через <code>time.sleep</code>,
+и такой же через <code>asyncio.sleep</code>. Отправьте 5 запросов одновременно и покажите время: ~10 с против ~2 с. Объясните
+разницу.</p>
+<p><strong>E3.</strong> Протокол realtime вашей команды в <code>SPEC.md</code> (таблица сообщений и кодов ошибок) и не меньше пяти контрактных
+тестов, написанных агентом. Покажите, какой тест агента вы исправили или удалили на ревью и почему.</p>
+<p><strong>E4 · босс.</strong> «Морской бой» на поле 10×10, клетки <code>(строка, столбец)</code>. За каждую часть свой плюс.</p>
+<p>а) Класс <code>Fleet</code>, метод <code>place(r, c, length, horizontal)</code> ставит корабль от клетки <code>(r, c)</code> вправо или вниз.
+Если корабль выходит за поле или касается другого (даже углом) — <code>ValueError</code>.</p>
+<p>б) <code>shoot(r, c)</code> возвращает <code>"miss"</code>, <code>"hit"</code> или <code>"sunk"</code> (последняя клетка корабля). Повторный выстрел в ту же клетку
+или выстрел за поле — <code>ShotError</code>. <code>all_sunk()</code> — все ли потоплены. <code>view()</code> — то, что видит соперник: <code>.</code> не стреляли,
+<code>o</code> мимо, <code>x</code> ранен, <code>#</code> потоплен.</p>
+<p>в) Класс <code>Battle(fleet_a, fleet_b)</code>, метод <code>fire(player, r, c)</code>, игроки 0 и 1. После попадания стреляет тот же игрок,
+после промаха ход переходит. Последний корабль соперника потоплен — <code>"win"</code>. Не в свой ход или после конца игры —
+<code>ShotError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  f = Fleet(); f.place(0, 0, 3, True)
+       f.shoot(0, 0); f.shoot(1, 1)
+       f.view()[:2]
+Вывод: ["x.........", ".o........"]
+</code></pre></div>
+
+<p><strong>E5*.</strong> Бот для «Морского боя»: <code>next_shot(view)</code> по полю из <code>view()</code> выбирает клетку. Если есть раненый корабль (<code>x</code>),
+добиваем: одно ранение — соседи в порядке вверх, вправо, вниз, влево; два и больше в линию — только концы этой линии.
+Иначе — первая свободная клетка «шахматки» <code>(r + c) % 2 == 0</code> (по строкам), а если таких нет — первая свободная.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  next_shot(&lt;пустое поле, ранения в (4, 4) и (4, 5)&gt;)
+Вывод: (4, 3)
+</code></pre></div></body></html>

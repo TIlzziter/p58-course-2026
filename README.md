@@ -50,7 +50,7 @@ tools/                         сборка презентаций, листов
 | 5 | 23.11–29.11 | [09 · Лекция](lessons/w05-l01-review-t1/README.md) | Повторение к срезу Т1, ретро триместра |  |  |
 | 5 | 23.11–29.11 | [10 · Семинар](lessons/w05-l02-demo-t1/README.md) | Демо Т1 для родителей и администрации; срез Т1 |  |  |
 | 6 | 30.11–06.12 | [11 · Лекция](lessons/w06-l01-websocket-asyncio/README.md) | WebSocket в FastAPI, asyncio; комнаты и протокол сообщений |  |  |
-| 6 | 30.11–06.12 | [12 · Семинар](lessons/w06-l02-multiplayer-rooms/README.md) | Семинар: мультиплеер игры 1, комната на 2 игрока, сервер — источник истины | [lab06](lessons/w06-l02-multiplayer-rooms/labs/lab06-ws-rooms/README.md) | c03 |
+| 6 | 30.11–06.12 | [12 · Семинар](lessons/w06-l02-multiplayer-rooms/README.md) | Семинар: мультиплеер игры 1, комната на 2 игрока, сервер — источник истины | [lab06](lessons/w06-l02-multiplayer-rooms/labs/lab06-ws-rooms/README.md) | [c03](contests/c03-asyncio-protocols/sheet.pdf) |
 | 7 | 07.12–13.12 | [13 · Лекция](lessons/w07-l01-postgres-sqlalchemy/README.md) | PostgreSQL вместо SQLite: SQLAlchemy 2 (async), миграции Alembic |  |  |
 | 7 | 07.12–13.12 | [14 · Семинар](lessons/w07-l02-db-rating/README.md) | Семинар: таблицы игроков, матчей и рейтинга; история партий | [lab07](lessons/w07-l02-db-rating/labs/lab07-sqlalchemy-rating/README.md) |  |
 | 8 | 14.12–20.12 | [15 · Лекция](lessons/w08-l01-redis/README.md) | Redis: сессии, комнаты, TTL, pub/sub; несколько копий приложения |  |  |

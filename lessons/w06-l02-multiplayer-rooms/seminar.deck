@@ -1,0 +1,128 @@
+title: Семинар: мультиплеер игры 1
+kicker: Неделя 6 · Семинар
+parts: Сервер|Клиент и тесты
+full: Весь семинар · 135 мин
+short: Основное · 110 мин
+
+@part 1
+## Комната на двоих | 2 | cover
+sub: Переводим «4 в ряд» с HTTP на WebSocket:{br}сервер решает, клиенты только рисуют
+chips: WebSocket | комнаты | протокол | контрактные тесты
+
+## План | 2
+| Блок | Время | Результат |
+| Разбор демо-теста PROD | 15 мин | разобраны 3 задачи |
+| Протокол в `SPEC.md` | 15 мин | таблица сообщений и кодов ошибок |
+| Агент: контрактные тесты по спеке | 20 мин | `tests/test_protocol.py`, ревью |
+| Перерыв | 10 мин | — |
+| Комната и эндпоинт `/ws/{room}` | 35 мин | тесты зелёные |
+| Клиент: WebSocket вместо fetch | 25 мин | партия с двух телефонов |
+| Итоги, лаба 06, контест 3 | 5 мин | — |
+
+## Протокол — в спеку | 6
+```markdown SPEC.md · раздел «Realtime»
+### Клиент → сервер
+| type  | поля        | ошибки                           |
+|-------|-------------|----------------------------------|
+| move  | col: 0..6   | not_your_turn, column_full, ...  |
+| chat  | text: 1..200| bad_field                        |
+| ping  | —           | —                                |
+
+### Сервер → клиент
+welcome, start, state, game_over, opponent_left, error
+Ошибка не закрывает соединение. Закрываем только при ошибке входа (4409).
+```
+- Сначала договариваемся о сообщениях, потом пишем код. Фронтенд и бэкенд работают параллельно.
+
+## Контрактные тесты от агента | 7
+- Промпт: «По таблице из `SPEC.md` напиши pytest-тесты для `parse_message` и `Room`: каждая строка таблицы и каждый код ошибки».
+```python Что агент обычно забывает
+@pytest.mark.parametrize("raw", [
+    '{"type": "move", "col": true}',      # bool — подкласс int!
+    '{"type": "move", "col": 3.0}',       # float
+    '{"type": "move", "col": 3, "player": 2}',   # подмена игрока
+    '[1, 2]',                             # не объект
+])
+def test_rejected(raw):
+    with pytest.raises(ProtocolError):
+        parse_message(raw)
+```
+:: tech
+card: Почему поле player опасно :: Если сервер возьмёт игрока из сообщения, а не из соединения, любой сможет ходить за соперника. Игрок определяется **соединением**.
+card: Ревью и метрика :: У каждой строки спеки есть тест, есть «плохие» входы. Посчитайте: сколько тестов агента вы удалили или исправили. Это число записываем в PR — оно пригодится на неделе 13.
+
+## Комната возвращает «кому что» | 7
+```python api/rooms.py
+def handle(self, name: str, msg: dict) -> list[tuple[str, dict]]:
+    if msg["type"] == "ping":
+        return [(name, {"type": "pong"})]
+    if not self.started:
+        return [(name, error("not_started"))]
+    color = self.players[name]
+    if color != self.game.turn:
+        return [(name, error("not_your_turn"))]
+    try:
+        result = self.game.play(msg["col"])
+    except MoveError as e:
+        return [(name, error(e.code))]
+    out = self.broadcast({"type": "state", "state": self.game.to_json()})
+    if result != "playing":
+        out += self.broadcast({"type": "game_over", "result": result})
+    return out
+```
+
+## Эндпоинт: тонкий слой | 7
+```python api/ws.py
+@app.websocket("/ws/{room_id}")
+async def ws_room(websocket: WebSocket, room_id: str, name: str = ""):
+    await websocket.accept()
+    room = rooms.setdefault(room_id, Room(room_id))
+    out = room.join(name)                 # RoomError → error и close(4409), см. лабу 06
+    sockets[(room_id, name)] = websocket
+    await deliver(room, out)
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            try:
+                out = room.handle(name, parse_message(raw))
+            except ProtocolError as e:
+                out = [(name, error(e.code))]     # ошибка протокола не рвёт соединение
+            await deliver(room, out)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        sockets.pop((room_id, name), None)
+        await deliver(room, room.leave(name))
+```
+
+@part 2
+## Клиент: от fetch к WebSocket | 6
+- Было: клик → `fetch POST /moves` → ответ → `draw`.
+- Стало: клик → `ws.send(move)` → **ничего не рисуем** → пришёл `state` → `draw`.
+- Ход соперника приходит тем же `state`: один обработчик на всё.
+- Ошибки показываем всплывающей подсказкой; соединение живёт дальше.
+! Не рисуйте фишку «сразу по клику». Если сервер ответит ошибкой, клиент разойдётся с сервером. Плавность добавим на неделе 12.
+
+## Тестируем WebSocket | 6
+```python tests/test_ws.py
+def test_two_players(client):
+    with client.websocket_connect("/ws/g1?name=Аня") as a:
+        a.receive_json()                                   # welcome
+        with client.websocket_connect("/ws/g1?name=Боря") as b:
+            b.receive_json(); a.receive_json(); b.receive_json()   # welcome, start, start
+            a.send_json({"type": "move", "col": 3})
+            assert a.receive_json() == b.receive_json()    # оба получили одно состояние
+```
+:: tech
+card: Один event loop :: Фикстура `client` создаётся как `with TestClient(app) as c:` — иначе каждое соединение получит свой цикл событий, и рассылка между ними сломается.
+card: Таймаут :: Если сервер не ответил, `receive_json` ждёт вечно. В лабе 06 в `conftest.py` есть обёртка с таймаутом 3 с.
+
+## Смоук-тест с двух телефонов | 4
+- Деплой ветки на staging, открываем из бота на двух телефонах, одна комната.
+- Проверяем: ход виден у соперника меньше чем за секунду; ход не в свою очередь — ошибка; закрыли приложение у одного — второй получил победу.
+- Включаем авиарежим на 5 секунд — что видит игрок? Записываем в issue: на этой неделе переподключения нет.
+
+## Итоги и домашнее задание | 3
+- Протокол в спеке, контрактные тесты по нему, комната без сети, тонкий эндпоинт.
+- Клиент рисует только то, что прислал сервер.
+- Домашнее задание: **лабораторная 06** «Комнаты на WebSocket» и **контест 3**.
