@@ -1,7 +1,7 @@
 """Задача 6. Что разрешено агенту: проверяем каждый вызов инструмента до выполнения."""
 import posixpath
-import shlex
-from urllib.parse import urlsplit
+import shlex  # noqa: F401
+from urllib.parse import urlsplit  # noqa: F401
 
 PROTECTED = (".env", ".git/", ".github/workflows/")
 CHAINING = (";", "&&", "||", "|", ">", "<", "`", "$(")

@@ -4,9 +4,9 @@
 «на глаз», пишем автоматическое ревью: каждая проблема — код из списка в README.md.
 Этот модуль потом можно запускать в CI на каждый PR, который меняет конфиги.
 """
-import re
+import re  # noqa: F401
 
-import yaml
+import yaml  # noqa: F401
 
 SECRET_WORDS = ("TOKEN", "PASSWORD", "SECRET", "API_KEY")
 SEVERITY = {"secret_in_env": 1, "secret_in_compose": 1, "db_port_public": 1, "root_user": 2,

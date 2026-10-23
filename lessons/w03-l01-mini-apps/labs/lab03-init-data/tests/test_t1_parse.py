@@ -1,5 +1,5 @@
 import pytest
-from conftest import USER
+from conftest import USER  # noqa: F401
 from initdata import InitDataError, parse_init_data
 
 

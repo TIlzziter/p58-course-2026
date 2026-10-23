@@ -6,7 +6,6 @@
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import syllabus as S
@@ -93,8 +92,6 @@ def main():
                 lastc = get_column_letter(cols.index(season[-1]) + 2)
                 rating.cell(i, j, f"=SUM({first}{i}:{lastc}{i})").font = HEAD
                 rating.cell(i, j).fill = FILL
-                rank_col = get_column_letter(j)
-                rating.cell(12 if c == "Сезон 1" else 13, 1)
     rating.cell(12, 1, "Место в сезоне 1:").font = HEAD
     rating.cell(13, 1, "Место в сезоне 2:").font = HEAD
     c1 = get_column_letter(cols.index("Сезон 1") + 2)

@@ -1,6 +1,6 @@
 """Задачи 3–4. Сервер — источник истины: проверяем то, что прислал клиент."""
-import math
-import statistics
+import math  # noqa: F401
+import statistics  # noqa: F401
 
 
 class MoveValidator:

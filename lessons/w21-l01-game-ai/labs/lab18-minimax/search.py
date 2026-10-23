@@ -20,7 +20,7 @@ def minimax(game, s, stats: Stats | None = None) -> int:
 
 def best_move(game, s, stats: Stats | None = None):
     """Задача 2. Лучший ход для того, кто ходит; при равенстве — первый в порядке moves()."""
-    p = game.to_move(s)
+    p = game.to_move(s)  # noqa: F841
     best, best_v = None, None
     for m in game.moves(s):
         v = minimax(game, game.play(s, m), stats)

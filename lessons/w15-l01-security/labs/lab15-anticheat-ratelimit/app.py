@@ -1,11 +1,11 @@
 """Задача 7*. Rate limit и проверка счёта в FastAPI."""
-import math
+import math  # noqa: F401
 import time
 from collections.abc import Callable
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, Request  # noqa: F401
+from fastapi.responses import JSONResponse  # noqa: F401
+from pydantic import BaseModel, Field  # noqa: F401
 from ratelimit import KeyedLimiter
 
 MAX_SCORE = 10_000
@@ -24,7 +24,7 @@ def create_app(limit: int = 5, window: float = 60, now: Callable[[], float] = ti
     заголовок Retry-After — целое число секунд, округлённое вверх (не меньше 1).
     """
     app = FastAPI()
-    limiter = KeyedLimiter(limit, window, now)
+    limiter = KeyedLimiter(limit, window, now)  # noqa: F841
 
     @app.get("/health")
     async def health():

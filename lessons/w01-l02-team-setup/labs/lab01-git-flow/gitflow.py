@@ -2,7 +2,7 @@
 
 Модуль используют в CI: он проверяет имена веток, сообщения коммитов, описание PR и AGENTS.md.
 """
-import re
+import re  # noqa: F401
 
 BRANCH_TYPES = ("feature", "fix", "docs", "chore")
 COMMIT_AREAS = ("bot", "api", "game", "web", "tests", "docs", "infra", "ci")

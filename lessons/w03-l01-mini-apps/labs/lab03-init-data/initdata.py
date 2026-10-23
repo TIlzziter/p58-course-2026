@@ -13,10 +13,10 @@
 """
 import hashlib
 import hmac
-import json
+import json  # noqa: F401
 from dataclasses import dataclass
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException  # noqa: F401
 
 
 class InitDataError(Exception):
