@@ -1,0 +1,184 @@
+title: PostgreSQL и SQLAlchemy 2: данные, которые переживут перезапуск
+kicker: Неделя 7 · Лекция
+parts: Реляционная модель|SQLAlchemy и Alembic
+full: Вся лекция · 135 мин
+short: Основное · 105 мин
+
+@part 1
+## Рейтинг, который не пропадёт | 2 | cover
+sub: Таблицы, ключи и индексы в PostgreSQL,{br}async-запросы на SQLAlchemy 2 и миграции Alembic
+chips: PostgreSQL | ключи | индексы | SQLAlchemy 2 | Alembic
+
+## Зачем база, если есть словарь | 5
+- Словарь в памяти пропадает при каждом деплое, а деплоим мы теперь по несколько раз в день.
+- Файл JSON: две копии сервера пишут одновременно — и одна запись теряется.
+- База данных даёт **долговечность**, **одновременный доступ** и **проверку данных** на своей стороне.
+- SQLite — файл, отлично для тестов и прототипа. **PostgreSQL** — отдельный сервер для продакшена: много клиентов, строгие типы, надёжные транзакции.
+q: Почему не оставить SQLite на сервере, если игроков всего 50? :: Можно, пока одна копия приложения. Но в compose у нас бот и API — два процесса; при записи SQLite блокирует весь файл. И с PostgreSQL проще бэкапы, роли и мониторинг.
+
+## Таблица, строка, ключ | 6
+| players.id | tg_id | name | rating |
+| 1 | 51234567 | Аня | 1016 |
+| 2 | 77001122 | Боря | 984 |
+- **Первичный ключ** (PK) — номер строки, который никогда не меняется: `id`.
+- **Уникальность**: один аккаунт Telegram — одна строка (`UNIQUE (tg_id)`).
+- **Внешний ключ** (FK): `matches.player1_id` ссылается на `players.id`. Нельзя записать партию несуществующего игрока.
+> Ограничения — это тесты, которые база проверяет **на каждой** записи, даже если в коде ошибка.
+
+## Связи между таблицами | 6
+flow: n:players ~ кто играет -> c:matches ~ две ссылки на players -> v:moves ~ ссылка на matches
+- **Один ко многим**: у игрока много партий, у партии — ровно два игрока (две колонки FK).
+- **Многие ко многим** (игроки ↔ достижения) — через промежуточную таблицу `player_achievements`.
+- Не храним в строке то, что можно посчитать: число партий — `COUNT(*)`, а не колонка, которую забудут обновить.
+q: Где хранить «сколько раз игрок победил» — колонкой или запросом? :: Сначала запросом. Колонку-счётчик добавляют, только если запрос стал медленным, и обновляют в той же транзакции.
+
+## SQL, который нужно уметь прочитать | 7
+```sql
+SELECT p.name, p.rating, count(m.id) AS games
+FROM players AS p
+JOIN matches AS m ON m.player1_id = p.id OR m.player2_id = p.id
+WHERE m.played_at > now() - interval '7 days'
+GROUP BY p.id
+ORDER BY p.rating DESC, games DESC
+LIMIT 10;
+```
+:: tech
+card: JOIN :: Склеивает строки двух таблиц по условию. Игрок без партий в `JOIN` не попадёт; чтобы попал — `LEFT JOIN`.
+card: GROUP BY :: Сворачивает строки игрока в одну; `count`, `sum`, `max` считаются по группе.
+
+## Индексы | 6
+- Без индекса `WHERE tg_id = 51234567` перебирает **всю** таблицу. С индексом — как поиск по оглавлению.
+- Индекс нужен на колонках из `WHERE`, `JOIN` и `ORDER BY` частых запросов: `tg_id`, `player1_id`, `played_at`.
+- Цена: место на диске и медленнее запись. Индекс «на всё» — плохая идея.
+- Проверка: `EXPLAIN ANALYZE SELECT ...` — `Seq Scan` (перебор) или `Index Scan`.
+! В PostgreSQL внешний ключ **не создаёт** индекс сам. Забыли — история игрока медленная на 100 000 партий.
+
+## Транзакции | 6
+```sql
+BEGIN;
+UPDATE players SET rating = rating + 16 WHERE id = 1;
+UPDATE players SET rating = rating - 16 WHERE id = 2;
+INSERT INTO matches (game, player1_id, player2_id, result, delta1, delta2)
+     VALUES ('c4', 1, 2, 'win1', 16, -16);
+COMMIT;      -- всё или ничего
+```
+- Сервер упал между двумя `UPDATE` — без транзакции у Ани +16, а Боря ничего не потерял.
+- **ACID**: атомарность (всё или ничего), согласованность (ограничения), изоляция, долговечность.
+
+## Рейтинг Эло | 6
+- Ожидаемый счёт A против B: `E = 1 / (1 + 10^((Rb − Ra) / 400))`. Разница 200 очков — 76 %.
+- После партии: `Δ = round(K · (S − E))`, `S` = 1, ½ или 0; у нас `K = 32`.
+- A получает `+Δ`, B — `−Δ`: сумма рейтингов не меняется.
+| Партия | E для A | Δ |
+| 1000 против 1000, A выиграл | 0,50 | +16 |
+| 1200 против 1000, A выиграл | 0,76 | +8 |
+| 1000 против 1200, A выиграл | 0,24 | +24 |
+
+@part 2
+## SQLAlchemy 2: модели | 8
+```python models.py
+class Player(Base):
+    __tablename__ = "players"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    name: Mapped[str] = mapped_column(String(64))
+    rating: Mapped[int] = mapped_column(default=1000, server_default="1000")
+
+class Match(Base):
+    __tablename__ = "matches"
+    __table_args__ = (CheckConstraint("result IN ('win1', 'win2', 'draw')"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    player1_id: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"), index=True)
+    result: Mapped[str] = mapped_column(String(8))
+    played_at: Mapped[datetime] = mapped_column(server_default=func.now(), index=True)
+```
+:: tech
+card: Mapped :: Тип в аннотации задаёт тип колонки и `NOT NULL`. `Mapped[str | None]` — колонка может быть пустой.
+card: default и server_default :: `default` подставляет Python при `add`, `server_default` записывается в схему — сработает и при вставке из `psql`.
+
+## Async-движок и сессия | 7
+```python db.py
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+engine = create_async_engine("postgresql+asyncpg://game:secret@db:5432/game")
+Session = async_sessionmaker(engine, expire_on_commit=False)
+
+async def main():
+    async with Session() as session:
+        async with session.begin():            # commit в конце или rollback при ошибке
+            session.add(Player(tg_id=51234567, name="Аня"))
+```
+:: tech
+card: Engine :: Пул соединений с базой, один на приложение. Создаётся при старте, закрывается `await engine.dispose()`.
+card: Session :: «Рабочая тетрадь» одного запроса: копит изменения объектов и отправляет их в базу при `flush` или `commit`.
+
+## Запросы | 8
+```python repo.py
+async def top(session, limit=10):
+    rows = await session.execute(
+        select(Player.name, Player.rating)
+        .order_by(Player.rating.desc())
+        .limit(limit))
+    return rows.all()
+
+player = await session.scalar(select(Player).where(Player.tg_id == tg_id))
+player.rating += 16             # изменили объект — UPDATE уйдёт при flush/commit
+await session.flush()           # отправить сейчас, но транзакцию не закрывать
+```
+:: tech
+card: scalar и execute :: `scalar` — первое значение или `None`; `scalars` — список объектов; `execute` — строки из нескольких колонок.
+card: Ленивая загрузка :: В async обращение к незагруженной связи (`match.player1`) падает с ошибкой. Берём нужное явно: `join` или `selectinload`.
+
+## Проблема N+1 | 5 | opt
+- История из 20 партий: 1 запрос за партиями + 20 запросов за именем соперника = **21** запрос.
+- Один запрос с двумя `JOIN` к `players` (через `aliased`) — и все имена сразу.
+```python
+p1, p2 = aliased(Player), aliased(Player)
+select(Match, p1.name, p2.name).join(p1, Match.player1_id == p1.id).join(p2, Match.player2_id == p2.id)
+```
+- Найти N+1: `create_async_engine(url, echo=True)` и посчитать `SELECT` в логе одного запроса.
+
+## Миграции Alembic | 7
+- Схема меняется вместе с кодом: новая колонка, индекс. На сервере уже есть данные — `drop_all` нельзя.
+- **Миграция** — файл с `upgrade()` и `downgrade()`, хранится в git, применяется по порядку.
+```bash
+alembic revision --autogenerate -m "add avatar"   # сравнить модели и базу, написать черновик
+alembic upgrade head                              # применить все новые
+alembic downgrade -1                              # откатить последнюю
+```
+- В деплое: `alembic upgrade head` **до** запуска новой версии приложения.
+:: tech
+card: autogenerate :: Сравнивает модели с базой и пишет черновик. Колонки, индексы и FK видит; CHECK и переименования — нет (переименование выглядит как «удалить и создать» — потеря данных!).
+card: alembic_version :: Таблица в базе с номером текущей ревизии. Так Alembic знает, что уже применено.
+
+## Ревью миграции | 6
+- Миграцию пишет агент или autogenerate — читает **человек**: это единственный код, который трогает живые данные.
+- Чек-лист: типы и длины как в моделях; `UNIQUE` и индексы на месте; `downgrade` — обратный порядок; нет `drop_column` с данными без плана.
+- Новая обязательная колонка в заполненной таблице — сначала `nullable=True` или `server_default`, потом заполнение, потом `NOT NULL`.
+! `op.drop_column("players", "rating")` в миграции «переименования» — рейтинг всех игроков потерян.
+
+## PostgreSQL в compose | 5
+```yaml compose.yml
+services:
+  db:
+    image: postgres:17
+    environment: {POSTGRES_USER: game, POSTGRES_PASSWORD: ${DB_PASSWORD}, POSTGRES_DB: game}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: {test: ["CMD", "pg_isready", "-U", "game"], interval: 5s}
+  api:
+    environment: {DATABASE_URL: "postgresql+asyncpg://game:${DB_PASSWORD}@db:5432/game"}
+    depends_on: {db: {condition: service_healthy}}
+volumes: {pgdata: {}}
+```
+- Без `volumes` база пропадёт вместе с контейнером. Пароль — из `.env`, не из git.
+
+## Проверь себя | 4
+q: Чем `flush` отличается от `commit`? :: `flush` отправляет SQL в базу внутри текущей транзакции (появляются id), `commit` её завершает и делает изменения видимыми другим.
+q: Почему `UNIQUE (tg_id)` лучше, чем проверка в Python перед вставкой? :: Две одновременные вставки обе пройдут проверку в Python. Ограничение в базе не пропустит вторую.
+q: Что должен делать `downgrade` первой миграции? :: Удалить созданное в обратном порядке: сначала `matches` (ссылается), потом `players`.
+
+## Итоги | 3
+- Таблицы, ключи и ограничения защищают данные даже от ошибок в коде.
+- Индексы — под частые запросы; транзакция — всё или ничего.
+- SQLAlchemy 2: `Mapped`-модели, async-сессия, `select(...)`. Alembic: миграции в git и ревью человеком.
+- Домашнее задание: нарисовать схему БД своей игры (игроки, матчи, ходы).

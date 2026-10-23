@@ -1,0 +1,94 @@
+title: Семинар: рейтинг и история партий в базе
+kicker: Неделя 7 · Семинар
+parts: Схема и миграции|Рейтинг в игре
+full: Весь семинар · 135 мин
+short: Основное · 110 мин
+
+@part 1
+## Рейтинг в PostgreSQL | 2 | cover
+sub: Переносим игроков и партии в базу,{br}считаем Эло и проверяем миграцию, которую написал агент
+chips: PostgreSQL | SQLAlchemy | Alembic | Эло | ревью миграции
+
+## План | 2
+| Блок | Время | Результат |
+| Схемы команд: разбор домашки | 15 мин | схема в `SPEC.md` |
+| PostgreSQL в compose | 15 мин | `db` здоров, API подключается |
+| Агент пишет миграцию, мы её ревьюим | 25 мин | список ошибок, исправленная миграция |
+| Перерыв | 10 мин | — |
+| Эло и запись партии | 30 мин | `record_match`, тесты |
+| Таблица лидеров в Mini App | 25 мин | экран «Лидеры» |
+| Итоги, лаба 07 | 5 мин | — |
+
+## Разбор схем | 6
+- Каждая команда за 2 минуты показывает схему: таблицы, ключи, что уникально, какие индексы.
+- Вопросы к каждой схеме: где хранится, **чей** сейчас ход? Что будет при удалении игрока? Какой запрос самый частый?
+- Ходы партии: таблица `moves (match_id, n, payload JSON)` или одно поле JSON в `matches` — оба варианта честные.
+q: Нужна ли таблица `moves`, если реплей партии не планируется? :: Нет. Не храним данные «на всякий случай» — добавим миграцией, когда понадобится.
+
+## Подключаем PostgreSQL | 6
+```bash
+docker compose up -d db
+docker compose exec db psql -U game -c '\dt'      # пока пусто
+export DATABASE_URL=postgresql+asyncpg://game:secret@localhost:5432/game
+alembic upgrade head
+docker compose exec db psql -U game -c '\d matches'
+```
+- Порт базы публикуем только на `127.0.0.1` и только локально: на сервере база снаружи не видна.
+! `.env` с паролем — в `.gitignore`. В репозитории — `.env.example` без настоящих значений.
+
+## Агент пишет миграцию | 8
+- Промпт: «По `models.py` напиши первую миграцию Alembic вручную, без autogenerate».
+- Ревью в парах по чек-листу — 10 минут, затем сверка с `alembic check`.
+| Что проверяем | Как |
+| типы и длины как в моделях | глазами + `alembic check` |
+| `UNIQUE`, индексы, `ondelete` | глазами + `compare_metadata` |
+| CHECK-ограничения | только глазами |
+| `downgrade` в обратном порядке | `downgrade base` на копии |
+> Записываем в PR, что нашли. Хорошее ревью миграции — это список, а не «LGTM».
+
+## Тест: миграция = модели | 6
+```python tests/test_migration.py
+def test_upgrade_matches_models(tmp_path):
+    url = f"sqlite:///{tmp_path / 'm.db'}"
+    cfg = Config("alembic.ini")
+    cfg.set_main_option("sqlalchemy.url", url)
+    command.upgrade(cfg, "head")
+    with create_engine(url).connect() as conn:
+        diff = compare_metadata(MigrationContext.configure(conn), Base.metadata)
+    assert diff == []
+```
+- Этот тест — в CI на каждый PR: забыли миграцию после правки модели — красный.
+
+@part 2
+## Запись партии | 7
+```python repo.py
+async def record_match(session, game, tg1, tg2, result):
+    p1, p2 = await _by_tg(session, tg1), await _by_tg(session, tg2)
+    new1, new2 = elo.update(p1.rating, p2.rating, SCORE[result])
+    session.add(Match(game=game, player1_id=p1.id, player2_id=p2.id, result=result,
+                      delta1=new1 - p1.rating, delta2=new2 - p2.rating))
+    p1.rating, p2.rating = new1, new2
+    await session.flush()
+
+async with session.begin():          # вызывающий код: одна транзакция на партию
+    await record_match(session, "c4", 51234567, 77001122, "win1")
+```
+- Комната WebSocket вызывает запись **один раз** — когда пришёл `game_over`.
+
+## Таблица лидеров | 6
+- `GET /api/leaderboard` → `[{"name", "rating", "games"}]`; в Mini App — экран «Лидеры» и «Мои партии».
+- Кто попадает: только сыгравшие; одинаковый рейтинг — выше тот, у кого больше партий.
+- Своя строка подсвечивается: имя берём из проверенного `initData`, а не из запроса.
+q: Где ошибка: `ORDER BY rating` без `DESC`? :: Первыми будут самые слабые. Тест на порядок ловит это сразу.
+
+## Гонка за рейтинг | 5 | opt
+- Две партии Ани закончились одновременно: обе прочитали 1000, обе записали своё — одно изменение потеряно.
+- Решения: `UPDATE players SET rating = rating + :d` (база считает сама) или `SELECT ... FOR UPDATE` (блокировка строки).
+```python
+select(Player).where(Player.tg_id == tg).with_for_update()
+```
+
+## Итоги и домашка | 3
+- Схема в `SPEC.md`, PostgreSQL в compose, первая миграция прошла ревью.
+- Партии и рейтинг пишутся в базу одной транзакцией; есть экран «Лидеры».
+- Домашнее задание: лабораторная 07 «Рейтинг на SQLAlchemy».
