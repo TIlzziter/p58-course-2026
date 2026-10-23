@@ -1,0 +1,171 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 6 · Игровой цикл и рандом</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 6 · Игровой цикл и рандом</h1>
+<p>Неделя 12 · темы недель 11–12: случайность и перемешивание, конечные автоматы, столкновения, фиксированный шаг,
+интерполяция, повторы. Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Рандом</h2>
+<p><strong>A1.</strong> <code>fisher_yates_trace(n, rolls)</code> — перемешайте <code>[0, 1, …, n−1]</code> алгоритмом Фишера — Йетса: для <code>i</code> от <code>n−1</code>
+до <code>1</code> меняем местами <code>a[i]</code> и <code>a[j]</code>, где <code>j</code> — очередной бросок из <code>rolls</code> (<code>0 ≤ j ≤ i</code>). Бросков не <code>n − 1</code> или
+бросок вне диапазона — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fisher_yates_trace(4, [1, 2, 0])
+Вывод: [3, 0, 2, 1]
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>weighted_pick(weights, r)</code> — лутбокс. Веса — словарь в порядке «редкости», <code>r</code> — целое из <code>[0, сумма)</code>:
+первые <code>w₁</code> значений дают первый предмет, следующие <code>w₂</code> — второй и т. д. <code>r</code> вне диапазона — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  W = {"common": 70, "rare": 25, "epic": 5}
+       weighted_pick(W, 69), weighted_pick(W, 70), weighted_pick(W, 95)
+Вывод: "common", "rare", "epic"
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>lcg(seed, n, a=1103515245, c=12345, m=2**31)</code> — <code>n</code> следующих чисел линейного конгруэнтного генератора
+<code>x ← (a·x + c) mod m</code>. Одинаковое зерно — одинаковая игра на сервере и в повторе.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  lcg(1, 3), [x % 6 + 1 for x in lcg(42, 5)]
+Вывод: [1103527590, 377401575, 662824084], [4, 3, 6, 5, 2]
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>naive_shuffle_counts(n)</code> — «наивное» перемешивание: для каждого <code>i</code> от <code>0</code> до <code>n−1</code> меняем <code>a[i]</code> с
+<code>a[j]</code>, где <code>j</code> — <strong>любой</strong> из <code>0..n−1</code>. Переберите все <code>nⁿ</code> вариантов бросков и посчитайте, сколько раз выходит
+каждая перестановка. Ответ — словарь <code>перестановка → число</code>, ключи по возрастанию. Объясните, почему так нельзя
+раздавать карты.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  naive_shuffle_counts(3)
+Вывод: {(0, 1, 2): 4, (0, 2, 1): 5, (1, 0, 2): 5, (1, 2, 0): 5, (2, 0, 1): 4, (2, 1, 0): 4}
+</code></pre></div>
+
+<h2>B. Конечные автоматы</h2>
+<p>Автомат — словарь <code>(состояние, событие) → новое состояние</code>. Пример для всех задач B:</p>
+<div class="codehilite"><pre><span></span><code>M = {("lobby", "ready"): "countdown", ("countdown", "cancel"): "lobby", ("countdown", "go"): "playing",
+     ("playing", "win"): "finished", ("playing", "pause"): "paused", ("paused", "resume"): "playing",
+     ("paused", "quit"): "limbo", ("limbo", "tick"): "limbo", ("finished", "again"): "lobby",
+     ("ghost", "x"): "lobby"}
+</code></pre></div>
+
+<p><strong>B1.</strong> <code>run_fsm(trans, start, events)</code> — пропустите события через автомат. Событие без перехода игнорируется
+(как сервер игнорирует «ход» в лобби). Ответ — <code>(итоговое состояние, сколько событий проигнорировано)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  run_fsm(M, "lobby", ["ready", "go", "win", "go"])
+Вывод: ("finished", 1)
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>reachable(trans, start)</code> — все состояния, достижимые из <code>start</code> (и само <code>start</code>), по имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  reachable(M, "lobby")
+Вывод: ["countdown", "finished", "limbo", "lobby", "paused", "playing"]
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>dead_states(trans, start, finals)</code> — достижимые состояния, из которых уже <strong>нельзя</strong> попасть ни в одно
+из <code>finals</code>: игрок там застрянет навсегда. По имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  dead_states(M, "lobby", {"finished"})
+Вывод: ["limbo"]
+</code></pre></div>
+
+<h2>C. Столкновения</h2>
+<p>Прямоугольник — <code>(x, y, w, h)</code>, ось <code>y</code> вниз. Пример для C1 и C4*:</p>
+<div class="codehilite"><pre><span></span><code>B = {"hero": (0, 0, 4, 4), "wall": (4, 0, 2, 10), "coin": (3, 3, 1, 1),
+     "enemy": (10, 10, 2, 2), "bush": (2, -3, 1, 4)}
+</code></pre></div>
+
+<p><strong>C1.</strong> <code>aabb_pairs(boxes)</code> — все пары пересекающихся прямоугольников. Касание сторон <strong>не</strong> считается (у
+пересечения должна быть площадь). Пары <code>(меньшее имя, большее)</code>, список по возрастанию.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  aabb_pairs(B)
+Вывод: [("bush", "hero"), ("coin", "hero")]        # hero и wall только касаются
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>circle_pairs(circles)</code> — то же для кругов <code>(x, y, r)</code>, но касание <strong>считается</strong>. Без корней и <code>float</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  circle_pairs({"a": (0, 0, 2), "b": (3, 4, 3), "c": (10, 0, 1)})
+Вывод: [("a", "b")]
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>segment_hits_rect(p, q, rect)</code> — задевает ли отрезок <code>p → q</code> (полёт пули за тик) замкнутый
+прямоугольник. Ответ — <code>True</code>/<code>False</code> без ошибок округления (подсказка: <code>fractions.Fraction</code>).</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  segment_hits_rect((0, 0), (10, 4), (4, 0, 2, 2)), segment_hits_rect((0, 0), (10, 10), (4, 0, 2, 2))
+Вывод: True, False
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>spatial_hash_pairs(boxes, cell)</code> — тот же ответ, что в C1, но быстро: прямоугольник попадает во все
+клетки сетки от <code>(⌊x/cell⌋, ⌊y/cell⌋)</code> до <code>(⌊(x+w)/cell⌋, ⌊(y+h)/cell⌋)</code> включительно; проверяем только пары,
+у которых есть общая клетка. Ответ — <code>(пары, сколько разных пар проверено)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  spatial_hash_pairs(B, 4)
+Вывод: ([("bush", "hero"), ("coin", "hero")], 5)
+</code></pre></div>
+
+<h2>D. Время и углы</h2>
+<p><strong>D1.</strong> <code>lerp_angle(a, b, t)</code> — поворот башни от угла <code>a</code> к <code>b</code> (градусы) по <strong>короткой</strong> дуге; ответ в <code>[0, 360)</code>.
+Ровно 180° — поворот в положительную сторону.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  lerp_angle(350, 10, 0.5), lerp_angle(10, 350, 0.25), lerp_angle(0, 180, 0.5)
+Вывод: 0.0, 5.0, 90.0
+</code></pre></div>
+
+<p><strong>D2.</strong> <code>fixed_steps(frame_times, step, max_steps)</code> — моменты кадров (мс). Физика идёт шагами по <code>step</code> мс: время
+копится, на каждом кадре делаем столько шагов, сколько помещается. Больше <code>max_steps</code> за кадр нельзя («спираль
+смерти»): тогда делаем <code>max_steps</code>, а в копилке оставляем только остаток от деления на <code>step</code>. Ответ — шаги на
+каждом кадре, начиная со второго.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  fixed_steps([0, 16, 33, 50, 100, 300], 20, 3)
+Вывод: [0, 1, 1, 3, 3]
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>frame_stats(frame_times)</code> — <code>(fps, худший кадр, рывков)</code>: <code>fps</code> — кадров в секунду (интервалов на всё
+время, округлить), худший кадр — наибольший интервал, рывок — интервал больше двух медиан (медиана — нижняя
+средняя при чётном числе). Меньше двух кадров — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  frame_stats([0, 16, 33, 50, 66, 116, 133, 150, 166, 183])
+Вывод: (49, 50, 1)
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Игра 2 запускается на двух телефонах в одной комнате: лобби, отсчёт, партия, итог. Покажите, что
+переподключение одного игрока не ломает партию второму.</p>
+<p><strong>E2.</strong> Клиент на <code>requestAnimationFrame</code>: интерполяция состояний (лаба 12), цвета из темы Telegram
+(<code>--tg-theme-*</code>), кнопка «Назад» и <code>MainButton</code> работают. Покажите движение с включённым в DevTools
+троттлингом сети.</p>
+<p><strong>E3.</strong> Мини-исследование: можно ли писать клиент игры на Python (Pyodide, Brython) вместо JS? Замерьте размер
+загрузки и время старта в Telegram на телефоне, сравните с вашим JS-клиентом, сделайте вывод на одном слайде.</p>
+<p><strong>E4 · босс.</strong> Повторы партий: сервер пишет входы игроков, а клиент по ним воспроизводит партию. За каждую часть свой
+плюс.</p>
+<p>а) <code>rle_encode(inputs)</code> / <code>rle_decode(runs)</code> — входы по тикам (<code>None</code> — ничего не нажато) сжимаем в серии
+<code>[значение, длина]</code>. Серия длины <code>≤ 0</code> при раскодировании — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  rle_encode([None, None, "up", "up", "up", None, "left"])
+Вывод: [[None, 2], ["up", 3], [None, 1], ["left", 1]]
+</code></pre></div>
+
+<p>б) <code>delta(prev, cur)</code> и <code>apply_delta(state, d)</code> — вместо полного состояния шлём разницу: что поменялось или
+появилось (<code>"set"</code>) и какие ключи исчезли (<code>"del"</code>, по возрастанию). <code>apply_delta</code> не меняет <code>state</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  delta({"x": 1, "y": 2, "hp": 5}, {"x": 2, "y": 2, "shield": True})
+Вывод: {"set": {"x": 2, "shield": True}, "del": ["hp"]}
+</code></pre></div>
+
+<p>в) <code>first_desync(n, check)</code> — повтор разошёлся с сервером. <code>check(i)</code> сравнивает хэши состояния на тике <code>i</code>
+(<code>0 ≤ i &lt; n</code>): сначала все <code>True</code>, потом все <code>False</code>. Найдите первый <code>False</code> (или <code>None</code>), вызвав <code>check</code> не
+больше <code>⌊log₂ n⌋ + 2</code> раз.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  first_desync(1000, lambda i: i &lt; 637)
+Вывод: 637
+</code></pre></div>
+
+<p><strong>E5*.</strong> <code>time_of_impact(a, v, b)</code> — прямоугольник <code>a</code> за тик сдвигается на <code>v = (vx, vy)</code>, <code>b</code> стоит на месте.
+Найдите наименьшее <code>t ∈ [0, 1]</code>, когда они коснутся (касание считается; уже пересекаются — <code>0</code>), или <code>None</code>. Так
+быстрая пуля не пролетает сквозь тонкую стену.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  time_of_impact((0, 0, 2, 2), (10, 0), (5, 0, 2, 2)), time_of_impact((0, 0, 2, 2), (2, 0), (5, 0, 2, 2))
+Вывод: 0.3, None
+</code></pre></div></body></html>

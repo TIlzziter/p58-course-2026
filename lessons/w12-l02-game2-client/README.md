@@ -12,6 +12,7 @@
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab12-interpolation`](labs/lab12-interpolation/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab12-interpolation/`
+- Контест 6 «Игровой цикл и рандом» (сезон 2): [лист PDF](../../contests/c06-game-loop-random/sheet.pdf), [исходник](../../contests/c06-game-loop-random/sheet.md); решения — `solutions/contests/c06-game-loop-random/`
 
 ## Агентная разработка
 

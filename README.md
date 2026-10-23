@@ -63,7 +63,7 @@ tools/                         сборка презентаций, листов
 | 11 | 18.01–24.01 | [21 · Лекция](lessons/w11-l01-game-algorithms/README.md) | Алгоритмы игры 2: игровой цикл, конечный автомат, честный рандом, коллизии | [lab11](lessons/w11-l01-game-algorithms/labs/lab11-snake-engine/README.md) |  |
 | 11 | 18.01–24.01 | [22 · Семинар](lessons/w11-l02-game2-spec/README.md) | Семинар: спека и серверная логика игры 2, тесты по таблице правил |  |  |
 | 12 | 25.01–31.01 | [23 · Лекция](lessons/w12-l01-game-frontend/README.md) | Фронтенд игр: requestAnimationFrame, интерполяция, тема Telegram, мобильная вёрстка; Pyodide |  |  |
-| 12 | 25.01–31.01 | [24 · Семинар](lessons/w12-l02-game2-client/README.md) | Семинар: клиент игры 2, UI-кит, R&D-прототип на Pyodide | [lab12](lessons/w12-l02-game2-client/labs/lab12-interpolation/README.md) | c06 |
+| 12 | 25.01–31.01 | [24 · Семинар](lessons/w12-l02-game2-client/README.md) | Семинар: клиент игры 2, UI-кит, R&D-прототип на Pyodide | [lab12](lessons/w12-l02-game2-client/labs/lab12-interpolation/README.md) | [c06](contests/c06-game-loop-random/sheet.pdf) |
 | 13 | 01.02–07.02 | [25 · Лекция](lessons/w13-l01-testing/README.md) | Тестирование: pytest-asyncio, тесты WebSocket, тестовая БД, смоук e2e | [lab13](lessons/w13-l01-testing/labs/lab13-mutation-tests/README.md) |  |
 | 13 | 01.02–07.02 | [26 · Семинар](lessons/w13-l02-qa-plan/README.md) | Семинар: QA-план, баг-трекинг, тесты в CI, метрики работы агента |  |  |
 | 14 | 08.02–14.02 | [27 · Лекция](lessons/w14-l01-monitoring/README.md) | Мониторинг и логи: структурированные логи, healthcheck, метрики, алерты в Telegram | [lab14](lessons/w14-l01-monitoring/labs/lab14-logs-alerts/README.md) |  |

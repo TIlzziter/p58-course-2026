@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Интерполяция: демо</title>
+<style>
+  body { margin: 0; font: 15px system-ui, sans-serif; background: var(--tg-theme-bg-color, #fff);
+         color: var(--tg-theme-text-color, #111); }
+  main { max-width: 520px; margin: 0 auto; padding: 12px; }
+  canvas { width: 100%; aspect-ratio: 2 / 1; background: var(--tg-theme-secondary-bg-color, #f1f1f4); border-radius: 12px; }
+  label { display: block; margin: 8px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h3>Сервер: 10 тиков/с. Клиент: 60 кадров/с</h3>
+  <canvas id="c" width="1040" height="520"></canvas>
+  <label><input type="checkbox" id="smooth" checked> интерполяция (задержка 100 мс)</label>
+  <label>джиттер сети, мс: <input type="range" id="jitter" min="0" max="120" value="40"> <span id="jv">40</span></label>
+</main>
+<script>
+// «Сервер» внутри страницы: точка ходит по кругу клеток 20×10, снимок раз в 100 мс, сеть добавляет случайную задержку.
+const W = 20, H = 10, TICK = 100;
+const buf = [];                                     // [{t, x, y}] — как SnapshotBuffer из лабы
+let tick = 0;
+setInterval(() => {
+  tick++;
+  const a = tick / 12, snap = { t: tick * TICK, x: Math.round(10 + 8 * Math.cos(a)), y: Math.round(5 + 4 * Math.sin(a)) };
+  const delay = Math.random() * +document.getElementById("jitter").value;
+  setTimeout(() => { buf.push(snap); buf.sort((p, q) => p.t - q.t); if (buf.length > 32) buf.shift(); }, delay);
+}, TICK);
+
+const ctx = document.getElementById("c").getContext("2d");
+const start = performance.now();
+function sample(t) {                                // то же, что SnapshotBuffer.sample
+  if (!buf.length) return null;
+  if (t <= buf[0].t) return [buf[0], buf[0], 0];
+  const last = buf[buf.length - 1];
+  if (t >= last.t) return [last, last, 1];
+  let i = buf.findIndex(s => s.t > t);
+  const p = buf[i - 1], q = buf[i];
+  return [p, q, (t - p.t) / (q.t - p.t)];
+}
+function frame(now) {
+  const smooth = document.getElementById("smooth").checked;
+  const t = now - start - (smooth ? TICK : 0);      // рисуем прошлое: на одну задержку позади сервера
+  const s = sample(smooth ? t : Infinity);
+  const cell = ctx.canvas.width / W;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  if (s) {
+    const [p, q, a] = s, x = p.x + (q.x - p.x) * a, y = p.y + (q.y - p.y) * a;
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue("--tg-theme-button-color") || "#2481cc";
+    ctx.beginPath(); ctx.arc((x + 0.5) * cell, (y + 0.5) * cell, cell * 0.4, 0, 2 * Math.PI); ctx.fill();
+  }
+  document.getElementById("jv").textContent = document.getElementById("jitter").value;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
