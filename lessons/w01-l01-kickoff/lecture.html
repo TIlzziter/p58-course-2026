@@ -242,12 +242,13 @@ button:disabled{opacity:.4;cursor:default}
 .card .cs code,.bul code,.aha code,.warn code,.tbl code,.sub code,.q code{font-family:var(--mono);font-size:.9em;color:#a5ecf8;background:rgba(34,211,238,.08);padding:1px 6px;border-radius:6px}
 .cols4{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .cols4 .card{padding:16px 20px}.cols4 .card .cs{font-size:21px}
-.split{display:grid;grid-template-columns:1.05fr 1fr;gap:24px;align-items:start}
 .flow{flex-wrap:wrap;row-gap:10px}
 .note{font-size:19px;color:var(--muted);line-height:1.4}
 .term.code.tiny pre{font-size:14.5px;line-height:1.36;padding:12px 18px}
 .split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.split:has(.tiny){grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
 .split .term.code pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.4;padding:14px 16px}
+.split .term.code.tiny pre{font-size:13.5px;line-height:1.35}
 .splitside .cols,.splitside .cols3,.splitside .stack{display:grid;grid-template-columns:1fr;gap:14px}
 .technical .splitside .card{padding:16px 18px}.technical .splitside .card .cs{font-size:19px;line-height:1.38}.technical .splitside .card .cs code{font-size:16px}.technical .splitside .card .ct{font-size:20px}
 .tbl.small{font-size:20px}.tbl.small td{padding:8px 12px}
