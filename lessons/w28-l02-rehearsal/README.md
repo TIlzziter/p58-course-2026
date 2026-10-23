@@ -10,6 +10,7 @@
 ## Материалы
 
 - [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Контест 14 «Финал сезона» (сезон 2): [лист PDF](../../contests/c14-season-final/sheet.pdf), [исходник](../../contests/c14-season-final/sheet.md); решения — `solutions/contests/c14-season-final/`
 
 ## Агентная разработка
 

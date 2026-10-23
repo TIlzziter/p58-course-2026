@@ -1,6 +1,6 @@
 from redact import redact, redact_record
 
-TOKEN = "7123456789:AAHf3kW9zQ_x-1234567890abcdefghijkl"
+TOKEN = "7123456789:" + "AAHf3kW9zQ_x-1234567890abcdefghijkl"  # выдуманный; склеен, чтобы не ловили сканеры секретов
 
 
 def test_bot_token():

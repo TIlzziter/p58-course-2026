@@ -1,0 +1,193 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 14 · Финал сезона</title><style>
+@page{size:A4;margin:14mm 13mm 14mm 13mm}
+body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
+h1{font-size:19pt;margin:0 0 4pt}
+h2{font-size:14.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1px solid #d0d7de;break-after:avoid}
+h3{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+p{margin:5pt 0}
+strong{font-weight:700}
+code{font-family:Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:9.2pt;background:#f2f3f5;padding:0 3pt;border-radius:3pt}
+pre{background:#f6f7f9;border-radius:5pt;padding:7pt 10pt;margin:5pt 0 9pt;font-size:9pt;line-height:1.45;break-inside:avoid;white-space:pre-wrap}
+pre code{background:none;padding:0;font-size:9pt}
+.codehilite{background:#f6f7f9;border-radius:5pt;break-inside:avoid}
+.codehilite pre{margin:5pt 0 9pt}
+table{border-collapse:collapse;margin:6pt 0 10pt;font-size:10pt}
+td,th{border:1px solid #d0d7de;padding:3pt 8pt;text-align:left}
+th{background:#f6f7f9}
+ul,ol{margin:4pt 0 6pt 18pt;padding:0}
+li{margin:2pt 0}
+.legend{border:1px solid #d0d7de;border-radius:6pt;padding:6pt 10pt;margin:6pt 0 10pt;font-size:9.8pt;background:#fbfbfc}
+.legend b{color:#b3261e}
+.task{break-inside:avoid-page}
+.meta{color:#57606a;font-size:9.6pt}
+/* pygments, светлая тема */
+.k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
+.mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
+</style></head><body><h1>Контест 14 · Финал сезона</h1>
+<p>Неделя 28 · весь год: рейтинги и турниры, протоколы (HTTP, WebSocket, initData), графы и миграции, релиз
+и публикация репозитория; в проектной части — документация, release candidate и сценарий демо.
+Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
+<div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
+
+<h2>A. Игры</h2>
+<p><strong>A1.</strong> <code>elo(ra, rb, score, k=32)</code> — рейтинг Эло: ожидание A <code>= 1 / (1 + 10^((rb − ra) / 400))</code>, <code>score</code> —
+1, 0.5 или 0 для A. Изменение <code>k · (score − ожидание)</code> прибавить A и вычесть у B, округлить до целых.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  elo(1500, 1500, 1), elo(1600, 1400, 0), elo(1200, 1400, 0.5)
+Вывод: (1516, 1484), (1576, 1424), (1208, 1392)
+</code></pre></div>
+
+<p><strong>A2.</strong> <code>leaderboard(scores)</code> — места «1224»: <code>(место, имя, очки)</code> по убыванию очков, при равенстве — по
+имени. Равные очки — равное место, следующее место пропускается.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  leaderboard({"ann": 10, "bob": 12, "cid": 10, "dan": 7, "eve": 12})
+Вывод: [(1, "bob", 12), (1, "eve", 12), (3, "ann", 10), (3, "cid", 10), (5, "dan", 7)]
+</code></pre></div>
+
+<p><strong>A3.</strong> <code>validate_move(msg)</code> — проверка хода из WebSocket: <code>{"type": "move", "room": 1–32 символа
+[a-z0-9-], "cell": целое 0–8, не bool}</code>, других ключей нет. Ошибки по порядку: <code>"не объект"</code>; для <code>type</code>,
+<code>room</code>, <code>cell</code> — <code>"&lt;ключ&gt;: нет"</code> или <code>"&lt;ключ&gt;: неверно"</code>; затем <code>"лишний ключ: &lt;k&gt;"</code> по алфавиту.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  validate_move({"type": "move", "room": "r-1", "cell": 4})
+       validate_move({"type": "mv", "cell": True, "x": 1, "a": 2})
+Вывод: []
+       ["type: неверно", "room: нет", "cell: неверно",
+        "лишний ключ: a", "лишний ключ: x"]
+</code></pre></div>
+
+<p><strong>A4*.</strong> <code>seeding(n)</code> — посев олимпийской сетки на <code>n = 2^k</code> участников, чтобы сильнейшие встретились как
+можно позже: из посева на <code>n/2</code> каждое <code>s</code> превращается в пару <code>s, n + 1 − s</code>. Не степень двойки —
+<code>ValueError</code>. Почему 1 и 2 могут встретиться только в финале?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  seeding(4), seeding(8)
+Вывод: [1, 4, 2, 3], [1, 8, 4, 5, 2, 7, 3, 6]
+</code></pre></div>
+
+<h2>B. Протоколы</h2>
+<p><strong>B1.</strong> <code>parse_request(raw)</code> — HTTP/1.1-запрос, строки через <code>\r\n</code>: <code>{"method", "path", "query"
+(последнее значение побеждает), "headers" (имена в нижнем регистре), "body"}</code>. Неверная первая строка —
+<code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  parse_request("GET /api/rooms?page=2&amp;sort=new&amp;page=3 HTTP/1.1\r\n"
+                     "Host: game.example\r\n\r\n")
+Вывод: {"method": "GET", "path": "/api/rooms", "query": {"page": "3", "sort": "new"},
+        "headers": {"host": "game.example"}, "body": ""}
+</code></pre></div>
+
+<p><strong>B2.</strong> <code>ws_header(data)</code> — заголовок кадра WebSocket (RFC 6455): FIN — старший бит байта 0, opcode —
+младшие 4 бита; MASK — старший бит байта 1, длина — 7 бит: меньше 126 — она сама, 126 — следующие 2 байта,
+127 — 8 байт; с маской ещё 4 байта ключа. Ответ <code>{"fin", "opcode", "masked", "length", "header"}</code>.
+Не хватает байтов — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  ws_header(bytes([0x81, 0x05]))
+       ws_header(bytes([0x81, 0xFE, 0x01, 0x00]) + b"key!")
+Вывод: {"fin": True, "opcode": 1, "masked": False, "length": 5, "header": 2}
+       {"fin": True, "opcode": 1, "masked": True, "length": 256, "header": 8}
+</code></pre></div>
+
+<p><strong>B3.</strong> <code>verify_init_data(init_data, bot_token)</code> — проверка <code>initData</code> Mini App: разобрать как
+query-строку, убрать <code>hash</code>; строка проверки — <code>ключ=значение</code> по алфавиту через <code>\n</code>;
+<code>secret = HMAC-SHA256(ключ b"WebAppData", bot_token)</code>; <code>hash = hex HMAC-SHA256(secret, строка)</code>.
+Совпало (<code>hmac.compare_digest</code>) — поля без <code>hash</code>, иначе <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  s = sign_init_data({"auth_date": "1777777777", "query_id": "AAE1"}, TOKEN)
+       verify_init_data(s, TOKEN), verify_init_data(s, TOKEN + "x")
+Вывод: {"auth_date": "1777777777", "query_id": "AAE1"}, None
+</code></pre></div>
+
+<h2>C. Алгоритмы</h2>
+<p><strong>C1.</strong> <code>swiss_pairs(points, played)</code> — тур швейцарки: игроки по убыванию очков, при равенстве — по имени;
+первый свободный играет с ближайшим ниже, с кем ещё не играл; если дальше пары не собрать — перебор с
+возвратом. Пар нет — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  swiss_pairs({"a": 2, "b": 1, "c": 1, "d": 0},
+                   {frozenset("ab"), frozenset("ac"), frozenset("cd")})
+Вывод: [("a", "d"), ("b", "c")]
+</code></pre></div>
+
+<p><strong>C2.</strong> <code>latency(graph, src)</code> — кратчайшие задержки от <code>src</code> (Дейкстра, рёбра направленные, мс) до всех
+достижимых узлов, по алфавиту.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  latency({"tg": {"nginx": 20}, "nginx": {"api1": 2, "api2": 5},
+                "api1": {"redis": 1, "pg": 4}, "api2": {"pg": 1},
+                "redis": {"pg": 1}}, "tg")
+Вывод: {"api1": 22, "api2": 25, "nginx": 20, "pg": 24, "redis": 23, "tg": 0}
+</code></pre></div>
+
+<p><strong>C3.</strong> <code>migration_order(revs)</code> — ревизии Alembic: ревизия → <code>down_revision</code> (<code>None</code> — первая). Порядок
+применения до head. Несколько корней или голов, ссылка на неизвестную ревизию, цикл — <code>ValueError</code>.
+Что делает <code>alembic merge</code>, когда у двух веток по голове?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  migration_order({"c3": "b2", "a1": None, "b2": "a1", "d4": "c3"})
+       migration_order({"a": None, "b": "a", "c": "a"})
+Вывод: ["a1", "b2", "c3", "d4"]
+       ValueError
+</code></pre></div>
+
+<p><strong>C4*.</strong> <code>diff_lines(a, b)</code> — построчный diff по наибольшей общей подпоследовательности: <code>"  x"</code> — общая,
+<code>"- x"</code> — удалена, <code>"+ x"</code> — добавлена; при выборе — сначала удаление.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  diff_lines(["a", "b", "c", "d"], ["a", "c", "x", "d"]), diff_lines(["x"], ["y"])
+Вывод: ["  a", "- b", "  c", "+ x", "  d"], ["- x", "+ y"]
+</code></pre></div>
+
+<h2>D. Релиз</h2>
+<p><strong>D1.</strong> <code>semver_sort(versions)</code> — сортировка по semver: <code>1.0.0-rc1 &lt; 1.0.0</code>; части пред-релиза через
+точку, числа меньше строк и сравниваются как числа. Можно с <code>v</code> впереди. Неверная версия — <code>ValueError</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  semver_sort(["1.0.0", "1.0.0-rc.10", "0.9.12", "1.0.0-rc.2", "1.0.1",
+                    "1.0.0-beta"])
+Вывод: ["0.9.12", "1.0.0-beta", "1.0.0-rc.2", "1.0.0-rc.10", "1.0.0", "1.0.1"]
+</code></pre></div>
+
+<p><strong>D2.</strong> Conventional commits: <code>next_version(current, commits)</code> — <code>feat!:</code> или <code>BREAKING CHANGE</code> →
+мажор (при <code>0.y</code> — минор), <code>feat</code> → минор, <code>fix</code> → патч, иначе — <code>current</code>; пред-релиз отбрасывается.
+<code>changelog(version, date, commits)</code> — <code>## версия — дата</code> и непустые <code>### Ломающее</code>, <code>### Новое</code>,
+<code>### Исправлено</code>, пункты <code>- scope: описание</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  cm = ["feat(hints): подсказки", "fix: рейтинг при ничьей",
+             "chore: обновить ruff"]
+       next_version("1.0.0-rc1", cm), next_version("1.2.3", ["feat!: новый протокол"])
+       print(changelog("1.1.0", "2027-05-20", cm))
+Вывод: "1.1.0", "2.0.0"
+       ## 1.1.0 — 2027-05-20
+       ### Новое
+       - hints: подсказки
+       ### Исправлено
+       - рейтинг при ничьей
+</code></pre></div>
+
+<p><strong>D3.</strong> <code>scan_secrets(text)</code> — проверка перед публикацией репозитория: <code>(номер строки, вид)</code>. Виды:
+<code>"telegram"</code> — токен бота (8–10 цифр, <code>:</code>, 35 символов <code>[A-Za-z0-9_-]</code>), <code>"private_key"</code> — PEM-ключ,
+<code>"dsn_password"</code> — пароль в URL базы (<code>user:пароль@</code>, кроме <code>$VAR</code>, <code>${VAR}</code>, <code>&lt;…&gt;</code>). Что делать,
+если секрет уже в истории git?</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  scan_secrets("TOKEN=1234567890:" + "A" * 35 + "\n"
+                    "DB=postgresql://game:hunter2@db/game\n"
+                    "DB=postgresql://game:${PW}@db/game")
+Вывод: [(1, "telegram"), (2, "dsn_password")]
+</code></pre></div>
+
+<h2>E. Проект и алгоритмы</h2>
+<p><strong>E1.</strong> Сценарий финального демо (лекция 28) по секундам и запасной план: покажите видео-демо и второй
+телефон, проверенные на прогоне.</p>
+<p><strong>E2.</strong> Отчёт команды о работе с агентами за год <code>docs/agents-report.md</code>: два примера, где агент помог,
+и два, где ошибся, со ссылками на PR.</p>
+<p><strong>E3.</strong> Тег <code>v1.0.0-rc1</code> на staging, CHANGELOG и README с быстрым стартом, проверенным на чистой
+машине (семинар 27).</p>
+<p><strong>E4 · босс.</strong> Турнир финала. За каждую часть свой плюс.</p>
+<p>а) <code>round_robin(players)</code> — круговой турнир «каруселью»: при нечётном числе добавить <code>"BYE"</code> (пары с ним
+не выводим). Тур — пары <code>(p[i], p[n−1−i])</code>; потом первый неподвижен, последний становится вторым.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  round_robin(["A", "B", "C", "D"])
+Вывод: [[("A", "D"), ("B", "C")], [("A", "C"), ("D", "B")], [("A", "B"), ("C", "D")]]
+</code></pre></div>
+
+<p>б) <code>standings(results)</code> — <code>(a, b, очки a)</code>. Победа — 3, ничья — 1. По убыванию очков; при равенстве — по
+очкам в личных встречах только между равными, затем по имени.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  R = [("A", "B", 1), ("C", "D", 0.5), ("A", "C", 0), ("B", "D", 1), ("A", "D", 1),
+            ("B", "C", 1)]
+       standings(R)
+Вывод: [("A", 6), ("B", 6), ("C", 4), ("D", 1)]
+</code></pre></div>
+
+<p>в) <code>elo_replay(start, results, k=32)</code> — прогнать результаты по порядку через A1, новичок — 1200. Ответ —
+по алфавиту.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  elo_replay({"A": 1300}, R)
+Вывод: {"A": 1302, "B": 1222, "C": 1204, "D": 1172}
+</code></pre></div>
+
+<p><strong>E5*.</strong> Подбор соперников. <code>window(wait) = 100 + 50 · ⌊wait / 10⌋</code> — допустимая разница рейтингов.
+<code>matchmake(events, horizon, tick=1)</code> — события <code>(время, игрок, рейтинг)</code>; каждый тик от 0 до <code>horizon</code>
+добавляем пришедших, перебираем ожидающих по времени прихода (затем по имени); свободному ищем
+свободного соперника с <code>|Δ| ≤ min(окон обоих)</code>, из подходящих — с наименьшей <code>|Δ|</code>, затем пришедшего
+раньше, затем по имени. Ответ — <code>(момент, первый, второй, |Δ|)</code>.</p>
+<div class="codehilite"><pre><span></span><code>Ввод:  matchmake([(0, "ann", 1500), (0, "bob", 1720), (2, "cid", 1580),
+                  (5, "dan", 1650), (12, "eve", 1500), (20, "fay", 1690)], 60)
+Вывод: [(2.0, "ann", "cid", 80), (5.0, "bob", "dan", 70), (40.0, "eve", "fay", 190)]
+</code></pre></div></body></html>
