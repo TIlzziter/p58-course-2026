@@ -1,19 +1,56 @@
 # Проект 58 · 9 класс · 2026–2027
 
+<!-- status -->
+> **Рабочая версия 1 (29.10.2026): план перерабатывается по итогам встреч менторов, часть решений на согласовании и может измениться.**
+<!-- /status -->
+
 Годовой курс школьной ИТ-программы «Проект 58» для 9 класса (8 учеников, 14–15 лет).
 За год команда с распределёнными ролями проектирует, пишет, тестирует, разворачивает и сопровождает
-**сайт с мультиплеерными браузерными играми, которые открываются из Telegram-ботов как Mini Apps**.
-Бэкенд на Python. ИИ-агент работает как участник команды: правила в `AGENTS.md`, spec-first,
-ревью агентом и человеком, измеримая оценка его работы.
+**один большой проект — библиотеку мультиплеерных браузерных игр** (идея из кикоффа).
+До Нового года — сайт со своим сервером учётных записей; после Нового года к готовым аккаунтам
+добавляется вход из Telegram-бота и Mini App. Бэкенд на Python.
 
 * 29 учебных недель: 26.10.2026 – 30.05.2027, зимние каникулы ~25.12–10.01.
 * Т1 — недели 1–5, Т2 — недели 6–16, Т3 — недели 17–29.
 * Каждая неделя: **лекция** (`l01`) и **семинар** (`l02`), по 3 академических часа. Всего 58 уроков + вводный урок 00.
-* Стек: Python 3.12, FastAPI, aiogram 3, WebSocket, PostgreSQL + SQLAlchemy 2 + Alembic, Redis, Docker, Nginx,
-  GitHub Actions, pytest; клиент игр — HTML/CSS/JS и `<canvas>`.
-* Роли: аналитика, бэкенд и боты, фронтенд, тестирование, DevOps, дизайн, R&D (по желанию).
+* Формат занятия: короткая презентационная часть + практические задания для самостоятельной работы на уроке
+  (раздел «Практика на уроке» в README урока).
+* Стек: Python 3.12, FastAPI, PostgreSQL + SQLAlchemy 2 + Alembic, WebSocket, Docker, Nginx, GitHub Actions, pytest;
+  клиент игр — HTML/CSS/JS и `<canvas>`; после Нового года — aiogram 3 (бот и Mini App), Redis.
+* Роли в проекте: фронтенд, бэкенд, игровая логика.
 
-Источник тем и последовательности — план занятий «Проект 58: план занятий на 2026–2027».
+## Рабочая версия 1: что изменилось
+
+Решено:
+
+* **Этап 0 — недели 1–9 (до конца декабря): весь код пишем руками.** Агент — только собеседник для объяснений
+  («что значит эта строка», «почему ошибка»), его код не вставляем. Это правило главнее раздела
+  «Если используете агента» в лабораторных.
+* Больше практики: в каждом уроке недель 1–9 — список практических заданий на уроке.
+* С урока 02 (30.10) семинар — «Консоль и Git руками»: задания и самопроверка —
+  [`lessons/w01-l02-team-setup/practice/console`](lessons/w01-l02-team-setup/practice/console/README.md).
+  Пока учебных ВМ нет — работаем на своём ноутбуке (macOS/Linux; Windows — WSL или Git Bash), запасной вариант —
+  GitHub Codespaces.
+* Один большой проект с ролями фронтенд / бэкенд / игровая логика вместо двух подкоманд по играм.
+* Инфраструктура до Нового года: GitHub-организация класса, Wiki, PostgreSQL, свой сервер учётных записей
+  (регистрация, хэш паролей, сессии — неделя 3). CI в GitHub Actions — неделя 8; Redis на неделе 8 — только лекция.
+* Неделя 5 — демо и срез Т1 + ручной мини-зачёт; неделя 9 — декабрьский ручной зачёт и ретро.
+* После Нового года (недели 10–11): Telegram-бот и Mini App как вход к готовым аккаунтам, лобби и матчмейкинг.
+
+На согласовании (может измениться):
+
+* что агенту можно после декабря (вариант: агент-консультант — объясняет и ревьюит, код не вставляем,
+  ученик защищает каждую строку; генерация кода в Т3 — по итогам декабря). Колонка «Агентная разработка»
+  недель 10–29 пока оставлена из прежней версии плана;
+* сквозные роли (аналитик, тестировщик, девопс) с ротацией;
+* какую неделю после Нового года освободить под перенос лобби и бота: убрать R&D Pyodide на неделе 12
+  или сжать недели 13–14.
+
+Презентации уроков пока остались прежними: если тема или задания в README урока расходятся с презентацией,
+действует README урока.
+
+Источник тем и последовательности — план занятий «Проект 58: план занятий на 2026–2027», переработанный
+по итогам встреч менторов 27.10 и 29.10.2026.
 Сводка — в [`tools/syllabus.py`](tools/syllabus.py); из него генерируются таблица ниже и README уроков.
 
 ## Структура репозитория
@@ -24,6 +61,7 @@ lessons/
   wNN-l01-<тема>/              лекция недели NN: README.md, lecture.deck → lecture.html
   wNN-l02-<тема>/              семинар недели NN: README.md, seminar.deck → seminar.html
       labs/labXX-<slug>/       лабораторная (если есть): условие, стартовый код, тесты, check.py
+      practice/<тема>/         практика на уроке без эталона (например, консоль на уроке 02)
 contests/cNN-<тема>/           листы контестов: sheet.md (исходник) → sheet.html, sheet.pdf
 solutions/
   labs/labXX-<slug>/           эталонные решения лабораторных (накладываются поверх стартового кода)
@@ -40,28 +78,28 @@ tools/                         сборка презентаций, листов
 | Нед. | Даты | Урок | Тема | Лабораторная | Контест |
 |---|---|---|---|---|---|
 | 1 | 26.10–01.11 | [01 · Лекция](lessons/w01-l01-kickoff/README.md) | Кикофф: игры из Telegram, роли, Git-процесс |  |  |
-| 1 | 26.10–01.11 | [02 · Семинар](lessons/w01-l02-team-setup/README.md) | Семинар: идея, подкоманды, монорепо, доска задач, AGENTS.md | [lab01](lessons/w01-l02-team-setup/labs/lab01-git-flow/README.md) |  |
-| 2 | 02.11–08.11 | [03 · Лекция](lessons/w02-l01-spec-first/README.md) | Spec-first: user story, критерии приёмки, протокол; архитектура бот → Mini App → FastAPI |  |  |
-| 2 | 02.11–08.11 | [04 · Семинар](lessons/w02-l02-bot-and-api/README.md) | Семинар: спека игры 1, бот на aiogram 3 с кнопкой WebApp, каркас FastAPI | [lab02](lessons/w02-l02-bot-and-api/labs/lab02-api-by-spec/README.md) | [c01](contests/c01-python-git-specs/sheet.pdf) |
-| 3 | 09.11–15.11 | [05 · Лекция](lessons/w03-l01-mini-apps/README.md) | Telegram Mini Apps: initData и HMAC; HTML/CSS/JS и canvas | [lab03](lessons/w03-l01-mini-apps/labs/lab03-init-data/README.md) |  |
+| 1 | 26.10–01.11 | [02 · Семинар](lessons/w01-l02-team-setup/README.md) | Семинар: Консоль и Git руками | [lab01](lessons/w01-l02-team-setup/labs/lab01-git-flow/README.md) |  |
+| 2 | 02.11–08.11 | [03 · Лекция](lessons/w02-l01-spec-first/README.md) | Spec-first: user story, критерии приёмки, протокол API; архитектура проекта |  |  |
+| 2 | 02.11–08.11 | [04 · Семинар](lessons/w02-l02-bot-and-api/README.md) | Семинар: спека игры 1, контракт API между ролями, каркас FastAPI руками | [lab02](lessons/w02-l02-bot-and-api/labs/lab02-api-by-spec/README.md) | [c01](contests/c01-python-git-specs/sheet.pdf) |
+| 3 | 09.11–15.11 | [05 · Лекция](lessons/w03-l01-mini-apps/README.md) | Сервер учётных записей v0: регистрация, хэш паролей, сессии; подпись данных HMAC; canvas | [lab03](lessons/w03-l01-mini-apps/labs/lab03-init-data/README.md) |  |
 | 3 | 09.11–15.11 | [06 · Семинар](lessons/w03-l02-game-logic/README.md) | Семинар: логика «4 в ряд» на сервере, pytest, отрисовка на canvas | [lab04](lessons/w03-l02-game-logic/labs/lab04-connect-four/README.md) |  |
 | 4 | 16.11–22.11 | [07 · Лекция](lessons/w04-l01-docker-nginx/README.md) | Docker и docker compose; Nginx как reverse proxy, домен, HTTPS |  |  |
 | 4 | 16.11–22.11 | [08 · Семинар](lessons/w04-l02-deploy-mvp/README.md) | Семинар: деплой MVP на VPS, чек-лист DevOps, репетиция демо | [lab05](lessons/w04-l02-deploy-mvp/labs/lab05-docker-review/README.md) | [c02](contests/c02-grids-games-signatures/sheet.pdf) |
-| 5 | 23.11–29.11 | [09 · Лекция](lessons/w05-l01-review-t1/README.md) | Повторение к срезу Т1, ретро триместра |  |  |
+| 5 | 23.11–29.11 | [09 · Лекция](lessons/w05-l01-review-t1/README.md) | Повторение к срезу Т1, ручной мини-зачёт, ретро триместра |  |  |
 | 5 | 23.11–29.11 | [10 · Семинар](lessons/w05-l02-demo-t1/README.md) | Демо Т1 для родителей и администрации; срез Т1 |  |  |
 | 6 | 30.11–06.12 | [11 · Лекция](lessons/w06-l01-websocket-asyncio/README.md) | WebSocket в FastAPI, asyncio; комнаты и протокол сообщений |  |  |
 | 6 | 30.11–06.12 | [12 · Семинар](lessons/w06-l02-multiplayer-rooms/README.md) | Семинар: мультиплеер игры 1, комната на 2 игрока, сервер — источник истины | [lab06](lessons/w06-l02-multiplayer-rooms/labs/lab06-ws-rooms/README.md) | [c03](contests/c03-asyncio-protocols/sheet.pdf) |
 | 7 | 07.12–13.12 | [13 · Лекция](lessons/w07-l01-postgres-sqlalchemy/README.md) | PostgreSQL вместо SQLite: SQLAlchemy 2 (async), миграции Alembic |  |  |
-| 7 | 07.12–13.12 | [14 · Семинар](lessons/w07-l02-db-rating/README.md) | Семинар: таблицы игроков, матчей и рейтинга; история партий | [lab07](lessons/w07-l02-db-rating/labs/lab07-sqlalchemy-rating/README.md) |  |
-| 8 | 14.12–20.12 | [15 · Лекция](lessons/w08-l01-redis/README.md) | Redis: сессии, комнаты, TTL, pub/sub; несколько копий приложения |  |  |
-| 8 | 14.12–20.12 | [16 · Семинар](lessons/w08-l02-lobby-matchmaking/README.md) | Семинар: лобби, очередь матчмейкинга, приглашение другу ссылкой из бота | [lab08](lessons/w08-l02-lobby-matchmaking/labs/lab08-redis-matchmaking/README.md) | [c04](contests/c04-databases-cache/sheet.pdf) |
-| 9 | 21.12–24.12 | [17 · Лекция](lessons/w09-l01-ci-github-actions/README.md) | CI в GitHub Actions: ruff, pytest, сборка образа | [lab09](lessons/w09-l01-ci-github-actions/labs/lab09-ci-pipeline/README.md) |  |
-| 9 | 21.12–24.12 | [18 · Семинар](lessons/w09-l02-pr-review-retro/README.md) | Семинар: CI на каждый PR, кейсы PROD, ревью агент + человек, ретро полугодия |  |  |
+| 7 | 07.12–13.12 | [14 · Семинар](lessons/w07-l02-db-rating/README.md) | Семинар: аккаунты, партии и рейтинг в PostgreSQL; история партий | [lab07](lessons/w07-l02-db-rating/labs/lab07-sqlalchemy-rating/README.md) |  |
+| 8 | 14.12–20.12 | [15 · Лекция](lessons/w08-l01-redis/README.md) | Redis: сессии, TTL, pub/sub — обзорная лекция (лобби и матчмейкинг — после Нового года) |  |  |
+| 8 | 14.12–20.12 | [16 · Семинар](lessons/w08-l02-lobby-matchmaking/README.md) | Семинар: CI в GitHub Actions руками — ruff и pytest на каждый PR (лобби — после Нового года) | [lab08](lessons/w08-l02-lobby-matchmaking/labs/lab08-redis-matchmaking/README.md) | [c04](contests/c04-databases-cache/sheet.pdf) |
+| 9 | 21.12–24.12 | [17 · Лекция](lessons/w09-l01-ci-github-actions/README.md) | CI: сборка образа; повторение к декабрьскому ручному зачёту | [lab09](lessons/w09-l01-ci-github-actions/labs/lab09-ci-pipeline/README.md) |  |
+| 9 | 21.12–24.12 | [18 · Семинар](lessons/w09-l02-pr-review-retro/README.md) | Семинар: декабрьский ручной зачёт, ревью PR, ретро полугодия |  |  |
 | — | 25.12–10.01 | — | **Зимние каникулы** (ориентировочно); по желанию — QuestHub | — | — |
 | 10 | 11.01–17.01 | [19 · Лекция](lessons/w10-l01-cd-deploy/README.md) | CD: автодеплой на VPS после merge, секреты, staging и prod | [lab10](lessons/w10-l01-cd-deploy/labs/lab10-secret-scanner/README.md) |  |
-| 10 | 11.01–17.01 | [20 · Семинар](lessons/w10-l02-deploy-pipeline/README.md) | Семинар: пайплайн деплоя, правила про секреты в AGENTS.md |  | [c05](contests/c05-pipelines-secrets/sheet.pdf) |
+| 10 | 11.01–17.01 | [20 · Семинар](lessons/w10-l02-deploy-pipeline/README.md) | Семинар: пайплайн деплоя; Telegram-бот и Mini App как вход к готовым аккаунтам |  | [c05](contests/c05-pipelines-secrets/sheet.pdf) |
 | 11 | 18.01–24.01 | [21 · Лекция](lessons/w11-l01-game-algorithms/README.md) | Алгоритмы игры 2: игровой цикл, конечный автомат, честный рандом, коллизии | [lab11](lessons/w11-l01-game-algorithms/labs/lab11-snake-engine/README.md) |  |
-| 11 | 18.01–24.01 | [22 · Семинар](lessons/w11-l02-game2-spec/README.md) | Семинар: спека и серверная логика игры 2, тесты по таблице правил |  |  |
+| 11 | 18.01–24.01 | [22 · Семинар](lessons/w11-l02-game2-spec/README.md) | Семинар: спека и серверная логика игры 2; лобби и матчмейкинг (перенос с недели 8) |  |  |
 | 12 | 25.01–31.01 | [23 · Лекция](lessons/w12-l01-game-frontend/README.md) | Фронтенд игр: requestAnimationFrame, интерполяция, тема Telegram, мобильная вёрстка; Pyodide |  |  |
 | 12 | 25.01–31.01 | [24 · Семинар](lessons/w12-l02-game2-client/README.md) | Семинар: клиент игры 2, UI-кит, R&D-прототип на Pyodide | [lab12](lessons/w12-l02-game2-client/labs/lab12-interpolation/README.md) | [c06](contests/c06-game-loop-random/sheet.pdf) |
 | 13 | 01.02–07.02 | [25 · Лекция](lessons/w13-l01-testing/README.md) | Тестирование: pytest-asyncio, тесты WebSocket, тестовая БД, смоук e2e | [lab13](lessons/w13-l01-testing/labs/lab13-mutation-tests/README.md) |  |
