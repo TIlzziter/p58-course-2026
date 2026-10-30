@@ -20,7 +20,7 @@
 
 ```bash
 mkdir -p ~/p58-console && cd ~/p58-console
-git clone https://github.com/TIlzziter/p58-course-2026.git
+git clone https://github.com/school58-project/p58-course-labs.git
 ```
 
 Клон нужен уже в задании 3; остальную работу с Git делаем в задании 6.
@@ -40,7 +40,7 @@ p58-console/                рабочая папка (имя любое)
 │   └── todo.txt            задание 3
 ├── hello.sh                задание 4
 ├── env.txt                 задание 5
-├── p58-course-2026/        клон курса, своя ветка и about-<ник>.md (задание 6)
+├── p58-course-labs/        клон курса, своя ветка и about-<ник>.md (задание 6)
 └── .venv/                  задание 7
 ```
 
@@ -56,7 +56,7 @@ p58-console/                рабочая папка (имя любое)
 **3. Потоки.** Найдите все TODO в файлах лабораторной 01 и запишите их в файл, а в конце — их количество:
 
 ```bash
-LAB=p58-course-2026/lessons/w01-l02-team-setup/labs/lab01-git-flow
+LAB=p58-course-labs/lessons/w01-l02-team-setup/labs/lab01-git-flow
 grep -rn TODO "$LAB" > sandbox/todo.txt
 grep -rn TODO "$LAB" | wc -l >> sandbox/todo.txt
 ```
@@ -77,7 +77,7 @@ echo "P58_NICK=$P58_NICK" >> env.txt
 history | tail -n 5 >> env.txt
 ```
 
-**6. Git.** Внутри `p58-course-2026/`:
+**6. Git.** Внутри `p58-course-labs/`:
 
 ```bash
 git config --global user.name "<ник>"
@@ -95,8 +95,8 @@ git switch -c about/<ник>
 ```bash
 python -m venv .venv
 source .venv/bin/activate           # Windows (Git Bash): source .venv/Scripts/activate
-python -m pip install -r p58-course-2026/requirements.txt
-cd p58-course-2026/lessons/w01-l02-team-setup/labs/lab01-git-flow
+python -m pip install -r p58-course-labs/requirements.txt
+cd p58-course-labs/lessons/w01-l02-team-setup/labs/lab01-git-flow
 python check.py                     # таблица задач лабы: пока почти все НЕТ — это нормально
 ```
 
@@ -106,7 +106,7 @@ python check.py                     # таблица задач лабы: пок
 ## Самопроверка и сдача
 
 ```bash
-python p58-course-2026/lessons/w01-l02-team-setup/practice/console/check_console.py ~/p58-console
+python p58-course-labs/lessons/w01-l02-team-setup/practice/console/check_console.py ~/p58-console
 ```
 
 Скрипт печатает по каждому заданию `OK` или `НЕТ` с подсказкой, чего не хватает (задание 8 — бонус, `—` не ошибка).

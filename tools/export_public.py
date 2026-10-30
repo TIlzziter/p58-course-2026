@@ -142,6 +142,9 @@ def plan_files(w1: int, w2: int) -> list[str]:
 SOLUTION_CLAUSE = re.compile(r"\s*[;,]\s*(?:эталон|решения)\s*—\s*`?solutions/[^`\s]*`?", re.IGNORECASE)
 
 
+RATING_ITEM = re.compile(r"^\* [^\n]*\]\((?:\.\./)*rating/[^\n]*\n(?:[ \t]+[^\n]*\n)*", re.MULTILINE)
+
+
 def clean_markdown(text: str, removed: list[str]) -> str:
     """Убрать из markdown упоминания решений, заметки преподавателю и ссылки на не выгружаемые документы.
 
@@ -151,6 +154,9 @@ def clean_markdown(text: str, removed: list[str]) -> str:
     # Раздел «Заметки преподавателю» (из notes.md) — до конца файла или следующего заголовка ##.
     text = re.sub(r"^## Заметки преподавателю\n.*?(?=^## |\Z)",
                   lambda m: removed.append("раздел «Заметки преподавателю»") or "", text, flags=re.DOTALL | re.MULTILINE)
+    # Пункт списка со ссылками на rating/ (таблица рейтинга не выгружается) — заменяем одной строкой.
+    text = RATING_ITEM.sub(lambda m: removed.append("пункт со ссылкой на rating/ → «рейтинг ведёт ментор»")
+                           or "* Рейтинг ведёт ментор.\n", text)
     out = []
     for line in text.split("\n"):
         new = SOLUTION_CLAUSE.sub("", line)

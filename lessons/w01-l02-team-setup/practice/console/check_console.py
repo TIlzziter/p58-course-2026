@@ -95,7 +95,7 @@ def t5_env(w: Path) -> tuple[bool, str]:
 
 
 def find_repo(w: Path) -> Path | None:
-    preferred = w / "p58-course-2026"
+    preferred = w / "p58-course-labs"
     if (preferred / ".git").exists():
         return preferred
     for d in sorted(w.iterdir()):
