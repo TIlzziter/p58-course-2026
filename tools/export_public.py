@@ -178,16 +178,18 @@ def clean_markdown(text: str, removed: list[str]) -> str:
 
 def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> str:
     name = repo.split("/")[-1]
-    rows = ["| Нед. | Даты | Урок | Тема | Лабораторная | Контест |", "|---|---|---|---|---|---|"]
+    rows = [f"Уроки по вторникам и пятницам, {S.LESSON_TIME}. ДЗ урока сдаётся до начала следующего урока.", "",
+            "| Нед. | Дата | Урок | Тема | ДЗ до | Лабораторная | Контест |", "|---|---|---|---|---|---|---|"]
     w00 = sorted((ROOT / "lessons").glob("w00-*"))
     for d in w00:
-        rows.append(f"| 0 | до курса | [00 · Вводный](lessons/{d.name}/README.md) | Как работает сеть (повторение) | | |")
+        rows.append(f"| 0 | до курса | [00 · Вводный](lessons/{d.name}/README.md) | Как работает сеть (повторение) | | | |")
     for w, l in select_lessons(w1, w2):
         link = f"[{l.num:02d} · {l.kind}](lessons/{l.dir}/README.md)"
         lab = f"[{l.lab.split('-')[0]}](lessons/{l.dir}/labs/{l.lab}/README.md)" if l.lab else ""
         c = contest_dir(l.contest) if l.contest else None
         contest = f"[{l.contest}](contests/{c.name}/sheet.pdf)" if c else ""
-        rows.append(f"| {w.n} | {w.dates} | {link} | {l.title} | {lab} | {contest} |")
+        due = S.fmt_day(l.due) if l.due else "—"
+        rows.append(f"| {w.n} | {S.fmt_day(l.date)} | {link} | {l.title} | {due} | {lab} | {contest} |")
     weeks = f"неделя {w1}" if w1 == w2 else f"недели {w1}–{w2}"
     return f"""# Проект 58 · 9 класс · материалы для учеников
 

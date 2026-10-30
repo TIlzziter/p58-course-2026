@@ -27,6 +27,7 @@ def lesson_readme(w: S.Week, l: S.Lesson) -> str:
     lines = [f"# Урок {l.num:02d}. {l.title}", "",
              f"> {S.WORKING_VERSION}", "",
              f"**Неделя {w.n}** ({w.dates}) · {S.TRIMESTERS[w.tri]} · {l.kind} · 3 академических часа", "",
+             f"**Дата:** {S.fmt_full(l.date)}", "",
              "## Цели", ""]
     lines += [f"- {g}" for g in l.goals]
     if l.practice:
@@ -59,6 +60,9 @@ def lesson_readme(w: S.Week, l: S.Lesson) -> str:
     if w.n <= S.STAGE0_LAST_WEEK and l.lab:
         lines += ["", S.STAGE0_LAB_NOTE]
     lines += ["", "## Домашнее задание", "", l.homework, ""]
+    if l.due:
+        start = S.LESSON_TIME.split("–")[0]
+        lines += [f"**Срок:** до начала урока {l.num + 1:02d} — {S.fmt_day(l.due)}.{l.due:%Y}, {start} МСК.", ""]
     lines += [f"**Результат недели по плану:** {w.result}", ""]
     notes = d / "notes.md"
     if notes.exists():
@@ -66,17 +70,31 @@ def lesson_readme(w: S.Week, l: S.Lesson) -> str:
     return "\n".join(lines)
 
 
+def break_rows(prev, cur) -> list[str]:
+    """Строки «каникулы» для перерывов из S.BREAKS, которые попали между уроками prev и cur."""
+    rows = []
+    for a, b, title in S.BREAKS:
+        if (prev is None or prev.date < a) and a <= cur.date:
+            name, _, rest = title.partition(" (")
+            rows.append(f"| — | {a:%d.%m}–{b:%d.%m} | — | **{name}** ({rest} | — | — | — |")
+    return rows
+
+
 def schedule_table() -> str:
-    rows = ["| Нед. | Даты | Урок | Тема | Лабораторная | Контест |", "|---|---|---|---|---|---|"]
+    rows = [(f"Уроки по вторникам и пятницам, {S.LESSON_TIME}; первый урок — {S.fmt_day(S.FIRST_LESSON)}."
+             f"{S.FIRST_LESSON:%Y}. ДЗ урока сдаётся до начала следующего урока."), "",
+            "| Нед. | Дата | Урок | Тема | ДЗ до | Лабораторная | Контест |", "|---|---|---|---|---|---|---|"]
+    prev = None
     for w in S.W:
-        if w.n == 10:
-            rows.append("| — | 25.12–10.01 | — | **Зимние каникулы** (ориентировочно); по желанию — QuestHub | — | — |")
         for l in w.lessons:
+            rows += break_rows(prev, l)
+            prev = l
             link = f"[{l.num:02d} · {l.kind}](lessons/{l.dir}/README.md)"
             lab = f"[{l.lab.split('-')[0]}](lessons/{l.dir}/labs/{l.lab}/README.md)" if l.lab else ""
             c = contest_dir(l.contest) if l.contest else None
             contest = f"[{l.contest}](contests/{c.name}/sheet.pdf)" if c else (l.contest or "")
-            rows.append(f"| {w.n} | {w.dates} | {link} | {l.title} | {lab} | {contest} |")
+            due = S.fmt_day(l.due) if l.due else "—"
+            rows.append(f"| {w.n} | {S.fmt_day(l.date)} | {link} | {l.title} | {due} | {lab} | {contest} |")
     return "\n".join(rows)
 
 
