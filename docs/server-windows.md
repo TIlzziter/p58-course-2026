@@ -230,24 +230,31 @@ ssh p58
    «Keep my email addresses private» и возьмите оттуда адрес вида `...@users.noreply.github.com`.
    Проверить: `git config --global --list` — должны быть строки `user.name=...` и `user.email=...`.
 
-## 6. Сдача домашки: fork → ветка → pull request
+## 6. Сдача домашки: своя ветка и pull request
 
-Материалы курса лежат в репе https://github.com/school58-project/p58-course-labs.
+Материалы курса лежат в репе https://github.com/school58-project/p58-course-labs. Работаем все **в ней**,
+каждый в своей ветке `<ваш-ник>/<лаба>` (ник — ваш ник на GitHub), сдаём через pull request в `main`.
+Преподаватель добавит вас в репу: на почту от GitHub придёт приглашение — примите его
+(без этого `git push` ответит `Permission denied` или `403`).
+
+Правила общей репы:
+
+* в `main` не коммитим и не пушим — она защищена, GitHub такой push отклонит;
+* чужие ветки не трогаем (не пушим в них, не удаляем);
+* одна ветка и один PR на лабораторную.
 
 **Один раз:**
 
-1. Откройте эту страницу на GitHub и нажмите **Fork** → **Create fork**. Получится ваша копия
-   `https://github.com/<ваш-ник>/p58-course-labs`.
-2. На сервере склонируйте **свой** fork и подключите основную репу курса под именем `upstream`:
+1. На сервере склонируйте репу курса:
 
    ```bash
    cd ~
-   git clone git@github.com:<ваш-ник>/p58-course-labs.git
+   git clone git@github.com:school58-project/p58-course-labs.git
    cd p58-course-labs
-   git remote add upstream https://github.com/school58-project/p58-course-labs.git
    ```
 
-3. Окружение Python (около минуты, нужно один раз):
+   Проверить: `git remote -v` показывает `origin  git@github.com:school58-project/p58-course-labs.git`.
+2. Окружение Python (около минуты, нужно один раз):
 
    ```bash
    python3 -m venv .venv
@@ -260,18 +267,17 @@ ssh p58
 
 **Каждая домашка:**
 
-1. Обновите fork свежими материалами:
+1. Возьмите свежие материалы:
 
    ```bash
    git switch main
-   git pull upstream main
-   git push origin main
+   git pull origin main
    ```
 
-2. Создайте ветку, например для лабораторной 01:
+2. Создайте свою ветку, например для лабораторной 01:
 
    ```bash
-   git switch -c feature/1-lab01
+   git switch -c <ваш-ник>/lab01
    ```
 
 3. Решайте и проверяйте:
@@ -282,20 +288,22 @@ ssh p58
    python check.py          # таблица задач: OK / НЕТ
    ```
 
-4. Сохраните работу в коммит (сообщение — `область: что сделано`):
+4. Сохраните работу в коммит (сообщение — `область: что сделано`, на каждую задачу — свой коммит):
 
    ```bash
    git add gitflow.py
    git commit -m "ci: slugify — буквы ё, й, щ"
-   git push -u origin feature/1-lab01
+   git push -u origin <ваш-ник>/lab01
    ```
 
-5. Откройте pull request: `git push` напечатает ссылку `https://github.com/<ваш-ник>/p58-course-labs/pull/new/...`
-   — откройте её в браузере (или зайдите на страницу своего fork и нажмите **Compare & pull request**).
-   Проверьте, что сверху написано `base repository: school58-project/p58-course-labs`, `base: main`,
-   а справа — ваш fork и ваша ветка. В описании — разделы `## Что сделано`, `## Как проверить`,
+5. Откройте pull request: `git push` напечатает ссылку
+   `https://github.com/school58-project/p58-course-labs/pull/new/<ваш-ник>/lab01` — откройте её в браузере
+   (или на странице репы нажмите **Compare & pull request**). Проверьте, что сверху `base: main`,
+   а `compare:` — ваша ветка. В описании — разделы `## Что сделано`, `## Как проверить`,
    `## Что сгенерировал агент`. Нажмите **Create pull request**.
 6. Нашли ошибку после отправки? Исправьте, сделайте ещё коммит и `git push` в ту же ветку — PR обновится сам.
+7. Пока вы работали, в `main` появились новые материалы? Подтяните их в свою ветку:
+   `git switch <ваш-ник>/lab01 && git pull origin main` (git сделает merge-коммит — это нормально).
 
 Тесты в папке `tests/` не меняйте: преподаватель проверяет вашу работу своими тестами.
 Не добавляйте в репу пароли, токены, ключи и файлы `.env`.
@@ -315,7 +323,14 @@ Caps Lock и что логин без опечаток. После нескол�
 
 **`Permission denied (publickey)` при `ssh -T git@github.com` или `git push`.** GitHub не знает ключ сервера:
 повторите шаг 5, пункты 3–4 (ключ добавлен в ваш аккаунт? скопирована вся строка?). Если клонировали по `https://...`,
-поменяйте адрес: `git remote set-url origin git@github.com:<ваш-ник>/p58-course-labs.git`.
+поменяйте адрес: `git remote set-url origin git@github.com:school58-project/p58-course-labs.git`.
+
+**`git push` в `main`: `protected branch` / `GH006`.** В `main` пушить нельзя. Сделайте свою ветку и пушьте её:
+`git switch -c <ваш-ник>/lab01 && git push -u origin <ваш-ник>/lab01`.
+
+**`Permission to school58-project/p58-course-labs.git denied` / `ERROR: Repository not found` при `git push`.**
+Вас ещё не добавили в репу или вы не приняли приглашение (письмо от GitHub или
+https://github.com/school58-project/p58-course-labs/invitations). Напишите преподавателю.
 
 **`WARNING: UNPROTECTED PRIVATE KEY FILE!` / `Permissions 0640 ... are too open`.** Закрытый ключ на сервере
 могут читать другие, и SSH его не использует. Выполните на сервере `chmod 600 ~/.ssh/id_ed25519`.
@@ -343,4 +358,5 @@ SSH закрыт — попробуйте другую сеть или моби�
 Поэтому на сервере тоже не храните пароли и личные данные.
 
 Преподаватели проходят те же шаги 1–6 со своим логином. Посмотреть работу ученика:
-`ls /home/<логин-ученика>/p58-course-labs`, а прогнать проверку — в своём клоне по ветке из его PR.
+`ls /home/<логин-ученика>/p58-course-labs`, а прогнать проверку — в своём клоне:
+`git fetch origin && git switch <ник-ученика>/lab01`.
