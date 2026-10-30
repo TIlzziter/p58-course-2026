@@ -9,6 +9,9 @@
 
 Команды из рамок можно копировать: выделите, `Ctrl+C`, в окне терминала — `Ctrl+V` или правая кнопка мыши.
 
+Эта инструкция — **шаг 0 лабораторной 01**: в [README лабораторной](../lessons/w01-l02-team-setup/labs/lab01-git-flow/README.md)
+по порядку перечислено, что сделать и как проверить. Разделы 1–5 делаются один раз, раздел 6 — каждую домашку.
+
 ## 0. Где набирать команды
 
 Нажмите `Win+X` и выберите **«Терминал»** (Windows 11) или **«Windows PowerShell»** (Windows 10).
@@ -153,26 +156,68 @@ ssh p58
    ssh-keygen -t ed25519 -C "<логин>@p58-course"
    ```
 
-   На все вопросы — Enter.
-2. Покажите открытый ключ:
+   Будет три вопроса — на все просто Enter (фразу-пароль для ключа на сервере оставляем пустой):
+
+   ```
+   Generating public/private ed25519 key pair.
+   Enter file in which to save the key (/home/<логин>/.ssh/id_ed25519):
+   Enter passphrase (empty for no passphrase):
+   Enter same passphrase again:
+   Your identification has been saved in /home/<логин>/.ssh/id_ed25519
+   Your public key has been saved in /home/<логин>/.ssh/id_ed25519.pub
+   The key fingerprint is:
+   SHA256:... <логин>@p58-course
+   ```
+
+   Дальше нарисуется картинка из символов (`randomart`) — её никуда копировать не нужно.
+   Если спрашивает `/home/<логин>/.ssh/id_ed25519 already exists. Overwrite (y/n)?` — ответьте `n`:
+   ключ на сервере уже есть, переходите к следующему пункту.
+2. Закройте закрытый ключ от всех, кроме себя (на сервере обязательно, иначе ключ не сработает):
+
+   ```bash
+   chmod 600 ~/.ssh/id_ed25519
+   ls -l ~/.ssh/id_ed25519
+   ```
+
+   В начале строки должно быть `-rw-------` (ровно так, без `r` в середине).
+3. Покажите открытый ключ:
 
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
 
-   Выделите мышью всю строку (начинается с `ssh-ed25519`, заканчивается `<логин>@p58-course`)
+   Напечатается одна строка вида `ssh-ed25519 AAAAC3Nza... <логин>@p58-course`.
+   Выделите мышью всю строку (от `ssh-ed25519` до `<логин>@p58-course`)
    и скопируйте: `Ctrl+Shift+C` или правая кнопка мыши в окне терминала.
-3. На GitHub: аватарка справа вверху → **Settings** → **SSH and GPG keys** → **New SSH key**.
+   Показывать и копировать можно только файл с `.pub` на конце.
+4. На GitHub: аватарка справа вверху → **Settings** → **SSH and GPG keys** → **New SSH key**.
    Title — например `p58-course`, Key type — `Authentication Key`, в поле Key вставьте строку → **Add SSH key**.
-4. Проверьте на сервере:
+5. Проверьте на сервере:
 
    ```bash
    ssh -T git@github.com
    ```
 
-   На вопрос `Are you sure you want to continue connecting` — `yes`. Ответ
-   `Hi <ваш-ник>! You've successfully authenticated, but GitHub does not provide shell access.` — всё готово.
-5. Представьтесь git (один раз):
+   При самом первом подключении к GitHub спросят, доверять ли ему:
+
+   ```
+   The authenticity of host 'github.com (...)' can't be established.
+   ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+   Are you sure you want to continue connecting (yes/no/[fingerprint])?
+   ```
+
+   Отпечаток должен совпасть с этим (так он опубликован на GitHub) — напечатайте `yes`.
+   Появится `Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.` — это нормально.
+
+   **Как понять, что получилось:**
+
+   * `Hi <ваш-ник>! You've successfully authenticated, but GitHub does not provide shell access.` —
+     всё готово. Слова «does not provide shell access» — не ошибка, так GitHub отвечает всегда.
+   * `git@github.com: Permission denied (publickey).` — GitHub ещё не знает этот ключ.
+     Так и будет, если пункт 4 пропущен или ключ скопирован не целиком. Повторите пункты 3–4.
+   * `WARNING: UNPROTECTED PRIVATE KEY FILE!` и `Permissions 0640 ... are too open` — пропущен пункт 2:
+     выполните `chmod 600 ~/.ssh/id_ed25519` и проверьте ещё раз.
+6. Представьтесь git (один раз):
 
    ```bash
    git config --global user.name "<ваш-ник>"
@@ -181,6 +226,7 @@ ssh p58
 
    Чтобы не светить настоящую почту: на GitHub в **Settings → Emails** включите
    «Keep my email addresses private» и возьмите оттуда адрес вида `...@users.noreply.github.com`.
+   Проверить: `git config --global --list` — должны быть строки `user.name=...` и `user.email=...`.
 
 ## 6. Сдача домашки: fork → ветка → pull request
 
@@ -266,8 +312,11 @@ Caps Lock и что логин без опечаток. После нескол�
 с вашего адреса — подождите 10–15 минут. Пароль забыли — к преподавателю.
 
 **`Permission denied (publickey)` при `ssh -T git@github.com` или `git push`.** GitHub не знает ключ сервера:
-повторите шаг 5 (ключ добавлен в ваш аккаунт? скопирована вся строка?). Если клонировали по `https://...`,
+повторите шаг 5, пункты 3–4 (ключ добавлен в ваш аккаунт? скопирована вся строка?). Если клонировали по `https://...`,
 поменяйте адрес: `git remote set-url origin git@github.com:<ваш-ник>/p58-course-labs.git`.
+
+**`WARNING: UNPROTECTED PRIVATE KEY FILE!` / `Permissions 0640 ... are too open`.** Закрытый ключ на сервере
+могут читать другие, и SSH его не использует. Выполните на сервере `chmod 600 ~/.ssh/id_ed25519`.
 
 **`WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`** Компьютер помнит старый «отпечаток» сервера
 (например, сервер переустановили). Сначала спросите преподавателя, ожидаемо ли это. Если да — удалите
@@ -284,3 +333,12 @@ ssh-keygen -R <адрес>
 SSH закрыт — попробуйте другую сеть или мобильный интернет.
 
 **Программа «зависла».** Остановить — `Ctrl+C`. Сервер общий: не оставляйте тяжёлые программы работать надолго.
+
+## 8. Кто видит ваши файлы на сервере
+
+Преподаватели курса могут **читать** файлы в вашей домашней папке (например, `~/p58-course-labs`), чтобы помочь
+с ошибкой. Менять их они не могут, папка `~/.ssh` с ключами закрыта. Другие ученики ваши файлы не видят.
+Поэтому на сервере тоже не храните пароли и личные данные.
+
+Преподаватели проходят те же шаги 1–6 со своим логином. Посмотреть работу ученика:
+`ls /home/<логин-ученика>/p58-course-labs`, а прогнать проверку — в своём клоне по ветке из его PR.

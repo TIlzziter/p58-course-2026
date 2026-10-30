@@ -202,9 +202,17 @@ def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> st
 
 ## Как начать
 
-Нужны Git и Python 3.12 или новее (macOS/Linux; на Windows — WSL или Git Bash).
-Можно работать на учебном сервере курса: вход с Windows, SSH-ключ и сдача — в
-[`docs/server-windows.md`](docs/server-windows.md).
+Работаем на **учебном сервере курса** (логин и адрес выдаёт преподаватель). Начните с
+[лабораторной 01](lessons/w01-l02-team-setup/labs/lab01-git-flow/README.md): там по шагам — вход на сервер
+и SSH-ключ (шаг 0), fork, клон, решение, `check.py`, коммиты и pull request.
+Подробная инструкция для Windows — [`docs/server-windows.md`](docs/server-windows.md):
+[первый вход](docs/server-windows.md#1-первый-вход-и-смена-пароля),
+[SSH-ключ](docs/server-windows.md#2-создать-ssh-ключ-на-своём-компьютере),
+[GitHub на сервере](docs/server-windows.md#5-подключить-github-на-сервере),
+[сдача через PR](docs/server-windows.md#6-сдача-домашки-fork--ветка--pull-request),
+[частые проблемы](docs/server-windows.md#7-частые-проблемы).
+
+Можно и на своём компьютере: нужны Git и Python 3.12 или новее (macOS/Linux; на Windows — WSL или Git Bash).
 
 ```bash
 # 1. Сделайте fork репы https://github.com/{repo} (кнопка Fork) и склонируйте свой fork
@@ -229,6 +237,8 @@ python check.py -v 3     # подробности по задаче 3
 Тесты в папке `tests/` не меняйте: при проверке используются тесты из этой репы.
 
 ## Как сдавать
+
+Подробно, с примерами экрана — [раздел 6 инструкции](docs/server-windows.md#6-сдача-домашки-fork--ветка--pull-request).
 
 1. Обновите свой fork: `git pull upstream main` (или кнопка «Sync fork» на GitHub).
 2. Создайте ветку по правилам проекта, например `git switch -c feature/1-lab01`.
@@ -320,19 +330,48 @@ def check_lab(lab: Path, out: Path) -> tuple[list[str], list[str]]:
     return errors, lines
 
 
+def github_anchors(text: str) -> set[str]:
+    """Якоря заголовков markdown так, как их строит GitHub: нижний регистр, без знаков препинания, пробел → «-»."""
+    anchors: set[str] = set()
+    seen: dict[str, int] = {}
+    fence = False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            fence = not fence
+            continue
+        m = None if fence else re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if not m:
+            continue
+        title = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", m.group(1))       # [текст](ссылка) → текст
+        slug = re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
+        n = seen.get(slug, 0)
+        seen[slug] = n + 1
+        anchors.add(slug if n == 0 else f"{slug}-{n}")
+    anchors |= set(re.findall(r'<a\s+(?:id|name)="([^"]+)"', text))
+    return anchors
+
+
 def check_links(out: Path) -> list[str]:
-    """Относительные ссылки в .md, ведущие на несуществующие файлы (предупреждения)."""
+    """Относительные ссылки в .md, ведущие на несуществующие файлы или якоря (предупреждения)."""
     warns = []
+    cache: dict[Path, set[str]] = {}
     for rel in all_files(out):
         if not rel.endswith(".md"):
             continue
         p = out / rel
         for target in re.findall(r"\]\(([^)\s]+)\)", p.read_text(encoding="utf-8")):
-            if re.match(r"[a-z]+:", target) or target.startswith("#"):
+            if re.match(r"[a-z]+:", target):
                 continue
-            t = (p.parent / target.split("#")[0]).resolve()
+            path, _, anchor = target.partition("#")
+            t = (p.parent / path).resolve() if path else p.resolve()
             if not t.exists():
                 warns.append(f"{rel}: ссылка на отсутствующий файл {target}")
+                continue
+            if anchor and t.suffix == ".md":
+                if t not in cache:
+                    cache[t] = github_anchors(t.read_text(encoding="utf-8"))
+                if anchor.lower() not in cache[t]:
+                    warns.append(f"{rel}: в {path or rel} нет раздела #{anchor}")
     return warns
 
 
