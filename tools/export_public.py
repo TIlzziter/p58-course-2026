@@ -3,7 +3,7 @@
 Копирует в новую пустую папку только то, что можно показывать ученикам:
 уроки недель из диапазона ``--weeks`` (и вводный урок ``w00``), их лабораторные
 со стартовым кодом, листы контестов этих уроков (только ``sheet.*``, без решений),
-``docs/contest-rules.md``, ``requirements.txt``, а также генерирует README.md для учеников
+``docs/contest-rules.md``, ``docs/server-windows.md``, ``requirements.txt``, а также генерирует README.md для учеников
 и ``.gitignore``.
 
 Никогда не попадают: ``solutions/``, ``rating/``, ``tools/``, ``scripts/``, ``Makefile``,
@@ -46,7 +46,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import syllabus as S
 
-# Открытая репа для учеников (сдача — fork + pull request в неё).
+# Общая репа для учеников (сдача — своя ветка <ник>/<лаба> в ней и pull request в main).
 PUBLIC_REPO = "school58-project/p58-course-labs"
 # Слова, которых не должно быть в выгрузке (регистр не важен).
 FORBIDDEN_WORDS = ("solutions", "эталон")
@@ -58,7 +58,7 @@ EXCLUDED_ROOT = ("tools", "scripts", "Makefile", "docs/labs.md", "docs/deck-form
 EXCLUDED_NAMES = ("notes.md", "__pycache__", ".ruff_cache", ".pytest_cache", ".venv", ".DS_Store", ".env")
 EXCLUDED_SUFFIXES = (".pyc",)
 # Документы, которые выгружаем всегда.
-ROOT_FILES = ("docs/contest-rules.md", "requirements.txt")
+ROOT_FILES = ("docs/contest-rules.md", "docs/server-windows.md", "requirements.txt")
 # Из папки контеста берём только листы с условиями.
 CONTEST_FILES = ("sheet.md", "sheet.html", "sheet.pdf")
 TEXT_SUFFIXES = {".md", ".py", ".html", ".deck", ".txt", ".ini", ".cfg", ".toml", ".json", ".csv", ".yml",
@@ -202,13 +202,22 @@ def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> st
 
 ## Как начать
 
-Нужны Git и Python 3.12 или новее (macOS/Linux; на Windows — WSL или Git Bash).
+Работаем на **учебном сервере курса** (логин и адрес выдаёт преподаватель). Начните с
+[лабораторной 01](lessons/w01-l02-team-setup/labs/lab01-git-flow/README.md): там по шагам — вход на сервер
+и SSH-ключ (шаг 0), клон, своя ветка, решение, `check.py`, коммиты и pull request.
+Подробная инструкция для Windows — [`docs/server-windows.md`](docs/server-windows.md):
+[первый вход](docs/server-windows.md#1-первый-вход-и-смена-пароля),
+[SSH-ключ](docs/server-windows.md#2-создать-ssh-ключ-на-своём-компьютере),
+[GitHub на сервере](docs/server-windows.md#5-подключить-github-на-сервере),
+[сдача через PR](docs/server-windows.md#6-сдача-домашки-своя-ветка-и-pull-request),
+[частые проблемы](docs/server-windows.md#7-частые-проблемы).
+
+Можно и на своём компьютере: нужны Git и Python 3.12 или новее (macOS/Linux; на Windows — WSL или Git Bash).
 
 ```bash
-# 1. Сделайте fork репы https://github.com/{repo} (кнопка Fork) и склонируйте свой fork
-git clone https://github.com/<ваш-ник>/{name}.git
+# 1. Склонируйте общую репу курса (push — после приглашения от преподавателя)
+git clone git@github.com:{repo}.git
 cd {name}
-git remote add upstream https://github.com/{repo}.git   # основная репа курса
 
 # 2. Окружение Python
 python3 -m venv .venv
@@ -228,12 +237,16 @@ python check.py -v 3     # подробности по задаче 3
 
 ## Как сдавать
 
-1. Обновите свой fork: `git pull upstream main` (или кнопка «Sync fork» на GitHub).
-2. Создайте ветку по правилам проекта, например `git switch -c feature/1-lab01`.
+Подробно, с примерами экрана — [раздел 6 инструкции](docs/server-windows.md#6-сдача-домашки-своя-ветка-и-pull-request).
+
+Все работают в этой репе, каждый — в своей ветке. В `main` не пушим (она защищена), чужие ветки не трогаем.
+
+1. Возьмите свежие материалы: `git switch main && git pull origin main`.
+2. Создайте свою ветку `<ваш-ник>/<лаба>` (ник на GitHub), например `git switch -c <ваш-ник>/lab01`.
 3. Делайте небольшие коммиты в формате `область: что сделано`.
-4. Запушьте ветку в свой fork (`git push -u origin <ветка>`) и откройте pull request
-   в основную репу `{repo}`.
+4. Запушьте ветку (`git push -u origin <ваш-ник>/lab01`) и откройте pull request в `main`.
    В описании PR — разделы `## Что сделано`, `## Как проверить`, `## Что сгенерировал агент`.
+   Новые материалы вышли, пока работали, — `git pull origin main` в своей ветке.
 5. Преподаватель запускает тесты по вашему PR и ставит отметку. PR не сливается в основную ветку —
    это просто способ сдать работу.
 
@@ -318,19 +331,48 @@ def check_lab(lab: Path, out: Path) -> tuple[list[str], list[str]]:
     return errors, lines
 
 
+def github_anchors(text: str) -> set[str]:
+    """Якоря заголовков markdown так, как их строит GitHub: нижний регистр, без знаков препинания, пробел → «-»."""
+    anchors: set[str] = set()
+    seen: dict[str, int] = {}
+    fence = False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            fence = not fence
+            continue
+        m = None if fence else re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if not m:
+            continue
+        title = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", m.group(1))       # [текст](ссылка) → текст
+        slug = re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
+        n = seen.get(slug, 0)
+        seen[slug] = n + 1
+        anchors.add(slug if n == 0 else f"{slug}-{n}")
+    anchors |= set(re.findall(r'<a\s+(?:id|name)="([^"]+)"', text))
+    return anchors
+
+
 def check_links(out: Path) -> list[str]:
-    """Относительные ссылки в .md, ведущие на несуществующие файлы (предупреждения)."""
+    """Относительные ссылки в .md, ведущие на несуществующие файлы или якоря (предупреждения)."""
     warns = []
+    cache: dict[Path, set[str]] = {}
     for rel in all_files(out):
         if not rel.endswith(".md"):
             continue
         p = out / rel
         for target in re.findall(r"\]\(([^)\s]+)\)", p.read_text(encoding="utf-8")):
-            if re.match(r"[a-z]+:", target) or target.startswith("#"):
+            if re.match(r"[a-z]+:", target):
                 continue
-            t = (p.parent / target.split("#")[0]).resolve()
+            path, _, anchor = target.partition("#")
+            t = (p.parent / path).resolve() if path else p.resolve()
             if not t.exists():
                 warns.append(f"{rel}: ссылка на отсутствующий файл {target}")
+                continue
+            if anchor and t.suffix == ".md":
+                if t not in cache:
+                    cache[t] = github_anchors(t.read_text(encoding="utf-8"))
+                if anchor.lower() not in cache[t]:
+                    warns.append(f"{rel}: в {path or rel} нет раздела #{anchor}")
     return warns
 
 
