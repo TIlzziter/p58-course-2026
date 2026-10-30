@@ -3,7 +3,7 @@
 Копирует в новую пустую папку только то, что можно показывать ученикам:
 уроки недель из диапазона ``--weeks`` (и вводный урок ``w00``), их лабораторные
 со стартовым кодом, листы контестов этих уроков (только ``sheet.*``, без решений),
-``docs/contest-rules.md``, ``requirements.txt``, а также генерирует README.md для учеников
+``docs/contest-rules.md``, ``docs/server-windows.md``, ``requirements.txt``, а также генерирует README.md для учеников
 и ``.gitignore``.
 
 Никогда не попадают: ``solutions/``, ``rating/``, ``tools/``, ``scripts/``, ``Makefile``,
@@ -58,7 +58,7 @@ EXCLUDED_ROOT = ("tools", "scripts", "Makefile", "docs/labs.md", "docs/deck-form
 EXCLUDED_NAMES = ("notes.md", "__pycache__", ".ruff_cache", ".pytest_cache", ".venv", ".DS_Store", ".env")
 EXCLUDED_SUFFIXES = (".pyc",)
 # Документы, которые выгружаем всегда.
-ROOT_FILES = ("docs/contest-rules.md", "requirements.txt")
+ROOT_FILES = ("docs/contest-rules.md", "docs/server-windows.md", "requirements.txt")
 # Из папки контеста берём только листы с условиями.
 CONTEST_FILES = ("sheet.md", "sheet.html", "sheet.pdf")
 TEXT_SUFFIXES = {".md", ".py", ".html", ".deck", ".txt", ".ini", ".cfg", ".toml", ".json", ".csv", ".yml",
@@ -203,6 +203,8 @@ def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> st
 ## Как начать
 
 Нужны Git и Python 3.12 или новее (macOS/Linux; на Windows — WSL или Git Bash).
+Можно работать на учебном сервере курса: вход с Windows, SSH-ключ и сдача — в
+[`docs/server-windows.md`](docs/server-windows.md).
 
 ```bash
 # 1. Сделайте fork репы https://github.com/{repo} (кнопка Fork) и склонируйте свой fork
