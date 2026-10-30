@@ -3,7 +3,7 @@
 Что делает:
 
 1. Через ``gh pr list --json`` берёт открытые PR открытой репы курса (по умолчанию
-   ``TIlzziter/p58-course-labs``; ученики сдают работу через fork + PR в неё).
+   ``school58-project/p58-course-labs``; ученики сдают работу через fork + PR в неё).
 2. Клонирует репу один раз во временную папку и для каждого PR делает
    ``git fetch origin pull/N/head`` + checkout в отдельную временную папку.
 3. Находит папку лабораторной ``lessons/*/labs/<лаба>`` и запускает pytest отдельно для каждой
@@ -19,8 +19,8 @@
 
 Использование:
 
-    python tools/check_prs.py --repo TIlzziter/p58-course-labs --lab lab01-git-flow
-    python tools/check_prs.py --repo TIlzziter/p58-course-labs --lab lab01 --out results-lab01.csv
+    python tools/check_prs.py --repo school58-project/p58-course-labs --lab lab01-git-flow
+    python tools/check_prs.py --repo school58-project/p58-course-labs --lab lab01 --out results-lab01.csv
     # без сети: проверить локальные папки (папку лабораторной или корень репы с уроками)
     python tools/check_prs.py --lab lab01-git-flow --local ./lab01-ivanov ./lab01-petrov
     # тесты взять из конкретной папки (иначе — из первой папки --local или из основной ветки репы)
@@ -42,7 +42,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-DEFAULT_REPO = "TIlzziter/p58-course-labs"
+DEFAULT_REPO = "school58-project/p58-course-labs"
 TRUSTED = ("tests", "pytest.ini", "check.py", "conftest.py")
 WARNING = ("ВНИМАНИЕ: код учеников запускается на этом компьютере. Лучше запускать в отдельном venv "
            "или контейнере (docker run --rm --network none ...), без токенов и секретов в окружении.")

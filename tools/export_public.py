@@ -47,7 +47,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 import syllabus as S
 
 # Открытая репа для учеников (сдача — fork + pull request в неё).
-PUBLIC_REPO = "TIlzziter/p58-course-labs"
+PUBLIC_REPO = "school58-project/p58-course-labs"
 # Слова, которых не должно быть в выгрузке (регистр не важен).
 FORBIDDEN_WORDS = ("solutions", "эталон")
 # Каталоги, которых не должно быть нигде в пути.
