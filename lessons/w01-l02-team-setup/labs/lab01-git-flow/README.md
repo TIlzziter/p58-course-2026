@@ -44,7 +44,7 @@ DevOps решил написать маленький модуль `gitflow.py`,
 
 **0.3. GitHub на сервере** — [раздел 5](../../../../docs/server-windows.md#5-подключить-github-на-сервере).
 На сервере: `ssh-keygen -t ed25519 -C "<логин>@p58-course"` (на все вопросы Enter),
-`chmod 600 ~/.ssh/id_ed25519`, `cat ~/.ssh/id_ed25519.pub` → строку добавить на GitHub
+`chmod 600 ~/.ssh/id_ed25519` (на всякий случай), `cat ~/.ssh/id_ed25519.pub` → строку добавить на GitHub
 (**Settings → SSH and GPG keys → New SSH key**). Потом `git config --global user.name` и `user.email`.
 
 * Как проверить: `ssh -T git@github.com` отвечает `Hi <ваш-ник>! You've successfully authenticated...`.
