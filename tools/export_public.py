@@ -4,7 +4,7 @@
 уроки недель из диапазона ``--weeks`` (и вводный урок ``w00``), их лабораторные
 со стартовым кодом, листы контестов этих уроков (только ``sheet.*``, без решений),
 ``docs/contest-rules.md``, ``docs/server-windows.md``, ``requirements.txt``, а также генерирует README.md для учеников
-и ``.gitignore``.
+``.gitignore`` и ``.github/CODEOWNERS`` (PR в main одобряют только преподаватели).
 
 Никогда не попадают: ``solutions/``, ``rating/``, ``tools/``, ``scripts/``, ``Makefile``,
 ``docs/labs.md``, ``docs/deck-format.md``, ``notes.md``, кэши и история git.
@@ -73,6 +73,13 @@ __pycache__/
 .pytest_cache/
 .env
 .DS_Store
+"""
+
+# Владельцы кода открытой репы: защита main требует одобрения code owner, то есть преподавателя
+# (команда p58-teachers в организации school58-project) — одобрение другого ученика не засчитывается.
+CODEOWNERS = """\
+# PR в main одобряет преподаватель (команда p58-teachers) или автор курса.
+* @school58-project/p58-teachers @TIlzziter
 """
 
 
@@ -278,6 +285,8 @@ def export(w1: int, w2: int, out: Path, number: int, repo: str = PUBLIC_REPO) ->
             shutil.copy2(src, dst)
     (out / "README.md").write_text(student_readme(w1, w2, number, repo), encoding="utf-8")
     (out / ".gitignore").write_text(GITIGNORE, encoding="utf-8")
+    (out / ".github").mkdir(exist_ok=True)
+    (out / ".github" / "CODEOWNERS").write_text(CODEOWNERS, encoding="utf-8")
     return log
 
 
@@ -410,7 +419,7 @@ def self_check(out: Path) -> int:
     print(f"  [{'OK' if not hits else 'ОШИБКА'}] нет слов «solutions» и «эталон» в текстовых файлах"
           f" (проверено {len(files) - len(skipped)}, не текст: {', '.join(skipped) or '—'})")
 
-    for need in ("README.md", ".gitignore"):
+    for need in ("README.md", ".gitignore", ".github/CODEOWNERS"):
         if need not in files:
             errors.append(f"нет {need}")
 
