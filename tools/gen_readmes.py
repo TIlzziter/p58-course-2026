@@ -1,7 +1,7 @@
 """Генерирует README.md урока для каждого урока и таблицу расписания в корневом README.md.
 
-Текст урока: пометка о версии плана, цели, практика на уроке, материалы, агентная часть,
-домашнее задание — из tools/syllabus.py.
+Текст урока: пометка о версии плана, вступление (поле intro, если есть), цели, практика на уроке, материалы,
+агентная часть, домашнее задание — из tools/syllabus.py.
 Если в папке урока есть notes.md, он добавляется в README урока как «Заметки преподавателю».
 Если в папке урока есть practice/<тема>/README.md, ссылка на него попадает в «Материалы».
 HTML-раздатка (lecture.html, seminar.html, practice/*/*.html, листы контестов sheet.html) получает ссылки
@@ -76,6 +76,8 @@ def lesson_readme(w: S.Week, l: S.Lesson) -> str:
              f"**Дата:** {S.fmt_full(l.date)}", ""]
     for f in lesson_html(d):
         lines += [open_links(f, None if f.parent == d else f"практику «{f.relative_to(d).as_posix()}»"), ""]
+    if l.intro:
+        lines += [l.intro.strip(), ""]
     lines += ["## Цели", ""]
     lines += [f"- {g}" for g in l.goals]
     if l.practice:
