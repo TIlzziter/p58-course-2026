@@ -183,6 +183,12 @@ def clean_markdown(text: str, removed: list[str]) -> str:
 
 # ---------------------------------------------------------------- README для учеников
 
+def pages_url(repo: str = PUBLIC_REPO) -> str:
+    """Адрес сайта GitHub Pages открытой репы: https://OWNER.github.io/NAME/."""
+    owner, name = repo.split("/")
+    return f"https://{owner.lower()}.github.io/{name}/"
+
+
 def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> str:
     name = repo.split("/")[-1]
     rows = [f"Уроки по вторникам и пятницам, {S.LESSON_TIME}. ДЗ урока сдаётся до начала следующего урока.", "",
@@ -192,6 +198,9 @@ def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> st
         rows.append(f"| 0 | до курса | [00 · Вводный](lessons/{d.name}/README.md) | Как работает сеть (повторение) | | | |")
     for w, l in select_lessons(w1, w2):
         link = f"[{l.num:02d} · {l.kind}](lessons/{l.dir}/README.md)"
+        decks = sorted((ROOT / "lessons" / l.dir).glob("*.html"))
+        if decks:  # слайды открываются отрендеренными через GitHub Pages открытой репы
+            link += f" · [слайды]({pages_url(repo)}lessons/{l.dir}/{decks[0].name})"
         lab = f"[{l.lab.split('-')[0]}](lessons/{l.dir}/labs/{l.lab}/README.md)" if l.lab else ""
         c = contest_dir(l.contest) if l.contest else None
         contest = f"[{l.contest}](contests/{c.name}/sheet.pdf)" if c else ""
