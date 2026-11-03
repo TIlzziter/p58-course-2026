@@ -1,4 +1,8 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Контест 5 · Конвейеры и секреты</title><style>
+#download{position:fixed;top:10px;right:12px;font-size:13px;color:#0969da;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:5px 10px;text-decoration:none}
+#download:hover{background:#f6f8fa}
+#download .dl-text{margin-left:4px}
+@media print{#download{display:none!important}}
 @page{size:A4;margin:14mm 13mm 14mm 13mm}
 body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
 h1{font-size:19pt;margin:0 0 4pt}
@@ -23,7 +27,7 @@ li{margin:2pt 0}
 /* pygments, светлая тема */
 .k,.kn,.kd,.kc,.ow{color:#cf222e}.s,.s1,.s2,.sa,.sd,.se,.si{color:#0a3069}.c,.c1,.cm{color:#6e7781;font-style:italic}
 .mi,.mf,.m{color:#0550ae}.nf,.fm{color:#8250df}.nb,.bp{color:#953800}.nc{color:#953800}.nd{color:#8250df}
-</style></head><body><h1>Контест 5 · Конвейеры и секреты</h1>
+</style></head><body><a class="dl" id="download" href="sheet.html" download="c05-pipelines-secrets-sheet.html" title="Скачать HTML-файл (открывается без интернета)" aria-label="Скачать файл">⤓<span class="dl-text">Скачать</span></a><h1>Контест 5 · Конвейеры и секреты</h1>
 <p>Неделя 10 · темы недель 9–10: workflow, <code>needs</code> и матрица, версии, переменные окружения и секреты, деплой и откат.
 Сдача устная у экрана: показываете код, запускаете на примерах, объясняете идею.</p>
 <div class="legend">Монеты: обычная задача — <b>2</b>, со звёздочкой (★, например B4*) — <b>4</b>, каждая часть босса — <b>6</b>. В этом контесте: 15 обычных, 3 со звёздочкой, 3 частей босса — всего <b>60</b> монет. Задача засчитывается, только если вы можете объяснить свой код.</div>
@@ -164,4 +168,11 @@ job с наименьшим именем. Сколько минут займёт
              "RUN pip install -r requirements.txt", "COPY app/ ./app", 'CMD ["python", "-m", "app"]']
        rebuilt_from(DF, ["app/main.py"]), rebuilt_from(DF, ["requirements.txt"]), rebuilt_from(DF, ["README.md"])
 Вывод: 4, 2, None            # поэтому requirements.txt копируют раньше кода
-</code></pre></div></body></html>
+</code></pre></div><script>
+(()=>{const a=document.getElementById('download');if(!a)return;
+const h=new URLSearchParams(location.hash.slice(1)),q=new URLSearchParams(location.search);
+if(!h.has('download')&&!q.has('download'))return;h.delete('download');q.delete('download');
+const qs=q.toString(),hs=h.toString();
+history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+(hs?'#'+hs:''));
+a.click()})();
+</script></body></html>

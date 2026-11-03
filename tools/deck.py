@@ -14,6 +14,7 @@ import re
 import sys
 from pathlib import Path
 
+import html_download
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
@@ -47,7 +48,13 @@ EXTRA_CSS = """
 .splitside .cols,.splitside .cols3,.splitside .stack{display:grid;grid-template-columns:1fr;gap:14px}
 .technical .splitside .card{padding:16px 18px}.technical .splitside .card .cs{font-size:19px;line-height:1.38}.technical .splitside .card .cs code{font-size:16px}.technical .splitside .card .ct{font-size:20px}
 .tbl.small{font-size:20px}.tbl.small td{padding:8px 12px}
+/* Кнопка «Скачать» (HTML-файл целиком, открывается без интернета): не видна в полноэкранном показе и при печати */
+#download{display:inline-flex;align-items:center;gap:4px}
+:fullscreen #download{display:none}
+@media(max-width:760px){#download .dl-text{display:none}}
+@media print{#download{display:none!important}}
 """
+
 
 FORMATTER = HtmlFormatter(nowrap=True)
 
@@ -296,13 +303,15 @@ def build(src: Path, dst: Path) -> int:
         '<button class="control" id="help" aria-label="Справка">?</button>'
         '<button class="control" id="prev" aria-label="Предыдущий слайд">‹</button><span id="counter" aria-live="polite"></span>'
         '<button class="control" id="next" aria-label="Следующий слайд">›</button>'
-        '<button class="control" id="fullscreen" aria-label="Полный экран" title="Полный экран (F)">⛶</button></nav></div>'
+        '<button class="control" id="fullscreen" aria-label="Полный экран" title="Полный экран (F)">⛶</button>'
+        + html_download.button(dst) + '</nav></div>'
         '<div class="modal" id="tocModal" role="dialog" aria-modal="true" aria-labelledby="tocTitle"><div class="dialog"><header>'
         '<h2 id="tocTitle">Слайды</h2><button class="control close" aria-label="Закрыть оглавление">Закрыть</button></header>'
         '<div class="tocgrid" id="tocItems"></div></div></div>'
         '<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="dialog"><header>'
         f'<h2 id="helpTitle">Управление</h2><button class="control close">Закрыть</button></header>{help_text}</div></div>'
         '<main id="viewport"><div id="stage">' + "".join(sections) + "</div></main>"
+        + html_download.SCRIPT +
         "<script>\n(()=>{\n'use strict';\nconst data=" + json.dumps(data, ensure_ascii=False)
         + ",slides=[...document.querySelectorAll('.slide')];\n" + js + "})();\n</script></body></html>\n")
     dst.write_text(page, encoding="utf-8")

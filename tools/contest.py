@@ -15,7 +15,13 @@ from pathlib import Path
 
 import markdown
 
+import html_download
+
 CSS = """
+#download{position:fixed;top:10px;right:12px;font-size:13px;color:#0969da;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:5px 10px;text-decoration:none}
+#download:hover{background:#f6f8fa}
+#download .dl-text{margin-left:4px}
+@media print{#download{display:none!important}}
 @page{size:A4;margin:14mm 13mm 14mm 13mm}
 body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:10.6pt;line-height:1.42;color:#1f2328;margin:0}
 h1{font-size:19pt;margin:0 0 4pt}
@@ -82,7 +88,8 @@ def build(sheet: Path, pdf: bool = True) -> Path:
     title = re.search(r"^# (.+)$", md, re.M).group(1)
     html_path = sheet.with_suffix(".html")
     html_path.write_text(f'<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>{title}</title>'
-                         f"<style>{CSS}</style></head><body>{body}</body></html>\n", encoding="utf-8")
+                         f"<style>{CSS}</style></head><body>{html_download.button(html_path, 'dl')}{body}"
+                         f"{html_download.SCRIPT}</body></html>\n", encoding="utf-8")
     if pdf:
         chrome = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
         out = sheet.with_suffix(".pdf")
