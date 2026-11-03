@@ -6,6 +6,8 @@
 
 **Дата:** вт 20.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w22-l02-load-test/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w22-l02-load-test/seminar.html#download)
+
 ## Цели
 
 - провести нагрузочный тест
@@ -13,8 +15,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 11 «Деревья игр и перебор» (сезон 2): [лист PDF](../../contests/c11-game-trees/sheet.pdf), [исходник](../../contests/c11-game-trees/sheet.md); решения — `solutions/contests/c11-game-trees/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w22-l02-load-test/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w22-l02-load-test/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 11 «Деревья игр и перебор» (сезон 2): [лист PDF](../../contests/c11-game-trees/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c11-game-trees/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c11-game-trees/sheet.html#download)), [исходник](../../contests/c11-game-trees/sheet.md); решения — `solutions/contests/c11-game-trees/`
 
 ## Агентная разработка
 

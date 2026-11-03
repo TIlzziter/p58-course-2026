@@ -6,6 +6,8 @@
 
 **Дата:** пт 29.01.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w11-l01-game-algorithms/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w11-l01-game-algorithms/lecture.html#download)
+
 ## Цели
 
 - игровой цикл на тиках
@@ -15,7 +17,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w11-l01-game-algorithms/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w11-l01-game-algorithms/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab11-snake-engine`](labs/lab11-snake-engine/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab11-snake-engine/`
 
 ## Агентная разработка

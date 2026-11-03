@@ -6,6 +6,8 @@
 
 **Дата:** пт 16.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w22-l01-load-scaling/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w22-l01-load-scaling/lecture.html#download)
+
 ## Цели
 
 - RPS, задержка, перцентили
@@ -15,7 +17,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w22-l01-load-scaling/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w22-l01-load-scaling/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab19-load-report`](labs/lab19-load-report/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab19-load-report/`
 
 ## Агентная разработка

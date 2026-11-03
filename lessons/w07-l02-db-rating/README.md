@@ -6,6 +6,8 @@
 
 **Дата:** пт 18.12.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w07-l02-db-rating/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w07-l02-db-rating/seminar.html#download)
+
 ## Цели
 
 - перенести аккаунты, сессии и партии в PostgreSQL
@@ -22,7 +24,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w07-l02-db-rating/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w07-l02-db-rating/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab07-sqlalchemy-rating`](labs/lab07-sqlalchemy-rating/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab07-sqlalchemy-rating/`
 
 ## Агентная разработка

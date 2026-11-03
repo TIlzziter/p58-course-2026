@@ -6,6 +6,8 @@
 
 **Дата:** вт 01.12.2026, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w05-l01-review-t1/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w05-l01-review-t1/lecture.html#download)
+
 ## Цели
 
 - собрать в одну картину: сеть → HTTPS → nginx → FastAPI → сервер учётных записей → игровая логика
@@ -23,7 +25,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w05-l01-review-t1/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w05-l01-review-t1/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 
 ## Агентная разработка
 

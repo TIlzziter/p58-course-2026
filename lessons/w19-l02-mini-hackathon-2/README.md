@@ -6,6 +6,8 @@
 
 **Дата:** вт 30.03.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w19-l02-mini-hackathon-2/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w19-l02-mini-hackathon-2/seminar.html#download)
+
 ## Цели
 
 - довести до работающего демо
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w19-l02-mini-hackathon-2/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w19-l02-mini-hackathon-2/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 
 ## Агентная разработка
 

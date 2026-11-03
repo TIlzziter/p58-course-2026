@@ -6,6 +6,8 @@
 
 **Дата:** пт 06.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w01-l02-team-setup/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w01-l02-team-setup/seminar.html#download)
+
 ## Цели
 
 - уверенно работать в терминале: навигация, файлы, потоки, права, окружение
@@ -29,7 +31,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w01-l02-team-setup/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w01-l02-team-setup/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab01-git-flow`](labs/lab01-git-flow/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab01-git-flow/`
 - Практика: [`practice/console`](practice/console/README.md)
 

@@ -6,6 +6,8 @@
 
 **Дата:** вт 17.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w03-l01-mini-apps/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w03-l01-mini-apps/lecture.html#download)
+
 ## Цели
 
 - понять, как устроены регистрация, вход и сессия и почему пароль хранят только как хэш
@@ -24,7 +26,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w03-l01-mini-apps/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w03-l01-mini-apps/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab03-init-data`](labs/lab03-init-data/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab03-init-data/`
 
 ## Агентная разработка

@@ -6,6 +6,8 @@
 
 **Дата:** вт 24.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w04-l01-docker-nginx/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w04-l01-docker-nginx/lecture.html#download)
+
 ## Цели
 
 - понимать образ, контейнер, слой, volume, сеть compose
@@ -22,7 +24,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w04-l01-docker-nginx/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w04-l01-docker-nginx/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 
 ## Агентная разработка
 

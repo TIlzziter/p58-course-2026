@@ -6,6 +6,8 @@
 
 **Дата:** вт 09.02.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w12-l02-game2-client/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w12-l02-game2-client/seminar.html#download)
+
 ## Цели
 
 - собрать клиент игры 2
@@ -14,9 +16,9 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w12-l02-game2-client/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w12-l02-game2-client/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab12-interpolation`](labs/lab12-interpolation/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab12-interpolation/`
-- Контест 6 «Игровой цикл и рандом» (сезон 2): [лист PDF](../../contests/c06-game-loop-random/sheet.pdf), [исходник](../../contests/c06-game-loop-random/sheet.md); решения — `solutions/contests/c06-game-loop-random/`
+- Контест 6 «Игровой цикл и рандом» (сезон 2): [лист PDF](../../contests/c06-game-loop-random/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c06-game-loop-random/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c06-game-loop-random/sheet.html#download)), [исходник](../../contests/c06-game-loop-random/sheet.md); решения — `solutions/contests/c06-game-loop-random/`
 
 ## Агентная разработка
 

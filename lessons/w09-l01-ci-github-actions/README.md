@@ -6,6 +6,8 @@
 
 **Дата:** пт 15.01.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w09-l01-ci-github-actions/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w09-l01-ci-github-actions/lecture.html#download)
+
 ## Цели
 
 - собирать Docker-образ в CI
@@ -22,7 +24,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w09-l01-ci-github-actions/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w09-l01-ci-github-actions/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab09-ci-pipeline`](labs/lab09-ci-pipeline/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab09-ci-pipeline/`
 
 ## Агентная разработка

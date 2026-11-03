@@ -6,6 +6,8 @@
 
 **Дата:** вт 27.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w23-l02-hackathon-retro/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w23-l02-hackathon-retro/seminar.html#download)
+
 ## Цели
 
 - ретро хакатона
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w23-l02-hackathon-retro/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w23-l02-hackathon-retro/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 
 ## Агентная разработка
 

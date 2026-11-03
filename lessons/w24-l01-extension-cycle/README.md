@@ -6,6 +6,8 @@
 
 **Дата:** пт 30.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w24-l01-extension-cycle/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w24-l01-extension-cycle/lecture.html#download)
+
 ## Цели
 
 - от спеки к задачам
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w24-l01-extension-cycle/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w24-l01-extension-cycle/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 
 ## Агентная разработка
 

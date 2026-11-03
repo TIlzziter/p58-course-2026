@@ -6,6 +6,8 @@
 
 **Дата:** вт 06.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w20-l02-game-metrics/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w20-l02-game-metrics/seminar.html#download)
+
 ## Цели
 
 - посчитать удержание и длину партий
@@ -14,8 +16,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 10 «Данные и метрики» (сезон 2): [лист PDF](../../contests/c10-data-metrics/sheet.pdf), [исходник](../../contests/c10-data-metrics/sheet.md); решения — `solutions/contests/c10-data-metrics/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w20-l02-game-metrics/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w20-l02-game-metrics/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 10 «Данные и метрики» (сезон 2): [лист PDF](../../contests/c10-data-metrics/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c10-data-metrics/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c10-data-metrics/sheet.html#download)), [исходник](../../contests/c10-data-metrics/sheet.md); решения — `solutions/contests/c10-data-metrics/`
 
 ## Агентная разработка
 

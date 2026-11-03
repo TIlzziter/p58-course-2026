@@ -6,6 +6,8 @@
 
 **Дата:** вт 12.01.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w08-l02-lobby-matchmaking/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w08-l02-lobby-matchmaking/seminar.html#download)
+
 ## Цели
 
 - понять workflow, job, step, runner
@@ -23,9 +25,9 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w08-l02-lobby-matchmaking/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w08-l02-lobby-matchmaking/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab08-redis-matchmaking`](labs/lab08-redis-matchmaking/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab08-redis-matchmaking/`
-- Контест 4 «Базы данных и кэш» (сезон 1): [лист PDF](../../contests/c04-databases-cache/sheet.pdf), [исходник](../../contests/c04-databases-cache/sheet.md); решения — `solutions/contests/c04-databases-cache/`
+- Контест 4 «Базы данных и кэш» (сезон 1): [лист PDF](../../contests/c04-databases-cache/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c04-databases-cache/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c04-databases-cache/sheet.html#download)), [исходник](../../contests/c04-databases-cache/sheet.md); решения — `solutions/contests/c04-databases-cache/`
 
 ## Агентная разработка
 

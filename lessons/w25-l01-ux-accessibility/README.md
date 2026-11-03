@@ -6,6 +6,8 @@
 
 **Дата:** пт 07.05.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w25-l01-ux-accessibility/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w25-l01-ux-accessibility/lecture.html#download)
+
 ## Цели
 
 - что такое юзабилити-тест
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w25-l01-ux-accessibility/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w25-l01-ux-accessibility/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 
 ## Агентная разработка
 

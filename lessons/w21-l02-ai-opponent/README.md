@@ -6,6 +6,8 @@
 
 **Дата:** вт 13.04.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w21-l02-ai-opponent/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w21-l02-ai-opponent/seminar.html#download)
+
 ## Цели
 
 - встроить ИИ-соперника в игру
@@ -13,7 +15,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w21-l02-ai-opponent/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w21-l02-ai-opponent/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 
 ## Агентная разработка
 

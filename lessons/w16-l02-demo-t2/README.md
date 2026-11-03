@@ -6,6 +6,8 @@
 
 **Дата:** вт 09.03.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w16-l02-demo-t2/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w16-l02-demo-t2/seminar.html#download)
+
 ## Цели
 
 - показать мультиплеер, 2 игры, CI/CD, мониторинг
@@ -14,8 +16,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 8 «Безопасность» (сезон 2): [лист PDF](../../contests/c08-security/sheet.pdf), [исходник](../../contests/c08-security/sheet.md); решения — `solutions/contests/c08-security/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w16-l02-demo-t2/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w16-l02-demo-t2/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 8 «Безопасность» (сезон 2): [лист PDF](../../contests/c08-security/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c08-security/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c08-security/sheet.html#download)), [исходник](../../contests/c08-security/sheet.md); решения — `solutions/contests/c08-security/`
 
 ## Агентная разработка
 

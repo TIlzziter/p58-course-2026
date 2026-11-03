@@ -6,6 +6,8 @@
 
 **Дата:** вт 19.01.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w09-l02-pr-review-retro/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w09-l02-pr-review-retro/seminar.html#download)
+
 ## Цели
 
 - сдать декабрьский ручной зачёт без агента: новое задание — эндпоинт FastAPI и тест pytest
@@ -23,7 +25,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w09-l02-pr-review-retro/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w09-l02-pr-review-retro/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 
 ## Агентная разработка
 

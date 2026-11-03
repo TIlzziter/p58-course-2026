@@ -6,6 +6,8 @@
 
 **Дата:** пт 27.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w04-l02-deploy-mvp/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w04-l02-deploy-mvp/seminar.html#download)
+
 ## Цели
 
 - развернуть MVP на VPS через compose: сайт, сервер учётных записей, логика игры
@@ -23,9 +25,9 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w04-l02-deploy-mvp/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w04-l02-deploy-mvp/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab05-docker-review`](labs/lab05-docker-review/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab05-docker-review/`
-- Контест 2 «Сетки, игры и подписи» (сезон 1): [лист PDF](../../contests/c02-grids-games-signatures/sheet.pdf), [исходник](../../contests/c02-grids-games-signatures/sheet.md); решения — `solutions/contests/c02-grids-games-signatures/`
+- Контест 2 «Сетки, игры и подписи» (сезон 1): [лист PDF](../../contests/c02-grids-games-signatures/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c02-grids-games-signatures/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c02-grids-games-signatures/sheet.html#download)), [исходник](../../contests/c02-grids-games-signatures/sheet.md); решения — `solutions/contests/c02-grids-games-signatures/`
 
 ## Агентная разработка
 

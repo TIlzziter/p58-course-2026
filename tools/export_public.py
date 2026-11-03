@@ -4,7 +4,9 @@
 уроки недель из диапазона ``--weeks`` (и вводный урок ``w00``), их лабораторные
 со стартовым кодом, листы контестов этих уроков (только ``sheet.*``, без решений),
 ``docs/contest-rules.md``, ``docs/server-windows.md``, ``requirements.txt``, а также генерирует README.md для учеников
-``.gitignore`` и ``.github/CODEOWNERS`` (PR в main одобряют только преподаватели).
+``.gitignore``, ``.nojekyll`` (GitHub Pages отдаёт HTML как есть) и ``.github/CODEOWNERS``
+(PR в main одобряют только преподаватели). Ссылки на сайт GitHub Pages учительской репы (``S.PAGES_URL``)
+в README заменяются на сайт открытой репы: в выгрузке не должно быть ссылок на полный курс.
 
 Никогда не попадают: ``solutions/``, ``rating/``, ``tools/``, ``scripts/``, ``Makefile``,
 ``docs/labs.md``, ``docs/deck-format.md``, ``notes.md``, кэши и история git.
@@ -16,6 +18,7 @@
 * нет путей с ``solutions/`` и ``rating/``;
 * в текстовых файлах нет слов «solutions» и «эталон»;
 * нет файлов из списка исключений;
+* нет ссылок на учительскую репу и её сайт (строки ``p58-course-2026`` и ``tilzziter.github.io``);
 * тесты каждой задачи каждой выгруженной лабораторной ПАДАЮТ на стартовом коде
   (стартовый код не должен оказаться решением).
 
@@ -44,6 +47,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
+import html_download
 import syllabus as S
 
 # Общая репа для учеников (сдача — своя ветка <ник>/<лаба> в ней и pull request в main).
@@ -61,6 +65,8 @@ EXCLUDED_SUFFIXES = (".pyc",)
 ROOT_FILES = ("docs/contest-rules.md", "docs/server-windows.md", "requirements.txt")
 # Из папки контеста берём только листы с условиями.
 CONTEST_FILES = ("sheet.md", "sheet.html", "sheet.pdf")
+# Строки, которых не должно быть в выгрузке (регистр не важен): ссылки на учительскую репу и её Pages.
+FORBIDDEN_REFS = ("p58-course-2026", "tilzziter.github.io")
 TEXT_SUFFIXES = {".md", ".py", ".html", ".deck", ".txt", ".ini", ".cfg", ".toml", ".json", ".csv", ".yml",
                  ".yaml", ".sh", ".css", ".js", ""}
 
@@ -189,21 +195,40 @@ def pages_url(repo: str = PUBLIC_REPO) -> str:
     return f"https://{owner.lower()}.github.io/{name}/"
 
 
+def to_public_pages(text: str, repo: str = PUBLIC_REPO) -> str:
+    """Ссылки на GitHub Pages учительской репы → на Pages открытой репы (пути внутри сайта те же)."""
+    return text.replace(S.PAGES_URL, pages_url(repo))
+
+
+def web_links(f: Path, repo: str, open_text: str) -> str:
+    """«[слайды](…) · [скачать](…#download)» на Pages открытой репы; «скачать» — если в HTML есть скрипт."""
+    url = pages_url(repo) + f.relative_to(ROOT).as_posix()
+    s = f"[{open_text}]({url})"
+    if html_download.MARKER in f.read_text(encoding="utf-8"):
+        s += f" · [скачать]({url}#download)"
+    return s
+
+
 def student_readme(w1: int, w2: int, number: int, repo: str = PUBLIC_REPO) -> str:
     name = repo.split("/")[-1]
     rows = [f"Уроки по вторникам и пятницам, {S.LESSON_TIME}. ДЗ урока сдаётся до начала следующего урока.", "",
             "| Нед. | Дата | Урок | Тема | ДЗ до | Лабораторная | Контест |", "|---|---|---|---|---|---|---|"]
     w00 = sorted((ROOT / "lessons").glob("w00-*"))
     for d in w00:
-        rows.append(f"| 0 | до курса | [00 · Вводный](lessons/{d.name}/README.md) | Как работает сеть (повторение) | | | |")
+        link = f"[00 · Вводный](lessons/{d.name}/README.md)"
+        if (d / "lecture.html").exists():
+            link += " · " + web_links(d / "lecture.html", repo, "слайды")
+        rows.append(f"| 0 | до курса | {link} | Как работает сеть (повторение) | | | |")
     for w, l in select_lessons(w1, w2):
         link = f"[{l.num:02d} · {l.kind}](lessons/{l.dir}/README.md)"
         decks = sorted((ROOT / "lessons" / l.dir).glob("*.html"))
         if decks:  # слайды открываются отрендеренными через GitHub Pages открытой репы
-            link += f" · [слайды]({pages_url(repo)}lessons/{l.dir}/{decks[0].name})"
+            link += " · " + web_links(decks[0], repo, "слайды")
         lab = f"[{l.lab.split('-')[0]}](lessons/{l.dir}/labs/{l.lab}/README.md)" if l.lab else ""
         c = contest_dir(l.contest) if l.contest else None
         contest = f"[{l.contest}](contests/{c.name}/sheet.pdf)" if c else ""
+        if c and (c / "sheet.html").exists():
+            contest += " · " + web_links(c / "sheet.html", repo, "открыть")
         due = S.fmt_day(l.due) if l.due else "—"
         rows.append(f"| {w.n} | {S.fmt_day(l.date)} | {link} | {l.title} | {due} | {lab} | {contest} |")
     weeks = f"неделя {w1}" if w1 == w2 else f"недели {w1}–{w2}"
@@ -290,12 +315,17 @@ def export(w1: int, w2: int, out: Path, number: int, repo: str = PUBLIC_REPO) ->
         dst.parent.mkdir(parents=True, exist_ok=True)
         if src.suffix == ".md":
             removed: list[str] = []
-            dst.write_text(clean_markdown(src.read_text(encoding="utf-8"), removed), encoding="utf-8")
+            text = clean_markdown(src.read_text(encoding="utf-8"), removed)
+            if S.PAGES_URL in text:
+                text = to_public_pages(text, repo)
+                log.append(f"{rel}: ссылки на Pages учительской репы → {pages_url(repo)}")
+            dst.write_text(text, encoding="utf-8")
             log += [f"{rel}: убрано — {r}" for r in removed]
         else:
             shutil.copy2(src, dst)
     (out / "README.md").write_text(student_readme(w1, w2, number, repo), encoding="utf-8")
     (out / ".gitignore").write_text(GITIGNORE, encoding="utf-8")
+    (out / ".nojekyll").write_text("", encoding="utf-8")  # GitHub Pages: отдавать HTML как есть, без Jekyll
     (out / ".github").mkdir(exist_ok=True)
     (out / ".github" / "CODEOWNERS").write_text(CODEOWNERS, encoding="utf-8")
     return log
@@ -410,7 +440,7 @@ def self_check(out: Path) -> int:
     print(f"  [{'OK' if not excluded else 'ОШИБКА'}] нет исключённых файлов "
           "(tools/, scripts/, Makefile, docs/labs.md, docs/deck-format.md, notes.md, кэши)")
 
-    hits, skipped = [], []
+    hits, refs, skipped = [], [], []
     for f in files:
         p = out / f
         if p.suffix.lower() not in TEXT_SUFFIXES:
@@ -426,11 +456,17 @@ def self_check(out: Path) -> int:
             for w in FORBIDDEN_WORDS:
                 if w in low:
                     hits.append(f"{f}:{i}: «{w}»")
+            for r in FORBIDDEN_REFS:
+                if r in low:
+                    refs.append(f"{f}:{i}: «{r}»")
     errors += [f"запрещённое слово: {h}" for h in hits]
     print(f"  [{'OK' if not hits else 'ОШИБКА'}] нет слов «solutions» и «эталон» в текстовых файлах"
           f" (проверено {len(files) - len(skipped)}, не текст: {', '.join(skipped) or '—'})")
 
-    for need in ("README.md", ".gitignore", ".github/CODEOWNERS"):
+    errors += [f"ссылка на учительскую репу: {h}" for h in refs]
+    print(f"  [{'OK' if not refs else 'ОШИБКА'}] нет ссылок на учительскую репу ({', '.join(FORBIDDEN_REFS)})")
+
+    for need in ("README.md", ".gitignore", ".nojekyll", ".github/CODEOWNERS"):
         if need not in files:
             errors.append(f"нет {need}")
 

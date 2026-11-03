@@ -6,6 +6,8 @@
 
 **Дата:** вт 23.03.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w18-l02-project-template/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w18-l02-project-template/seminar.html#download)
+
 ## Цели
 
 - собрать шаблон проекта за 3 часа
@@ -13,8 +15,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 9 «Тексты, промпты и шаблоны» (сезон 2): [лист PDF](../../contests/c09-texts-prompts-templates/sheet.pdf), [исходник](../../contests/c09-texts-prompts-templates/sheet.md); решения — `solutions/contests/c09-texts-prompts-templates/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w18-l02-project-template/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w18-l02-project-template/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 9 «Тексты, промпты и шаблоны» (сезон 2): [лист PDF](../../contests/c09-texts-prompts-templates/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c09-texts-prompts-templates/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c09-texts-prompts-templates/sheet.html#download)), [исходник](../../contests/c09-texts-prompts-templates/sheet.md); решения — `solutions/contests/c09-texts-prompts-templates/`
 
 ## Агентная разработка
 

@@ -6,6 +6,8 @@
 
 **Дата:** пт 14.05.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w26-l01-backups-runbook/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w26-l01-backups-runbook/lecture.html#download)
+
 ## Цели
 
 - RPO и RTO
@@ -15,7 +17,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w26-l01-backups-runbook/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w26-l01-backups-runbook/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab20-backups`](labs/lab20-backups/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab20-backups/`
 
 ## Агентная разработка

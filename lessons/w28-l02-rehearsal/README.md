@@ -6,6 +6,8 @@
 
 **Дата:** вт 01.06.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w28-l02-rehearsal/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w28-l02-rehearsal/seminar.html#download)
+
 ## Цели
 
 - прогон демо с таймером
@@ -13,8 +15,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 14 «Финал сезона» (сезон 2): [лист PDF](../../contests/c14-season-final/sheet.pdf), [исходник](../../contests/c14-season-final/sheet.md); решения — `solutions/contests/c14-season-final/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w28-l02-rehearsal/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w28-l02-rehearsal/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 14 «Финал сезона» (сезон 2): [лист PDF](../../contests/c14-season-final/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c14-season-final/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c14-season-final/sheet.html#download)), [исходник](../../contests/c14-season-final/sheet.md); решения — `solutions/contests/c14-season-final/`
 
 ## Агентная разработка
 

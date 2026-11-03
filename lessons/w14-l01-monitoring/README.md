@@ -6,6 +6,8 @@
 
 **Дата:** пт 19.02.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w14-l01-monitoring/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w14-l01-monitoring/lecture.html#download)
+
 ## Цели
 
 - структурированные логи в JSON
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w14-l01-monitoring/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w14-l01-monitoring/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab14-logs-alerts`](labs/lab14-logs-alerts/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab14-logs-alerts/`
 
 ## Агентная разработка

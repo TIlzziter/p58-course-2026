@@ -6,6 +6,8 @@
 
 **Дата:** вт 18.05.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w26-l02-restore-drill/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w26-l02-restore-drill/seminar.html#download)
+
 ## Цели
 
 - восстановить базу по runbook «вслепую»
@@ -13,8 +15,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 13 «Надёжность и время» (сезон 2): [лист PDF](../../contests/c13-reliability-time/sheet.pdf), [исходник](../../contests/c13-reliability-time/sheet.md); решения — `solutions/contests/c13-reliability-time/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w26-l02-restore-drill/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w26-l02-restore-drill/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 13 «Надёжность и время» (сезон 2): [лист PDF](../../contests/c13-reliability-time/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c13-reliability-time/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c13-reliability-time/sheet.html#download)), [исходник](../../contests/c13-reliability-time/sheet.md); решения — `solutions/contests/c13-reliability-time/`
 
 ## Агентная разработка
 

@@ -6,6 +6,8 @@
 
 **Дата:** вт 04.05.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w24-l02-extension-impl/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w24-l02-extension-impl/seminar.html#download)
+
 ## Цели
 
 - реализовать расширение
@@ -14,8 +16,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 12 «Нагрузка и масштаб» (сезон 2): [лист PDF](../../contests/c12-load-scale/sheet.pdf), [исходник](../../contests/c12-load-scale/sheet.md); решения — `solutions/contests/c12-load-scale/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w24-l02-extension-impl/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w24-l02-extension-impl/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 12 «Нагрузка и масштаб» (сезон 2): [лист PDF](../../contests/c12-load-scale/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c12-load-scale/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c12-load-scale/sheet.html#download)), [исходник](../../contests/c12-load-scale/sheet.md); решения — `solutions/contests/c12-load-scale/`
 
 ## Агентная разработка
 

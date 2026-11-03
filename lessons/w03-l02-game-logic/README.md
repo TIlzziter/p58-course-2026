@@ -6,6 +6,8 @@
 
 **Дата:** пт 20.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w03-l02-game-logic/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w03-l02-game-logic/seminar.html#download)
+
 ## Цели
 
 - игровая логика: написать серверную логику «4 в ряд» и руками покрыть тестами pytest
@@ -23,7 +25,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w03-l02-game-logic/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w03-l02-game-logic/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab04-connect-four`](labs/lab04-connect-four/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab04-connect-four/`
 
 ## Агентная разработка

@@ -6,6 +6,8 @@
 
 **Дата:** пт 13.11.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w02-l02-bot-and-api/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w02-l02-bot-and-api/seminar.html#download)
+
 ## Цели
 
 - довести `SPEC.md` игры 1 до ревью
@@ -23,9 +25,9 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w02-l02-bot-and-api/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w02-l02-bot-and-api/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab02-api-by-spec`](labs/lab02-api-by-spec/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab02-api-by-spec/`
-- Контест 1 «Python-разминка, Git и спеки» (сезон 1): [лист PDF](../../contests/c01-python-git-specs/sheet.pdf), [исходник](../../contests/c01-python-git-specs/sheet.md); решения — `solutions/contests/c01-python-git-specs/`
+- Контест 1 «Python-разминка, Git и спеки» (сезон 1): [лист PDF](../../contests/c01-python-git-specs/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c01-python-git-specs/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c01-python-git-specs/sheet.html#download)), [исходник](../../contests/c01-python-git-specs/sheet.md); решения — `solutions/contests/c01-python-git-specs/`
 
 ## Агентная разработка
 

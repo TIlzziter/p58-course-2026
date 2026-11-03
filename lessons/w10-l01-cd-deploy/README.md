@@ -6,6 +6,8 @@
 
 **Дата:** пт 22.01.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w10-l01-cd-deploy/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w10-l01-cd-deploy/lecture.html#download)
+
 ## Цели
 
 - понять разницу CI и CD
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w10-l01-cd-deploy/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w10-l01-cd-deploy/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab10-secret-scanner`](labs/lab10-secret-scanner/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab10-secret-scanner/`
 
 ## Агентная разработка

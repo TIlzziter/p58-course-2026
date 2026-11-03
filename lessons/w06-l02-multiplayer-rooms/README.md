@@ -6,6 +6,8 @@
 
 **Дата:** пт 11.12.2026, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w06-l02-multiplayer-rooms/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w06-l02-multiplayer-rooms/seminar.html#download)
+
 ## Цели
 
 - сделать комнату на двух игроков
@@ -22,9 +24,9 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w06-l02-multiplayer-rooms/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w06-l02-multiplayer-rooms/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 - Лабораторная: [`labs/lab06-ws-rooms`](labs/lab06-ws-rooms/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab06-ws-rooms/`
-- Контест 3 «asyncio и протоколы» (сезон 1): [лист PDF](../../contests/c03-asyncio-protocols/sheet.pdf), [исходник](../../contests/c03-asyncio-protocols/sheet.md); решения — `solutions/contests/c03-asyncio-protocols/`
+- Контест 3 «asyncio и протоколы» (сезон 1): [лист PDF](../../contests/c03-asyncio-protocols/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c03-asyncio-protocols/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c03-asyncio-protocols/sheet.html#download)), [исходник](../../contests/c03-asyncio-protocols/sheet.md); решения — `solutions/contests/c03-asyncio-protocols/`
 
 ## Агентная разработка
 

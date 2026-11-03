@@ -6,6 +6,8 @@
 
 **Дата:** вт 02.02.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w11-l02-game2-spec/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w11-l02-game2-spec/seminar.html#download)
+
 ## Цели
 
 - написать спеку игры 2 с таблицей правил
@@ -15,7 +17,7 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w11-l02-game2-spec/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w11-l02-game2-spec/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
 
 ## Агентная разработка
 

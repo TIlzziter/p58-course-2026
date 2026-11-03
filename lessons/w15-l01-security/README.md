@@ -6,6 +6,8 @@
 
 **Дата:** пт 26.02.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w15-l01-security/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w15-l01-security/lecture.html#download)
+
 ## Цели
 
 - модель угроз для игры
@@ -15,7 +17,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w15-l01-security/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w15-l01-security/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 - Лабораторная: [`labs/lab15-anticheat-ratelimit`](labs/lab15-anticheat-ratelimit/README.md) — автопроверка `python check.py`; эталон — `solutions/labs/lab15-anticheat-ratelimit/`
 
 ## Агентная разработка

@@ -1,5 +1,9 @@
 # Урок 00. Как работает сеть (вводный материал)
 
+<!-- pages -->
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w00-l00-networks/lecture.html)**
+<!-- /pages -->
+
 Две лекции о сетях, прочитанные до начала курса: локальная сеть, MAC, IP, DHCP, NAT, маршрутизация, TCP/UDP,
 порты, DNS, URL, HTTP/HTTPS, VPS, SSH, nginx, systemd, фаервол, бот с polling и webhook, балансировка, диагностика.
 

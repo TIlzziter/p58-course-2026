@@ -6,6 +6,8 @@
 
 **Дата:** пт 26.03.2027, 20:00–22:00 МСК
 
+**▶ [Открыть лекцию в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w19-l01-mini-hackathon-1/lecture.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w19-l01-mini-hackathon-1/lecture.html#download)
+
 ## Цели
 
 - команды по 4 стартуют проект с нуля
@@ -14,7 +16,7 @@
 
 ## Материалы
 
-- [Лекция: презентация](lecture.html) — открыть в браузере; исходник [`lecture.deck`](lecture.deck)
+- Лекция: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w19-l01-mini-hackathon-1/lecture.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w19-l01-mini-hackathon-1/lecture.html#download); файл [`lecture.html`](lecture.html), исходник [`lecture.deck`](lecture.deck)
 
 ## Агентная разработка
 

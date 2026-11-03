@@ -27,6 +27,9 @@ from dataclasses import dataclass, field
 FIRST_LESSON = dt.date(2026, 11, 3)
 LESSON_WEEKDAYS = (1, 4)            # date.weekday(): 1 — вторник, 4 — пятница
 LESSON_TIME = "20:00–22:00 МСК"
+# Сайт GitHub Pages этой (учительской) репы: HTML-раздатка открывается отрендеренной.
+# В выгрузке для учеников tools/export_public.py заменяет его на сайт открытой репы.
+PAGES_URL = "https://tilzziter.github.io/p58-course-2026/"
 BREAKS = [
     (dt.date(2026, 12, 25), dt.date(2027, 1, 10), "Зимние каникулы (ориентировочно); по желанию — QuestHub"),
 ]

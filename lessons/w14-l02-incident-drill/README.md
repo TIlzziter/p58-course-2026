@@ -6,6 +6,8 @@
 
 **Дата:** вт 23.02.2027, 20:00–22:00 МСК
 
+**▶ [Открыть семинар в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w14-l02-incident-drill/seminar.html)** · [⤓ Скачать](https://tilzziter.github.io/p58-course-2026/lessons/w14-l02-incident-drill/seminar.html#download)
+
 ## Цели
 
 - настроить дашборд и алерты
@@ -14,8 +16,8 @@
 
 ## Материалы
 
-- [Семинар: презентация](seminar.html) — открыть в браузере; исходник [`seminar.deck`](seminar.deck)
-- Контест 7 «Тесты и логи» (сезон 2): [лист PDF](../../contests/c07-tests-logs/sheet.pdf), [исходник](../../contests/c07-tests-logs/sheet.md); решения — `solutions/contests/c07-tests-logs/`
+- Семинар: презентация — [открыть в браузере](https://tilzziter.github.io/p58-course-2026/lessons/w14-l02-incident-drill/seminar.html) · [скачать](https://tilzziter.github.io/p58-course-2026/lessons/w14-l02-incident-drill/seminar.html#download); файл [`seminar.html`](seminar.html), исходник [`seminar.deck`](seminar.deck)
+- Контест 7 «Тесты и логи» (сезон 2): [лист PDF](../../contests/c07-tests-logs/sheet.pdf) ([открыть в браузере](https://tilzziter.github.io/p58-course-2026/contests/c07-tests-logs/sheet.html) · [скачать](https://tilzziter.github.io/p58-course-2026/contests/c07-tests-logs/sheet.html#download)), [исходник](../../contests/c07-tests-logs/sheet.md); решения — `solutions/contests/c07-tests-logs/`
 
 ## Агентная разработка
 
