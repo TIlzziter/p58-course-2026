@@ -78,7 +78,11 @@ def check_lessons() -> list[str]:
             errors.append(f"{lesson.dir}: нет {lesson.deck}.deck/.html")
             continue
         with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "x.html"
+            # Имя файла и имя родительской папки попадают в кнопку «Скачать»
+            # (href и download), поэтому путь должен совпадать с репо:
+            # lessons/<урок>/<deck>.html → tmp/<урок>/<deck>.html.
+            out = Path(tmp) / lesson.dir / html.name
+            out.parent.mkdir(parents=True, exist_ok=True)
             n = deck.build(src, out)
             if out.read_text(encoding="utf-8") != html.read_text(encoding="utf-8"):
                 errors.append(f"{lesson.dir}: {html.name} устарел — запустите make decks")
