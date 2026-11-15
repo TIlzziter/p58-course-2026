@@ -1,7 +1,8 @@
 # Лабораторная 07. Рейтинг на SQLAlchemy
 
-Переносим рейтинг игроков из памяти в базу данных. Код один и тот же для SQLite (разработка и тесты) и
-PostgreSQL (в `docker compose`) — меняется только `DATABASE_URL`.
+Переносим рейтинг игроков из памяти в базу данных, чтобы он не пропадал после каждого перезапуска.
+Код один и тот же для SQLite (разработка и тесты) и
+PostgreSQL (в `docker compose`): меняется только `DATABASE_URL`, всё остальное работает как есть.
 
 | Файл | Что внутри | Статус |
 |---|---|---|
@@ -18,7 +19,7 @@ python check.py           # все задачи
 python check.py -v 4      # подробности по задаче 4
 ```
 
-Задачи 3–6 опираются на модели: пока не сделана задача 1, их тесты падают с `IntegrityError`.
+Задачи 3–6 опираются на модели. Пока не сделана задача 1, их тесты падают с `IntegrityError`, так что начинать лучше с неё.
 
 ## Схема
 
@@ -36,6 +37,8 @@ players                          matches
 
 ## Задачи
 
+> ⚠️ Дальше плотная таблица, где важна каждая деталь: имена ограничений, порядок сортировки, кто делает commit. Тесты проверяют именно это.
+
 | № | Где | Что сделать |
 |---|---|---|
 | 1 | `models.py` | `tg_id` уникален; `rating` по умолчанию 1000 (`default` и `server_default`); CHECK-ограничения `ck_matches_result` и `ck_matches_two_players`; `ondelete="CASCADE"` и индексы на внешних ключах; индекс на `played_at`. |
@@ -47,11 +50,13 @@ players                          matches
 | 7 | `migrations/versions/0001_initial.py` | Ревью миграции агента: тест сравнивает базу после `alembic upgrade head` с моделями (`compare_metadata`) и проверяет, что `downgrade base` удаляет всё. Найдите и исправьте расхождения. |
 | 8* | `app.py` | `POST /matches` (оба игрока создаются при необходимости, всё в одной транзакции `async with session.begin()`; один и тот же игрок → 400), `GET /leaderboard?limit=`, `GET /players/{tg_id}/history` (нет игрока → 404). |
 
+Задача со звёздочкой посложнее, её можно оставить на десерт.
+
 Подсказки:
-* `await session.scalar(select(Player).where(Player.tg_id == tg_id))` — один объект или `None`.
-* Посмотреть SQL, который генерирует SQLAlchemy: `make_engine(url, echo=True)`.
-* Задача 7: `alembic upgrade head`, затем `alembic check` (или `alembic revision --autogenerate -m test` — и посмотрите,
-  что агент «забыл»). Порядок в `downgrade` — обратный порядку создания.
+* `await session.scalar(select(Player).where(Player.tg_id == tg_id))` вернёт один объект или `None`.
+* Хочешь увидеть, какой SQL на самом деле генерирует SQLAlchemy? `make_engine(url, echo=True)`.
+* Задача 7: `alembic upgrade head`, затем `alembic check` (или `alembic revision --autogenerate -m test` — и посмотри,
+  что агент «забыл»). В `downgrade` удаляем в порядке, обратном созданию.
 
 ## Миграции руками
 
@@ -62,10 +67,10 @@ alembic revision --autogenerate -m "add avatar"        # после измене
 alembic downgrade -1                                   # откатить последнюю
 ```
 
-С PostgreSQL из compose: `DATABASE_URL=postgresql+asyncpg://game:secret@localhost:5432/game` (для миграций
+Если работаешь с PostgreSQL из compose: `DATABASE_URL=postgresql+asyncpg://game:secret@localhost:5432/game` (для миграций
 `env.py` сам подставит синхронный драйвер `psycopg`).
 
 ## Проверка у экрана
 
-Покажите `alembic upgrade head` на чистой базе, таблицу лидеров после трёх партий (`sqlite3 rating.db` или
-`psql`: `SELECT name, rating FROM players ORDER BY rating DESC;`) и найденные в миграции агента ошибки.
+Покажи три вещи: `alembic upgrade head` на чистой базе, таблицу лидеров после трёх партий (`sqlite3 rating.db` или
+`psql`: `SELECT name, rating FROM players ORDER BY rating DESC;`) и ошибки, которые ты нашёл в миграции агента.
